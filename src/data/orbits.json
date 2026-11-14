@@ -4,14 +4,14 @@
     "name": "Low Earth Orbit (500 km)",
     "regime": "LEO",
     "altitudeKm": 500,
-    "periodMin": 94.6,
-    "eclipseFraction": 0.378,
-    "contactMinPerDay": 40,
+    "periodMin": 94.62,
+    "eclipseFraction": 0.368,
+    "contactMinPerDay": 18.2,
     "distanceKm": 1500,
     "sunDistanceAU": 1.0,
     "radiation": "low",
-    "source": "analytic",
-    "ref": "ERS \u00a77.3 + analytic estimate (circular orbit, worst-case beta=0 eclipse); replace with GMAT run"
+    "source": "gmat",
+    "ref": "NASA GMAT R2025a, gmat/leo500.script (7-day run from 2027-01-01, 51.6° inclination, ground station San José CR at 10° min elevation): 3.1 passes/day, avg 5.8 min"
   },
   {
     "id": "sso",
@@ -25,7 +25,7 @@
     "sunDistanceAU": 1.0,
     "radiation": "low",
     "source": "analytic",
-    "ref": "ERS \u00a77.3 + analytic estimate (circular orbit, worst-case beta=0 eclipse); replace with GMAT run"
+    "ref": "ERS §7.3 + analytic estimate (circular orbit, worst-case beta=0 eclipse); replace with GMAT run"
   },
   {
     "id": "meo",
@@ -39,7 +39,7 @@
     "sunDistanceAU": 1.0,
     "radiation": "high",
     "source": "analytic",
-    "ref": "ERS \u00a77.3 + analytic estimate (circular orbit, worst-case beta=0 eclipse); replace with GMAT run"
+    "ref": "ERS §7.3 + analytic estimate (circular orbit, worst-case beta=0 eclipse); replace with GMAT run"
   },
   {
     "id": "geo",
@@ -53,7 +53,7 @@
     "sunDistanceAU": 1.0,
     "radiation": "medium",
     "source": "analytic",
-    "ref": "ERS \u00a77.3 + analytic estimate (circular orbit, worst-case beta=0 eclipse); replace with GMAT run"
+    "ref": "ERS §7.3 + analytic estimate (circular orbit, worst-case beta=0 eclipse); replace with GMAT run"
   },
   {
     "id": "molniya",
@@ -67,7 +67,7 @@
     "sunDistanceAU": 1.0,
     "radiation": "high",
     "source": "analytic",
-    "ref": "ERS \u00a77.3; 500 x 40,000 km, 12 h; eclipse and contacts are game estimates; replace with GMAT run"
+    "ref": "ERS §7.3; 500 x 40,000 km, 12 h; eclipse and contacts are game estimates; replace with GMAT run"
   },
   {
     "id": "l2",
@@ -81,7 +81,7 @@
     "sunDistanceAU": 1.01,
     "radiation": "medium",
     "source": "analytic",
-    "ref": "ERS \u00a77.3; halo period ~6 months; contact = typical daily DSN pass; game estimate"
+    "ref": "ERS §7.3; halo period ~6 months; contact = typical daily DSN pass; game estimate"
   },
   {
     "id": "lunar",
@@ -95,7 +95,7 @@
     "sunDistanceAU": 1.0,
     "radiation": "medium",
     "source": "analytic",
-    "ref": "ERS \u00a77.3 + analytic estimate (Moon mu=4903, R=1737 km); contacts are a game estimate"
+    "ref": "ERS §7.3 + analytic estimate (Moon mu=4903, R=1737 km); contacts are a game estimate"
   },
   {
     "id": "mars",
@@ -109,6 +109,6 @@
     "sunDistanceAU": 1.52,
     "radiation": "medium",
     "source": "analytic",
-    "ref": "ERS \u00a77.3 + analytic estimate (Mars mu=42828, R=3390 km); distance = average Earth-Mars; contacts are a game estimate"
+    "ref": "ERS §7.3 + analytic estimate (Mars mu=42828, R=3390 km); distance = average Earth-Mars; contacts are a game estimate"
   }
 ]

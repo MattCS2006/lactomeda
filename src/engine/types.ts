@@ -89,6 +89,7 @@ export interface Launcher {
   capacityKg: Partial<Record<OrbitRegime, number>>
   costM: number
   reliability: number // 0-1
+  onlyScenarioIds?: string[] // if set, only offered in these scenarios (e.g. NASA CSLI for student CubeSats)
   ref?: string // source note for REFERENCES.md
 }
 

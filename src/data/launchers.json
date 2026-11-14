@@ -1,13 +1,26 @@
 [
   {
-    "id": "lv-cubesat",
-    "name": "CubeSat deployer (ISS / rideshare dispenser)",
+    "id": "lv-csli",
+    "name": "NASA CubeSat Launch Initiative (free launch for selected university CubeSats)",
     "capacityKg": {
       "LEO": 24
     },
-    "costM": 3.6,
+    "costM": 0,
+    "reliability": 0.95,
+    "ref": "NASA CubeSat 101 (CubeSat Launch Initiative, CSLI): NASA provides launches to selected educational CubeSats at no cost; up to 12U / ~24 kg; reliability is a game estimate",
+    "onlyScenarioIds": [
+      "student-cubesat"
+    ]
+  },
+  {
+    "id": "lv-cubesat",
+    "name": "CubeSat deployer, 3U slot (ISS / rideshare dispenser)",
+    "capacityKg": {
+      "LEO": 6
+    },
+    "costM": 0.9,
     "reliability": 0.98,
-    "ref": "ERS \u00a77.2 (24 kg per slot, $0.3M per U; cost shown for a full 12U slot)"
+    "ref": "ERS §7.2 ($0.3M per U); priced for a 3U slot (~6 kg, NASA CubeSat 101 ~2 kg per U)"
   },
   {
     "id": "lv-rideshare",
@@ -18,7 +31,7 @@
     },
     "costM": 30,
     "reliability": 0.97,
-    "ref": "ERS \u00a77.2 (500 kg slot, ~$6M per 100 kg; cost shown for a full slot)"
+    "ref": "ERS §7.2 (500 kg slot, ~$6M per 100 kg; cost shown for a full slot)"
   },
   {
     "id": "lv-small",
@@ -29,7 +42,7 @@
     },
     "costM": 8,
     "reliability": 0.93,
-    "ref": "ERS \u00a77.2; SSO value from Rocket Lab Electron Payload User's Guide; verify"
+    "ref": "ERS §7.2; SSO value from Rocket Lab Electron Payload User's Guide; verify"
   },
   {
     "id": "lv-medium",
@@ -43,7 +56,7 @@
     },
     "costM": 70,
     "reliability": 0.98,
-    "ref": "ERS \u00a77.2; SSO/GTO/TLI/escape from SpaceX Falcon Payload User's Guide; verify"
+    "ref": "ERS §7.2; SSO/GTO/TLI/escape from SpaceX Falcon Payload User's Guide; verify"
   },
   {
     "id": "lv-heavy",
@@ -57,7 +70,7 @@
     },
     "costM": 120,
     "reliability": 0.97,
-    "ref": "ERS \u00a77.2 (21,000-63,000 kg LEO, midpoint used); other regimes are game estimates; verify"
+    "ref": "ERS §7.2 (21,000-63,000 kg LEO, midpoint used); other regimes are game estimates; verify"
   },
   {
     "id": "lv-superheavy",
@@ -69,6 +82,6 @@
     },
     "costM": 2000,
     "reliability": 0.95,
-    "ref": "ERS \u00a77.2; TLI from NASA SLS Block 1 fact sheet; escape is a game estimate"
+    "ref": "ERS §7.2; TLI from NASA SLS Block 1 fact sheet; escape is a game estimate"
   }
 ]
