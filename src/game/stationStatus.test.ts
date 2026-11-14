@@ -46,7 +46,7 @@ describe('stationStatus', () => {
   })
 
   it('ok when everything is healthy', () => {
-    for (const st of ['bridge', 'comms', 'power', 'science', 'navigation'] as const) {
+    for (const st of ['bridge', 'comms', 'power', 'science', 'navigation', 'engine', 'computer'] as const) {
       expect(stationStatus(st, snap(), CAP).state).toBe('ok')
     }
   })
@@ -88,6 +88,25 @@ describe('stationStatus', () => {
     expect(stationStatus('bridge', snap({ health: { comms: 0, structure: 0 } })).state).toBe('warning')
   })
 
+  it('engine follows propulsion health and alarms', () => {
+    expect(stationStatus('engine', snap(), CAP).state).toBe('ok')
+    expect(stationStatus('engine', snap({ health: { propulsion: 0.5 } })).state).toBe('warning')
+    expect(stationStatus('engine', snap({ health: { propulsion: 0.1 } })).state).toBe('off')
+    expect(stationStatus('engine', snap({ health: { comms: 0 } })).state).toBe('ok') // not its subsystem
+    expect(stationStatus('engine', snap({ activeEvents: alarmAt('engine') })).state).toBe('alarm')
+    expect(stationStatus('navigation', snap({ activeEvents: alarmAt('engine') })).state).toBe('ok')
+  })
+
+  it('computer follows computer health and alarms', () => {
+    expect(stationStatus('computer', snap({ health: { computer: 1 } }), CAP).state).toBe('ok')
+    expect(stationStatus('computer', snap({ health: { computer: 0.4 } })).state).toBe('warning')
+    expect(stationStatus('computer', snap({ health: { computer: 0.1 } })).state).toBe('off')
+    expect(stationStatus('computer', snap({ batteryWh: 1 }), CAP).state).toBe('ok') // battery is not its concern
+    expect(stationStatus('computer', snap({ activeEvents: alarmAt('computer') })).state).toBe('alarm')
+    // no computer health reported -> no health line, but stored data still shows
+    expect(stationStatus('computer', snap()).lines).toEqual([{ label: 'Data stored', value: '200 Mb' }])
+  })
+
   it('ignores subsystems without a health value', () => {
     expect(stationStatus('comms', snap({ health: {} })).state).toBe('ok')
   })
@@ -110,6 +129,14 @@ describe('stationStatus', () => {
       { label: 'Data stored', value: '200 Mb' },
     ])
     expect(stationStatus('navigation', snap()).lines).toContainEqual({ label: 'Propellant', value: '1.5 kg' })
+    expect(stationStatus('engine', snap()).lines).toEqual([
+      { label: 'Propulsion health', value: '100%' },
+      { label: 'Propellant', value: '1.5 kg' },
+    ])
+    expect(stationStatus('computer', snap({ health: { computer: 0.75 } })).lines).toEqual([
+      { label: 'Computer health', value: '75%' },
+      { label: 'Data stored', value: '200 Mb' },
+    ])
     expect(stationStatus('bridge', snap({ activeEvents: alarmAt('power') })).lines).toEqual([
       { label: 'Mission day', value: '3' },
       { label: 'Spent', value: '$12.3 M' },

@@ -2,7 +2,7 @@
 // emits real 'simTick' / 'alarmStart' / 'alarmEnd'. Runs ONLY when the URL has ?demo=1.
 import type { ActiveEvent, MissionEvent, Station, Subsystem } from '../engine/types'
 import { bridge, type SimSnapshot } from './bridge'
-import { MVP_STATIONS, STATION_NAMES } from './stations'
+import { SHIP_STATIONS, STATION_NAMES } from './stations'
 
 export const DEMO_BATTERY_CAPACITY_WH = 100
 
@@ -43,9 +43,12 @@ function demoEvent(station: Station): MissionEvent {
   }
 }
 
-/** Starts the demo feed. Returns a stop function. Does nothing (and returns a no-op) without ?demo=1. */
-export function startDemoSim(): () => void {
-  if (!isDemoEnabled()) return () => {}
+/**
+ * Starts the demo feed. Returns a stop function. Does nothing (and returns a no-op) without ?demo=1.
+ * Alarms only ring at `stations` (the consoles the current ship has).
+ */
+export function startDemoSim(stations: readonly Station[] = SHIP_STATIONS): () => void {
+  if (!isDemoEnabled() || stations.length === 0) return () => {}
 
   const rng = mulberry32(2026)
   const decay: Partial<Record<Subsystem, number>> = {
@@ -55,6 +58,7 @@ export function startDemoSim(): () => void {
     attitude: 0.0007,
     propulsion: 0.001,
     structure: 0.0004,
+    computer: 0.0011, // so the Computer Core console changes too
   }
   const health: Partial<Record<Subsystem, number>> = { power: 1, battery: 1, comms: 1, attitude: 1, propulsion: 1, structure: 1, computer: 1 }
 
@@ -105,7 +109,7 @@ export function startDemoSim(): () => void {
   }
 
   const raiseAlarm = () => {
-    const station = MVP_STATIONS[Math.floor(rng() * MVP_STATIONS.length)]!
+    const station = stations[Math.floor(rng() * stations.length)]!
     const event = demoEvent(station)
     const deadlineTick = tick + ALARM_LASTS_MS / TICK_MS
     active = [...active, { event, startedTick: tick, deadlineTick }]

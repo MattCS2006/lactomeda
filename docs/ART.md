@@ -75,12 +75,28 @@ One 32 × 32 tile per station, screen shows the station's icon:
 - Check the grid once: open it in LibreSprite (View → Grid, 32 × 32) and confirm tiles line up. If they are 16 × 16, tell Claude — the generator can switch size.
 - If its colours clash with our sprites, it is fine to recolour it toward the palette above (CC0 allows edits).
 
-## 6. Tiled map rules (used from SCRUM-119)
+## 6. Ship interior (generated, SCRUM-119 / FR-13.1)
 
-- New map → Orthogonal, tile size 32 × 32.
-- Layers, top to bottom: `stations` (object layer: one rectangle per console, property `station` = `power`, `comms`…),
-  `decor`, `walls` (tile property `collides = true`), `floor`.
-- Embed the tileset in the map; export as JSON to `public/assets/maps/<name>.json`.
+The ship is **not** drawn in Tiled: `src/game/shipLayout.ts` builds it from the player's design
+(one station per installed subsystem, rooms from the bus class). Every tile index lives in
+`src/game/tiles.ts` (index = row × 14 + col, see `docs/tileset-grid.png`):
+
+| Name | Index | Use |
+| --- | --- | --- |
+| `FLOOR` | 20 | room floor |
+| `DOORWAY` | 4 | doorways and short corridors (blue hazard stripes) |
+| `VOID` | 17 | wall tops and space outside the ship (collides) |
+| `WALL_TOP_A` / `WALL_TOP_B` | 28 / 29 | upper wall-face row (collides) |
+| `WALL_FACE` / `_PIPES` / `_SCREENS` | 42 / 43 / 44 | lower wall-face row, 43/44 as decor (collides) |
+| `HATCH_BLUE` / `DOOR_BLUE` | 2 / 3 | reserved for later decor |
+
+Not used: 30 (its top half is transparent) and 16 (purple strip on its top edge looks noisy when repeated).
+
+- Each room = floor rectangle with a 2-tile wall face on top; side and bottom walls are `VOID`.
+- CubeSats get cramped rooms (7 × 6 floor), bigger buses 9 × 7; rooms widen if their consoles need it.
+- Consoles are 2 × 2 tiles (32 px sprite at 2×), against the top wall, 1 tile apart, never in a doorway.
+- Room names sit on the wall above each room's top-left corner. The player spawns in the bridge room.
+- Preview any bus with `?ship=<busClassId>` (e.g. `?ship=large`, `?ship=cubesat-3u`); combine with `?demo=1`.
 
 ## 7. Fonts and UI
 
