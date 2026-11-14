@@ -64,12 +64,31 @@
       "goal": "The stretch target. Best science, hardest design."
     },
     "atMost": "max {{value}} {{unit}}",
-    "atLeast": "min {{value}} {{unit}}"
+    "atLeast": "min {{value}} {{unit}}",
+    "scoreMultiplier": "×{{value}} score",
+    "potential": "Score potential",
+    "potentialHelp": "Average of your levels. Applied to the objectives part of the final score.",
+    "vsBaseline": {
+      "stricter": "{{factor}}× stricter than baseline",
+      "easier": "{{factor}}× easier than baseline",
+      "same": "Same as baseline"
+    },
+    "pushesOn": "Pushes on",
+    "pressure": "Harder to meet",
+    "pressureNone": "Nothing above baseline — a balanced start."
   },
   "metric": {
     "resolution": "Image resolution",
     "revisit": "Revisit time",
     "dataPerDay": "Data per day",
     "lifetime": "Mission lifetime"
+  },
+  "resource": {
+    "mass": "Mass",
+    "power": "Power",
+    "budget": "Budget",
+    "data": "Data",
+    "comms": "Comms",
+    "time": "Time"
   }
 }
