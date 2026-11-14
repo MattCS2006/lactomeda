@@ -1,0 +1,189 @@
+%==========================================================================
+% Lactomeda - Reference orbit: circular LEO 500 km
+% Reports: orbital period, eclipse time, contact minutes/day with one
+% ground station. Used to build src/data/orbits.json (FR-14.2).
+%
+% How to run: open in GMAT -> Save -> Run (F5).
+% Outputs (written to GMAT's "output" folder):
+%   LEO500_Summary.txt   period + altitude at start/end
+%   LEO500_Eclipses.txt  every eclipse (umbra/penumbra) with duration
+%   LEO500_Contacts.txt  every pass over the ground station with duration
+% Then: python gmat/parse_leo500.py <path-to-GMAT-output-folder>
+%==========================================================================
+
+%----------------------------------------
+% Spacecraft - 3U CubeSat, 500 km circular
+%----------------------------------------
+Create Spacecraft Sat;
+Sat.DateFormat = UTCGregorian;
+Sat.Epoch = '01 Jan 2027 00:00:00.000';
+Sat.CoordinateSystem = EarthMJ2000Eq;
+Sat.DisplayStateType = Keplerian;
+Sat.SMA = 6878.137000000002;          % km = 6378.137 (Earth radius) + 500
+Sat.ECC = 0.0001000000000002918;            % near-circular
+Sat.INC = 51.60000000000002;              % deg, ISS-like (CubeSat deployer orbits)
+Sat.RAAN = 0;
+Sat.AOP = 0;
+Sat.TA = 0;
+Sat.DryMass = 4;             % kg, typical 3U
+Sat.Cd = 2.2;
+Sat.Cr = 1.8;
+Sat.DragArea = 0.03;         % m^2
+Sat.SRPArea = 0.03;          % m^2
+Sat.SPADDragScaleFactor = 1;
+Sat.SPADSRPScaleFactor = 1;
+Sat.AtmosDensityScaleFactor = 1;
+Sat.ExtendedMassPropertiesModel = 'None';
+Sat.NAIFId = -10001001;
+Sat.NAIFIdReferenceFrame = -9001001;
+Sat.OrbitColor = Red;
+Sat.TargetColor = Teal;
+Sat.OrbitErrorCovariance = [ 1e+70 0 0 0 0 0 ; 0 1e+70 0 0 0 0 ; 0 0 1e+70 0 0 0 ; 0 0 0 1e+70 0 0 ; 0 0 0 0 1e+70 0 ; 0 0 0 0 0 1e+70 ];
+Sat.CdSigma = 1e+70;
+Sat.CrSigma = 1e+70;
+Sat.Id = 'SatId';
+Sat.Attitude = CoordinateSystemFixed;
+Sat.SPADSRPInterpolationMethod = Bilinear;
+Sat.SPADSRPScaleFactorSigma = 1e+70;
+Sat.SPADDragInterpolationMethod = Bilinear;
+Sat.SPADDragScaleFactorSigma = 1e+70;
+Sat.AtmosDensityScaleFactorSigma = 1e+70;
+Sat.ModelFile = 'aura.3ds';
+Sat.ModelOffsetX = 0;
+Sat.ModelOffsetY = 0;
+Sat.ModelOffsetZ = 0;
+Sat.ModelRotationX = 0;
+Sat.ModelRotationY = 0;
+Sat.ModelRotationZ = 0;
+Sat.ModelScale = 1;
+Sat.AttitudeDisplayStateType = 'Quaternion';
+Sat.AttitudeRateDisplayStateType = 'AngularVelocity';
+Sat.AttitudeCoordinateSystem = EarthMJ2000Eq;
+Sat.EulerAngleSequence = '321';
+
+%----------------------------------------
+% Ground station - San Jose, Costa Rica
+%----------------------------------------
+Create GroundStation CostaRica;
+CostaRica.OrbitColor = Thistle;
+CostaRica.TargetColor = DarkGray;
+CostaRica.CentralBody = Earth;
+CostaRica.StateType = Spherical;
+CostaRica.HorizonReference = Ellipsoid;
+CostaRica.Location1 = 9.93;              % latitude, deg
+CostaRica.Location2 = 275.92;            % longitude east, deg (= -84.08)
+CostaRica.Location3 = 1.2;               % altitude, km
+CostaRica.Id = 'CR01';
+CostaRica.IonosphereModel = 'None';
+CostaRica.TroposphereModel = 'None';
+CostaRica.DataSource = 'Constant';
+CostaRica.Temperature = 295.1;
+CostaRica.Pressure = 1013.5;
+CostaRica.Humidity = 55;
+CostaRica.MinimumElevationAngle = 10;    % deg, typical for UHF/S-band
+
+
+%----------------------------------------
+% Force model and propagator
+% (no drag: we only need geometry here; lifetime is computed elsewhere)
+%----------------------------------------
+Create ForceModel FM;
+FM.CentralBody = Earth;
+FM.PrimaryBodies = {Earth};
+FM.PointMasses = {Sun, Luna};
+FM.Drag = None;
+FM.SRP = On;
+FM.RelativisticCorrection = Off;
+FM.ErrorControl = RSSStep;
+FM.GravityField.Earth.Degree = 4;
+FM.GravityField.Earth.Order = 4;
+FM.GravityField.Earth.StmLimit = 100;
+FM.GravityField.Earth.PotentialFile = 'JGM2.cof';
+FM.GravityField.Earth.TideModel = 'None';
+FM.SRP.Flux = 1367;
+FM.SRP.SRPModel = Spherical;
+FM.SRP.Nominal_Sun = 149597870.691;
+
+%----------------------------------------
+%---------- Propagators
+%----------------------------------------
+
+Create Propagator Prop;
+Prop.FM = FM;
+Prop.Type = RungeKutta89;
+Prop.InitialStepSize = 60;
+Prop.Accuracy = 1e-12;
+Prop.MinStep = 0.001;
+Prop.MaxStep = 120;
+Prop.MaxStepAttempts = 50;
+Prop.StopIfAccuracyIsViolated = true;
+
+%----------------------------------------
+% Event locators
+%----------------------------------------
+Create EclipseLocator Eclipses;
+Eclipses.Spacecraft = Sat;
+Eclipses.Filename = 'LEO500_Eclipses.txt';
+Eclipses.OccultingBodies = {Earth, Luna};
+Eclipses.InputEpochFormat = 'TAIModJulian';
+Eclipses.InitialEpoch = '21545';
+Eclipses.StepSize = 10;
+Eclipses.FinalEpoch = '21545.138';
+Eclipses.UseLightTimeDelay = true;
+Eclipses.UseStellarAberration = true;
+Eclipses.WriteReport = true;
+Eclipses.RunMode = Automatic;
+Eclipses.UseEntireInterval = true;
+Eclipses.EclipseTypes = {'Umbra', 'Penumbra', 'Antumbra'};
+
+Create ContactLocator Contacts;
+Contacts.Target = Sat;
+Contacts.Filename = 'LEO500_Contacts.txt';
+Contacts.InputEpochFormat = 'TAIModJulian';
+Contacts.InitialEpoch = '21545';
+Contacts.StepSize = 10;
+Contacts.FinalEpoch = '21545.138';
+Contacts.UseLightTimeDelay = true;
+Contacts.UseStellarAberration = true;
+Contacts.WriteReport = true;
+Contacts.RunMode = Automatic;
+Contacts.UseEntireInterval = true;
+Contacts.Observers = {CostaRica};
+Contacts.LightTimeDirection = Transmit;
+Contacts.LeftJustified = false;
+Contacts.ReportPrecision = 6;
+Contacts.ReportFormat = 'Legacy';
+Contacts.IntervalStepSize = 0;
+Contacts.ReportTimeFormat = 'UTCGregorian';
+
+%----------------------------------------
+% Summary report (period)
+%----------------------------------------
+Create ReportFile Summary;
+Summary.SolverIterations = Current;
+Summary.UpperLeft = [ 0 0 ];
+Summary.Size = [ 0 0 ];
+Summary.RelativeZOrder = 0;
+Summary.Maximized = false;
+Summary.Filename = 'LEO500_Summary.txt';
+Summary.Precision = 10;
+Summary.WriteHeaders = true;
+Summary.LeftJustify = On;
+Summary.ZeroFill = Off;
+Summary.FixedWidth = true;
+Summary.Delimiter = ' ';
+Summary.ColumnWidth = 23;
+Summary.WriteReport = true;
+Summary.AppendToExistingFile = false;
+
+%----------------------------------------
+%---------- Mission Sequence
+%----------------------------------------
+
+
+%==========================================================================
+BeginMissionSequence;
+%==========================================================================
+Report Summary Sat.UTCGregorian Sat.Earth.Altitude Sat.Earth.OrbitPeriod;
+Propagate Prop(Sat) {Sat.ElapsedDays = 7};   % 7 days -> averages per day
+Report Summary Sat.UTCGregorian Sat.Earth.Altitude Sat.Earth.OrbitPeriod;

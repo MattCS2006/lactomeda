@@ -1,0 +1,15 @@
+{
+  "id": "leo-500",
+  "altitudeKm": 500,
+  "inclinationDeg": 51.6,
+  "periodMin": 94.62,
+  "eclipseMaxMinPerOrbit": 35.3,
+  "eclipseAvgMinPerOrbit": 34.6,
+  "eclipseFraction": 0.368,
+  "penumbraMinPerDay": 4.3,
+  "groundStation": "San José, Costa Rica (9.93N, 84.08W, min elev 10°)",
+  "passesPerDay": 3.1,
+  "contactMinPerDay": 18.2,
+  "avgPassMin": 5.8,
+  "source": "NASA GMAT, gmat/leo500.script, 7-day propagation from 2027-01-01"
+}
