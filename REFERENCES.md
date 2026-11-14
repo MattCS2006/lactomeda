@@ -13,6 +13,25 @@ Everything external used in this project (required by NASA Space Apps).
 - Visualize a Space Mission Using VR (Space Apps 2023) — flight timeline HUD
 - CSA Digital Games and Activities — educational design reference
 
+## Data catalog sources (`src/data/*.json`)
+
+Every object in the catalog has a `ref` field pointing to one of these sources. Values marked
+"verify" or "game estimate" must be checked by the science lead before submission (NFR-09).
+
+- Lactomeda ERS §7.2–7.4 and FR-5.6 — launcher tiers, orbit list, the 10 starter instruments, ground network types
+- NASA, *State-of-the-Art of Small Spacecraft Technology* (NASA Ames) — CubeSat and SmallSat components (structure, power, battery, computer, ADCS, propulsion, thermal, comms)
+- Wertz & Larson, *Space Mission Analysis and Design* (SMAD) — larger spacecraft components and sizing
+- NASA MMRTG fact sheet — radioisotope generator power and mass
+- NASA JPL, *DSN Telecommunications Link Design Handbook* (810-005) — deep-space high-gain antenna
+- NASA Near Space Network and Deep Space Network overviews — ground network coverage
+- Rocket Lab, *Electron Payload User's Guide* — small launcher SSO capacity
+- SpaceX, *Falcon Payload User's Guide* — medium launcher capacity by orbit
+- NASA Space Launch System fact sheet — super-heavy launcher TLI capacity
+
+Orbit periods and eclipse fractions are analytic until replaced by GMAT runs:
+`T = 2π √(a³/μ)` and worst-case eclipse `f = asin(R / (R + h)) / π`
+(Earth μ = 398,600 km³/s², R = 6,378 km; Moon μ = 4,903, R = 1,737 km; Mars μ = 42,828, R = 3,390 km).
+
 ## Libraries
 - React, Vite, TypeScript, Phaser, Zustand, Tailwind CSS, i18next, seedrandom, Supabase JS, Vitest
 
