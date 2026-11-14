@@ -1,8 +1,10 @@
 // Phase 4 — Payload (CML 3): pick the science instruments (FR-4.1).
 // Each card shows what the instrument costs the spacecraft and what science it brings.
+// Incompatible instruments are disabled with the reason (FR-4.2).
 import { useTranslation } from 'react-i18next'
 import type { GameData } from '../../engine/types'
 import { useMissionStore } from '../store/missionStore'
+import { incompatibilities } from './compatibility'
 import { formatNumber, payloadTotals, slotInfo, toInstrumentCard, type InstrumentCard } from './payloadView'
 
 interface Props {
@@ -17,7 +19,14 @@ export function PayloadStep({ data }: Props) {
   const scenario = data.scenarios.find((s) => s.id === design?.scenarioId)
   if (!design || !scenario) return null
 
-  const cards = data.instruments.map((i) => toInstrumentCard(i, scenario))
+  // Compatible instruments first, keeping catalog order inside each group
+  const rows = data.instruments
+    .map((i) => ({
+      card: toInstrumentCard(i, scenario),
+      reasons: incompatibilities(i, scenario, design, data).map((r) => t(r.label.key, r.label.values ?? {})),
+    }))
+    .sort((a, b) => Number(a.reasons.length > 0) - Number(b.reasons.length > 0))
+  const compatibleCount = rows.filter((r) => r.reasons.length === 0).length
   const totals = payloadTotals(design, data)
   const slots = slotInfo(design, data)
 
@@ -46,14 +55,23 @@ export function PayloadStep({ data }: Props) {
         <Total label={t('payload.stat.science')} value={formatNumber(totals.science)} />
       </div>
       {slots.max === null && <p className="mt-2 text-[8px] text-[#94b0c2]">{t('payload.noBus')}</p>}
+      <p className="mt-2 text-[8px] text-[#73eff7]">
+        {t('payload.compatibleCount', { count: compatibleCount, total: rows.length })}
+      </p>
 
       <ul className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {cards.map((card) => {
+        {rows.map(({ card, reasons }) => {
           const selected = design.instrumentIds.includes(card.id)
-          const blocked = !selected && slots.full
+          const disabledReasons = selected ? [] : reasons.length > 0 ? reasons : slots.full ? [t('payload.slotsFull')] : []
           return (
             <li key={card.id}>
-              <InstrumentCardView card={card} selected={selected} blocked={blocked} onToggle={() => toggle(card.id, data)} />
+              <InstrumentCardView
+                card={card}
+                selected={selected}
+                disabledReasons={disabledReasons}
+                incompatibleSelected={selected && reasons.length > 0 ? reasons : []}
+                onToggle={() => toggle(card.id, data)}
+              />
             </li>
           )
         })}
@@ -91,27 +109,33 @@ function Total({ label, value }: { label: string; value: string }) {
 interface CardProps {
   card: InstrumentCard
   selected: boolean
-  /** Bus has no free slot (only when a bus class is chosen). */
-  blocked: boolean
+  /** Why it can't be added (incompatible, or no free bus slot). Empty = can be added. */
+  disabledReasons: string[]
+  /** Already selected but no longer compatible (e.g. orbit changed): warn, still removable. */
+  incompatibleSelected: string[]
   onToggle: () => void
 }
 
-function InstrumentCardView({ card, selected, blocked, onToggle }: CardProps) {
+function InstrumentCardView({ card, selected, disabledReasons, incompatibleSelected, onToggle }: CardProps) {
   const { t } = useTranslation()
   const reasonId = `${card.id}-reason`
+  const blocked = disabledReasons.length > 0
+  const shownReasons = blocked ? disabledReasons : incompatibleSelected
   return (
     <button
       type="button"
       aria-pressed={selected}
       aria-disabled={blocked}
-      aria-describedby={blocked ? reasonId : undefined}
-      title={blocked ? t('payload.slotsFull') : undefined}
+      aria-describedby={shownReasons.length > 0 ? reasonId : undefined}
+      title={shownReasons.length > 0 ? shownReasons.join('\n') : undefined}
       onClick={blocked ? undefined : onToggle}
       className={`flex h-full w-full flex-col border-2 p-4 text-left shadow-[0_0_0_2px_#1a1c2c] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#73eff7] ${
         selected
-          ? 'border-[#38b764] bg-[#29366f]'
+          ? incompatibleSelected.length > 0
+            ? 'border-[#ffcd75] bg-[#29366f]'
+            : 'border-[#38b764] bg-[#29366f]'
           : blocked
-            ? 'cursor-not-allowed border-[#566c86] bg-[#333c57] opacity-60'
+            ? 'cursor-not-allowed border-[#566c86] bg-[#1a1c2c] text-[#94b0c2]'
             : 'border-[#94b0c2] bg-[#333c57] hover:bg-[#3b4566]'
       }`}
     >
@@ -122,7 +146,7 @@ function InstrumentCardView({ card, selected, blocked, onToggle }: CardProps) {
             selected ? 'border-[#38b764] text-[#38b764]' : 'border-[#566c86] text-[#94b0c2]'
           }`}
         >
-          {selected ? `✓ ${t('payload.added')}` : t('payload.add')}
+          {selected ? `✓ ${t('payload.added')}` : blocked ? `✕ ${t('payload.incompatible.title')}` : t('payload.add')}
         </span>
       </span>
 
@@ -145,13 +169,18 @@ function InstrumentCardView({ card, selected, blocked, onToggle }: CardProps) {
       <span className="mt-4 block border-t-2 border-[#1a1c2c] pt-3 text-[8px]">
         {card.helps.length > 0 ? (
           <span className="text-[#38b764]">✓ {t('payload.helps', { objectives: card.helps.join(' · ') })}</span>
-        ) : (
+        ) : shownReasons.length === 0 ? (
           <span className="text-[#94b0c2]">{t('payload.helpsNone')}</span>
-        )}
+        ) : null}
       </span>
-      {blocked && (
-        <span id={reasonId} className="mt-2 block text-[8px] text-[#ffcd75]">
-          ▲ {t('payload.slotsFull')}
+      {shownReasons.length > 0 && (
+        <span id={reasonId} className="block space-y-1 text-[8px] leading-relaxed text-[#ffcd75]">
+          {incompatibleSelected.length > 0 && <span className="block">▲ {t('payload.incompatible.warning')}</span>}
+          {shownReasons.map((r) => (
+            <span key={r} className="block">
+              ▲ {r}
+            </span>
+          ))}
         </span>
       )}
     </button>
