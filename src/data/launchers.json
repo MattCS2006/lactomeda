@@ -1,0 +1,74 @@
+[
+  {
+    "id": "lv-cubesat",
+    "name": "CubeSat deployer (ISS / rideshare dispenser)",
+    "capacityKg": {
+      "LEO": 24
+    },
+    "costM": 3.6,
+    "reliability": 0.98,
+    "ref": "ERS \u00a77.2 (24 kg per slot, $0.3M per U; cost shown for a full 12U slot)"
+  },
+  {
+    "id": "lv-rideshare",
+    "name": "Rideshare slot (Transporter-like)",
+    "capacityKg": {
+      "LEO": 500,
+      "SSO": 500
+    },
+    "costM": 30,
+    "reliability": 0.97,
+    "ref": "ERS \u00a77.2 (500 kg slot, ~$6M per 100 kg; cost shown for a full slot)"
+  },
+  {
+    "id": "lv-small",
+    "name": "Small launcher (Electron-like)",
+    "capacityKg": {
+      "LEO": 300,
+      "SSO": 200
+    },
+    "costM": 8,
+    "reliability": 0.93,
+    "ref": "ERS \u00a77.2; SSO value from Rocket Lab Electron Payload User's Guide; verify"
+  },
+  {
+    "id": "lv-medium",
+    "name": "Medium launcher (Falcon 9-like, reusable)",
+    "capacityKg": {
+      "LEO": 17000,
+      "SSO": 12000,
+      "GTO": 5500,
+      "TLI": 2500,
+      "ESCAPE": 1000
+    },
+    "costM": 70,
+    "reliability": 0.98,
+    "ref": "ERS \u00a77.2; SSO/GTO/TLI/escape from SpaceX Falcon Payload User's Guide; verify"
+  },
+  {
+    "id": "lv-heavy",
+    "name": "Heavy launcher (Falcon Heavy / Ariane 6-like)",
+    "capacityKg": {
+      "LEO": 40000,
+      "SSO": 30000,
+      "GTO": 15000,
+      "TLI": 11000,
+      "ESCAPE": 8000
+    },
+    "costM": 120,
+    "reliability": 0.97,
+    "ref": "ERS \u00a77.2 (21,000-63,000 kg LEO, midpoint used); other regimes are game estimates; verify"
+  },
+  {
+    "id": "lv-superheavy",
+    "name": "Super-heavy launcher (SLS-like)",
+    "capacityKg": {
+      "LEO": 95000,
+      "TLI": 27000,
+      "ESCAPE": 15000
+    },
+    "costM": 2000,
+    "reliability": 0.95,
+    "ref": "ERS \u00a77.2; TLI from NASA SLS Block 1 fact sheet; escape is a game estimate"
+  }
+]

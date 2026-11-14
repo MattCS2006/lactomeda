@@ -1,0 +1,183 @@
+[
+  {
+    "id": "inst-visible-cam",
+    "name": "Visible camera (CubeSat)",
+    "massKg": 1,
+    "powerW": 5,
+    "costM": 0.2,
+    "dataMbPerDay": 2000,
+    "science": 10,
+    "objectives": [
+      "earthImaging"
+    ],
+    "preferredOrbits": [
+      "leo",
+      "sso"
+    ],
+    "ref": "ERS \u00a77.4 (starter instruments)"
+  },
+  {
+    "id": "inst-multispectral",
+    "name": "Multispectral imager",
+    "massKg": 25,
+    "powerW": 60,
+    "costM": 15,
+    "dataMbPerDay": 40000,
+    "science": 35,
+    "objectives": [
+      "earthImaging",
+      "fireDetection",
+      "burnScar"
+    ],
+    "preferredOrbits": [
+      "sso",
+      "leo"
+    ],
+    "ref": "ERS \u00a77.4 (starter instruments)"
+  },
+  {
+    "id": "inst-thermal-ir",
+    "name": "Thermal infrared camera",
+    "massKg": 15,
+    "powerW": 40,
+    "costM": 10,
+    "dataMbPerDay": 15000,
+    "science": 30,
+    "objectives": [
+      "fireDetection"
+    ],
+    "preferredOrbits": [
+      "sso",
+      "leo",
+      "geo"
+    ],
+    "ref": "ERS \u00a77.4 (starter instruments)"
+  },
+  {
+    "id": "inst-sar",
+    "name": "Synthetic aperture radar",
+    "massKg": 150,
+    "powerW": 800,
+    "costM": 60,
+    "dataMbPerDay": 120000,
+    "science": 50,
+    "objectives": [
+      "burnScar",
+      "surfaceMapping"
+    ],
+    "preferredOrbits": [
+      "sso",
+      "leo"
+    ],
+    "ref": "ERS \u00a77.4 (starter instruments)"
+  },
+  {
+    "id": "inst-spectrometer",
+    "name": "Spectrometer",
+    "massKg": 20,
+    "powerW": 30,
+    "costM": 20,
+    "dataMbPerDay": 5000,
+    "science": 40,
+    "objectives": [
+      "exoplanetSpectra",
+      "atmosphere"
+    ],
+    "preferredOrbits": [
+      "l2",
+      "sso",
+      "leo"
+    ],
+    "ref": "ERS \u00a77.4 (starter instruments)"
+  },
+  {
+    "id": "inst-magnetometer",
+    "name": "Magnetometer",
+    "massKg": 3,
+    "powerW": 3,
+    "costM": 2,
+    "dataMbPerDay": 50,
+    "science": 15,
+    "objectives": [
+      "spaceWeather"
+    ],
+    "preferredOrbits": [
+      "leo",
+      "molniya",
+      "meo"
+    ],
+    "ref": "ERS \u00a77.4 (starter instruments)"
+  },
+  {
+    "id": "inst-telescope",
+    "name": "Space telescope optics",
+    "massKg": 700,
+    "powerW": 400,
+    "costM": 500,
+    "dataMbPerDay": 30000,
+    "science": 90,
+    "objectives": [
+      "deepSky",
+      "exoplanetSpectra"
+    ],
+    "preferredOrbits": [
+      "l2"
+    ],
+    "ref": "ERS \u00a77.4 (starter instruments)"
+  },
+  {
+    "id": "inst-laser-alt",
+    "name": "Laser altimeter",
+    "massKg": 12,
+    "powerW": 35,
+    "costM": 12,
+    "dataMbPerDay": 1000,
+    "science": 30,
+    "objectives": [
+      "surfaceMapping",
+      "burnScar"
+    ],
+    "preferredOrbits": [
+      "leo",
+      "lunar",
+      "mars"
+    ],
+    "ref": "ERS \u00a77.4 (starter instruments)"
+  },
+  {
+    "id": "inst-particle",
+    "name": "Particle detector",
+    "massKg": 5,
+    "powerW": 8,
+    "costM": 4,
+    "dataMbPerDay": 200,
+    "science": 20,
+    "objectives": [
+      "spaceWeather"
+    ],
+    "preferredOrbits": [
+      "molniya",
+      "meo",
+      "leo"
+    ],
+    "ref": "ERS \u00a77.4 (starter instruments)"
+  },
+  {
+    "id": "inst-radiometer",
+    "name": "Microwave radiometer",
+    "massKg": 40,
+    "powerW": 70,
+    "costM": 25,
+    "dataMbPerDay": 3000,
+    "science": 35,
+    "objectives": [
+      "atmosphere"
+    ],
+    "preferredOrbits": [
+      "leo",
+      "sso",
+      "geo"
+    ],
+    "ref": "ERS \u00a77.4 (starter instruments)"
+  }
+]

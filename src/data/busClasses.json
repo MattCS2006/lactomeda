@@ -1,0 +1,56 @@
+[
+  {
+    "id": "cubesat-3u",
+    "name": "3U CubeSat",
+    "maxMassKg": 4,
+    "baseCostM": 0.1,
+    "instrumentSlots": 1,
+    "roomCount": 3,
+    "ref": "ERS FR-3.1 + FR-13.1 (CubeSat 3-4 rooms); mass limit ~2 kg per U from NASA CubeSat 101; cost and slots are game balance values"
+  },
+  {
+    "id": "cubesat-6u",
+    "name": "6U CubeSat",
+    "maxMassKg": 12,
+    "baseCostM": 0.2,
+    "instrumentSlots": 2,
+    "roomCount": 3,
+    "ref": "ERS FR-3.1 + FR-13.1 (CubeSat 3-4 rooms); mass limit ~2 kg per U from NASA CubeSat 101; cost and slots are game balance values"
+  },
+  {
+    "id": "cubesat-12u",
+    "name": "12U CubeSat",
+    "maxMassKg": 24,
+    "baseCostM": 0.4,
+    "instrumentSlots": 2,
+    "roomCount": 4,
+    "ref": "ERS FR-3.1 + FR-13.1 (CubeSat 3-4 rooms); mass limit ~2 kg per U from NASA CubeSat 101; cost and slots are game balance values; 24 kg matches the ERS \u00a77.2 deployer slot"
+  },
+  {
+    "id": "smallsat",
+    "name": "SmallSat (ESPA class)",
+    "maxMassKg": 180,
+    "baseCostM": 5,
+    "instrumentSlots": 3,
+    "roomCount": 5,
+    "ref": "ERS FR-3.1; 180 kg is NASA's SmallSat upper limit; cost, slots and rooms are game balance values"
+  },
+  {
+    "id": "medium",
+    "name": "Medium spacecraft",
+    "maxMassKg": 1500,
+    "baseCostM": 50,
+    "instrumentSlots": 4,
+    "roomCount": 6,
+    "ref": "ERS FR-3.1; game balance values"
+  },
+  {
+    "id": "large",
+    "name": "Large spacecraft",
+    "maxMassKg": 6500,
+    "baseCostM": 200,
+    "instrumentSlots": 6,
+    "roomCount": 7,
+    "ref": "ERS FR-3.1 + FR-13.1 (large spacecraft 7 rooms); mass sized for a JWST-class observatory (~6,200 kg); game balance values"
+  }
+]

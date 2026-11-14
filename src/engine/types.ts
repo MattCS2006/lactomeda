@@ -33,6 +33,7 @@ export interface BusClass {
   baseCostM: number
   instrumentSlots: number
   roomCount: number // ship interior size (FR-13.1)
+  ref?: string // source note for REFERENCES.md
 }
 
 export interface Component {
