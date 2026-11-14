@@ -2,7 +2,11 @@ import Phaser from 'phaser'
 import type { Station } from '../../engine/types'
 import { bridge, type SimSnapshot } from '../bridge'
 import { startDemoSim } from '../demoSim'
-import { MVP_STATIONS, STATION_NAMES } from '../stations'
+import { gameData } from '../../data'
+import { generateShipLayout, CONSOLE_TILES, type ShipLayout } from '../shipLayout'
+import { SHIP_REGISTRY_KEY, resolveShipDesign, type ShipSource } from '../shipSource'
+import { SHIP_STATIONS, STATION_NAMES } from '../stations'
+import { TILESET_KEY, TILESET_PATH, TILE_SIZE } from '../tiles'
 import { stationStatus, type StationState } from '../stationStatus'
 import {
   PLAYER_SPEED,
@@ -12,17 +16,15 @@ import {
   type Facing,
 } from '../movement'
 
-// Placeholder room until the Tiled map arrives (SCRUM-119): floor, walls and station boxes.
+// Ship interior generated from the player's design (SCRUM-119, FR-13.1): see shipLayout.ts.
 // TODO(i18n): move these strings to src/i18n once it exists (Dev 2).
 const TEXT = { pressE: 'Press E' } as const
 
-const TILE = 32
+const TILE = TILE_SIZE
 export const GAME_WIDTH = 640 // 20 tiles
 export const GAME_HEIGHT = 360 // ~11 tiles
-const ROOM_W = 30 * TILE // 960
-const ROOM_H = 18 * TILE // 576
 
-// Consoles are 32x32 sprites drawn at 2x (integer scale, stays crisp).
+// Consoles are 32x32 sprites drawn at 2x (integer scale, stays crisp) = CONSOLE_TILES x CONSOLE_TILES tiles.
 const CONSOLE_SCALE = 2
 const STATION_W = 32 * CONSOLE_SCALE
 const STATION_H = 32 * CONSOLE_SCALE
@@ -30,15 +32,20 @@ const STATION_H = 32 * CONSOLE_SCALE
 const INTERACT_RANGE = 36
 const BLINK_MS = 250 // toggle every 250 ms = 2 Hz blink
 
-const STATIONS = [
-  { id: 'bridge', x: 160, y: 96 },
-  { id: 'comms', x: 800, y: 96 },
-  { id: 'power', x: 160, y: 480 },
-  { id: 'science', x: 800, y: 480 },
-  { id: 'navigation', x: 480, y: 288 },
-] as const satisfies readonly { id: (typeof MVP_STATIONS)[number]; x: number; y: number }[]
+/** A console placed in the world: station id and sprite centre in px. */
+interface ConsoleSpot {
+  id: Station
+  x: number
+  y: number
+}
 
-type StationId = (typeof STATIONS)[number]['id']
+const ROOM_LABEL_STYLE = {
+  fontFamily: 'monospace',
+  fontSize: '10px',
+  color: '#94b0c2',
+  backgroundColor: '#1a1c2c',
+  padding: { x: 3, y: 1 },
+} as const
 
 const consoleKey = (id: Station) => `console_${id}`
 const CONSOLE_ALARM = 'console_alarm'
@@ -97,8 +104,10 @@ export class ShipInteriorScene extends Phaser.Scene {
   private nearStation: Station | null = null
   private pressLabel!: Phaser.GameObjects.Text
 
-  // Stations and live telemetry
-  private views = new Map<StationId, StationView>()
+  // Ship built from the design, stations and live telemetry
+  private layout!: ShipLayout
+  private consoles: ConsoleSpot[] = []
+  private views = new Map<Station, StationView>()
   private snapshot: SimSnapshot | null = null
   /** Highest battery level seen; SimSnapshot has no capacity, so this stands in for it. */
   private batteryCapacityWh = 0
@@ -110,7 +119,7 @@ export class ShipInteriorScene extends Phaser.Scene {
   private panelTitle!: Phaser.GameObjects.Text
   private panelLabels!: Phaser.GameObjects.Text
   private panelValues!: Phaser.GameObjects.Text
-  private panelStation: StationId | null = null
+  private panelStation: Station | null = null
 
   // Touch controls
   private joyAxes = { x: 0, y: 0 }
@@ -127,20 +136,29 @@ export class ShipInteriorScene extends Phaser.Scene {
       frameWidth: 32,
       frameHeight: 32,
     })
-    for (const s of STATIONS) this.load.image(consoleKey(s.id), `assets/sprites/${consoleKey(s.id)}.png`)
+    for (const id of SHIP_STATIONS) this.load.image(consoleKey(id), `assets/sprites/${consoleKey(id)}.png`)
+    this.load.image(TILESET_KEY, TILESET_PATH)
     this.load.image(CONSOLE_ALARM, `assets/sprites/${CONSOLE_ALARM}.png`)
     this.load.image(CONSOLE_OFF, `assets/sprites/${CONSOLE_OFF}.png`)
   }
 
   create() {
     this.createAnimations()
-    this.buildRoom()
 
-    const solids = this.buildSolids()
-    this.player = this.physics.add.sprite(ROOM_W / 2, ROOM_H - 3 * TILE, SHEET, 0)
+    // Rebuilt every time the scene (re)starts, from the design PhaserGame put in the registry.
+    this.layout = generateShipLayout(...this.shipSource())
+    const walls = this.buildShip(this.layout)
+    const worldW = this.layout.widthTiles * TILE
+    const worldH = this.layout.heightTiles * TILE
+    this.physics.world.setBounds(0, 0, worldW, worldH)
+
+    const solids = this.physics.add.staticGroup()
+    const { tileX, tileY } = this.layout.spawn
+    this.player = this.physics.add.sprite((tileX + 0.5) * TILE, (tileY + 0.5) * TILE, SHEET, 0)
     // Small body at the feet so the head can overlap walls/consoles a little
     this.player.setSize(12, 10).setOffset(10, 20)
     this.player.setCollideWorldBounds(true)
+    this.physics.add.collider(this.player, walls)
     this.physics.add.collider(this.player, solids)
 
     this.pressLabel = this.add
@@ -156,7 +174,7 @@ export class ShipInteriorScene extends Phaser.Scene {
       .setVisible(false)
 
     const cam = this.cameras.main
-    cam.setBounds(0, 0, ROOM_W, ROOM_H)
+    cam.setBounds(0, 0, worldW, worldH)
     cam.startFollow(this.player, true, 0.15, 0.15)
     cam.setDeadzone(48, 32)
 
@@ -186,7 +204,8 @@ export class ShipInteriorScene extends Phaser.Scene {
 
     const offTick = bridge.on('simTick', ({ state }) => this.onSimTick(state))
     const blink = this.time.addEvent({ delay: BLINK_MS, loop: true, callback: () => this.onBlink() })
-    const stopDemo = startDemoSim() // no-op unless the URL has ?demo=1; delete with demoSim.ts
+    // No-op unless the URL has ?demo=1; demo alarms only ring at stations this ship has. Delete with demoSim.ts
+    const stopDemo = startDemoSim(this.consoles.map((c) => c.id))
 
     this.events.once('shutdown', () => {
       offTick()
@@ -224,7 +243,7 @@ export class ShipInteriorScene extends Phaser.Scene {
     this.usePressed = false
     if (Phaser.Input.Keyboard.JustDown(this.keys.close)) this.closePanel()
     if (usePressed && this.nearStation) {
-      const id = this.nearStation as StationId
+      const id = this.nearStation
       if (this.panelStation === id) {
         this.closePanel()
       } else {
@@ -234,9 +253,44 @@ export class ShipInteriorScene extends Phaser.Scene {
     }
   }
 
+  // ── Ship ─────────────────────────────────────────────────────────────
+  /** Design + catalog from the registry; falls back to the preview ship (and ?ship=) if PhaserGame set none. */
+  private shipSource(): [ShipSource['design'], ShipSource['data']] {
+    const src = this.registry.get(SHIP_REGISTRY_KEY) as ShipSource | undefined
+    if (src) return [src.design, src.data]
+    const search = typeof window === 'undefined' ? '' : window.location.search
+    return [resolveShipDesign(null, gameData, search), gameData]
+  }
+
+  /** Tilemap from the layout, wall collisions from layout.collides, room name signs. Returns the wall layer. */
+  private buildShip(layout: ShipLayout): Phaser.Tilemaps.TilemapLayer {
+    const map = this.make.tilemap({ data: layout.tiles, tileWidth: TILE, tileHeight: TILE })
+    const tileset = map.addTilesetImage(TILESET_KEY, TILESET_KEY, TILE, TILE, 0, 0)
+    if (!tileset) throw new Error(`Tileset ${TILESET_KEY} is not loaded`)
+    const layer = map.createLayer(0, tileset, 0, 0) as Phaser.Tilemaps.TilemapLayer
+    layer.setDepth(0)
+    layer.forEachTile((t: Phaser.Tilemaps.Tile) => {
+      if (layout.collides[t.y]?.[t.x]) t.setCollision(true, true, true, true, false)
+    })
+    layer.calculateFacesWithin(0, 0, map.width, map.height)
+
+    // Room names on the wall above each room's top-left corner
+    for (const room of layout.rooms) {
+      this.add.text(room.x * TILE + 4, (room.y - 2) * TILE + 4, room.name, ROOM_LABEL_STYLE).setDepth(1)
+    }
+
+    // Console centres: the sprite covers CONSOLE_TILES x CONSOLE_TILES tiles from (tileX, tileY)
+    this.consoles = layout.consoles.map((c) => ({
+      id: c.station,
+      x: (c.tileX + CONSOLE_TILES / 2) * TILE,
+      y: (c.tileY + CONSOLE_TILES / 2) * TILE,
+    }))
+    return layer
+  }
+
   // ── Station consoles ─────────────────────────────────────────────────
   private createStationViews(solids: Phaser.Physics.Arcade.StaticGroup) {
-    for (const s of STATIONS) {
+    for (const s of this.consoles) {
       const sprite = solids.create(s.x, s.y, consoleKey(s.id)) as Phaser.Physics.Arcade.Sprite
       sprite.setScale(CONSOLE_SCALE).setDepth(s.y).refreshBody()
       const label = this.add
@@ -259,7 +313,7 @@ export class ShipInteriorScene extends Phaser.Scene {
     this.refreshPanel()
   }
 
-  private statusFor(id: StationId) {
+  private statusFor(id: Station) {
     return stationStatus(id, this.snapshot, { batteryCapacityWh: this.batteryCapacityWh || undefined })
   }
 
@@ -275,7 +329,7 @@ export class ShipInteriorScene extends Phaser.Scene {
     }
   }
 
-  private applyConsoleTexture(id: StationId, view: StationView) {
+  private applyConsoleTexture(id: Station, view: StationView) {
     const key =
       view.state === 'alarm' && this.blinkOn ? CONSOLE_ALARM : view.state === 'off' ? CONSOLE_OFF : consoleKey(id)
     if (view.sprite.texture.key !== key) view.sprite.setTexture(key)
@@ -311,7 +365,7 @@ export class ShipInteriorScene extends Phaser.Scene {
       .setVisible(false)
   }
 
-  private openPanel(id: StationId) {
+  private openPanel(id: Station) {
     this.panelStation = id
     this.panel.setVisible(true)
     this.refreshPanel()
@@ -359,35 +413,13 @@ export class ShipInteriorScene extends Phaser.Scene {
     }
   }
 
-  // ── Placeholder room ─────────────────────────────────────────────────
-  private buildRoom() {
-    this.physics.world.setBounds(TILE, TILE, ROOM_W - 2 * TILE, ROOM_H - 2 * TILE)
-    this.add.rectangle(ROOM_W / 2, ROOM_H / 2, ROOM_W, ROOM_H, 0x333c57) // floor (grid lines below)
-    this.add
-      .grid(ROOM_W / 2, ROOM_H / 2, ROOM_W - 2 * TILE, ROOM_H - 2 * TILE, TILE, TILE, 0x1a1c2c, 1, 0x29366f, 0.6)
-      .setDepth(0)
-  }
-
-  private buildSolids(): Phaser.Physics.Arcade.StaticGroup {
-    const solids = this.physics.add.staticGroup()
-    const wall = (cx: number, cy: number, w: number, h: number) => {
-      solids.add(this.add.rectangle(cx, cy, w, h, 0x566c86).setStrokeStyle(2, 0x94b0c2).setDepth(1))
-    }
-    wall(ROOM_W / 2, TILE / 2, ROOM_W, TILE) // top
-    wall(ROOM_W / 2, ROOM_H - TILE / 2, ROOM_W, TILE) // bottom
-    wall(TILE / 2, ROOM_H / 2, TILE, ROOM_H) // left
-    wall(ROOM_W - TILE / 2, ROOM_H / 2, TILE, ROOM_H) // right
-
-    return solids
-  }
-
   // ── Station proximity ────────────────────────────────────────────────
   private updateProximity() {
     const px = this.player.x
     const py = this.player.y
-    let nearest: (typeof STATIONS)[number] | null = null
+    let nearest: ConsoleSpot | null = null
     let best = INTERACT_RANGE
-    for (const s of STATIONS) {
+    for (const s of this.consoles) {
       // Distance from the player point to the station's rectangle (0 when inside)
       const dx = Math.max(Math.abs(px - s.x) - STATION_W / 2, 0)
       const dy = Math.max(Math.abs(py - s.y) - STATION_H / 2, 0)
