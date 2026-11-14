@@ -72,3 +72,48 @@ describe('mission store — requirement levels (FR-2.3)', () => {
     expect(Object.keys(levels)).toEqual(['fireDetection', 'burnScar', 'missionLifetime'])
   })
 })
+
+describe('mission store — instruments (FR-4.1)', () => {
+  beforeEach(() => useMissionStore.setState({ step: 'brief', design: null }))
+
+  it('all 10 instruments are selectable when no bus is chosen yet', () => {
+    useMissionStore.getState().selectScenario('student-cubesat', gameData)
+    for (const i of gameData.instruments) useMissionStore.getState().toggleInstrument(i.id, gameData)
+    expect(useMissionStore.getState().design?.instrumentIds).toEqual(gameData.instruments.map((i) => i.id))
+  })
+
+  it('toggles an instrument off again and drops its duty cycle', () => {
+    const s = useMissionStore.getState()
+    s.selectScenario('student-cubesat', gameData)
+    s.toggleInstrument('inst-visible-cam', gameData)
+    const d = useMissionStore.getState().design!
+    useMissionStore.setState({ design: { ...d, dutyCycle: { 'inst-visible-cam': 0.5 } } })
+    useMissionStore.getState().toggleInstrument('inst-visible-cam', gameData)
+    expect(useMissionStore.getState().design?.instrumentIds).toEqual([])
+    expect(useMissionStore.getState().design?.dutyCycle).toEqual({})
+  })
+
+  it('ignores unknown instruments', () => {
+    const s = useMissionStore.getState()
+    s.selectScenario('student-cubesat', gameData)
+    s.toggleInstrument('nope', gameData)
+    expect(useMissionStore.getState().design?.instrumentIds).toEqual([])
+  })
+
+  it('respects the bus class slots once a bus is chosen', () => {
+    const s = useMissionStore.getState()
+    s.selectScenario('student-cubesat', gameData)
+    const bus = gameData.busClasses.find((b) => b.id === 'cubesat-3u')!
+    useMissionStore.setState({ design: { ...useMissionStore.getState().design!, busClassId: bus.id } })
+    for (const i of gameData.instruments.filter((x) => x.massKg < 2)) useMissionStore.getState().toggleInstrument(i.id, gameData)
+    for (const i of gameData.instruments) useMissionStore.getState().toggleInstrument(i.id, gameData)
+    expect(useMissionStore.getState().design!.instrumentIds.length).toBeLessThanOrEqual(bus.instrumentSlots)
+  })
+
+  it('payload is a step between requirements and design', () => {
+    const s = useMissionStore.getState()
+    s.selectScenario('student-cubesat', gameData)
+    s.goTo('payload')
+    expect(useMissionStore.getState().step).toBe('payload')
+  })
+})

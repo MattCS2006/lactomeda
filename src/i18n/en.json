@@ -5,7 +5,8 @@
   },
   "phase": {
     "brief": "Phase 1 · Mission Brief",
-    "requirements": "Phase 2 · Requirements"
+    "requirements": "Phase 2 · Requirements",
+    "payload": "Phase 4 · Payload"
   },
   "scenario": {
     "heading": "Choose your mission",
@@ -90,5 +91,25 @@
     "data": "Data",
     "comms": "Comms",
     "time": "Time"
+  },
+  "payload": {
+    "heading": "Pick your instruments",
+    "intro": "Instruments collect the science. Each one adds mass, power, cost and data that the rest of the spacecraft must carry.",
+    "selectedCount": "{{count}} selected",
+    "slots": "Slots {{used}}/{{max}}",
+    "noBus": "No bus chosen yet: instrument slot limits will apply once you pick a spacecraft size.",
+    "slotsFull": "No free instrument slot on this bus. Remove one or choose a bigger bus.",
+    "add": "Add",
+    "added": "Added",
+    "helps": "Helps: {{objectives}}",
+    "helpsNone": "Not used by this mission’s objectives",
+    "confirm": "Confirm payload",
+    "stat": {
+      "mass": "Mass",
+      "power": "Power",
+      "cost": "Cost",
+      "data": "Data",
+      "science": "Science"
+    }
   }
 }

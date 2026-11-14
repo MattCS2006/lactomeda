@@ -5,6 +5,7 @@ import { gameData } from './data'
 import { PhaserGame } from './game/PhaserGame'
 import { bridge } from './game/bridge'
 import './i18n'
+import { PayloadStep } from './ui/payload/PayloadStep'
 import { RequirementsStep } from './ui/requirements/RequirementsStep'
 import { ScenarioPicker } from './ui/scenarios/ScenarioPicker'
 import { useMissionStore } from './ui/store/missionStore'
@@ -27,6 +28,8 @@ export default function App() {
         <ScenarioPicker data={gameData} />
       ) : step === 'requirements' ? (
         <RequirementsStep data={gameData} />
+      ) : step === 'payload' ? (
+        <PayloadStep data={gameData} />
       ) : (
         <>
           <div className="mx-auto mb-4 flex max-w-4xl items-center justify-between">

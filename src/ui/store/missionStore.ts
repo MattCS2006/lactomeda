@@ -1,10 +1,11 @@
 // Mission design state for the design screens (Dev 2). One MissionDesign object;
 // every screen edits it through this store (ERS §3 architecture).
 import { create } from 'zustand'
+import { canAddInstrument } from '../../engine/rules/busClass'
 import type { Difficulty, GameData, MissionDesign, RequirementLevel } from '../../engine/types'
 
 /** Design phases in order (ERS §2). More steps are added as their screens land. */
-export const DESIGN_STEPS = ['brief', 'requirements', 'design'] as const
+export const DESIGN_STEPS = ['brief', 'requirements', 'payload', 'design'] as const
 export type DesignStep = (typeof DESIGN_STEPS)[number]
 
 export function newSeed(): string {
@@ -45,6 +46,8 @@ interface MissionStore {
   selectScenario: (scenarioId: string, data: Pick<GameData, 'scenarios'>, difficulty?: Difficulty) => void
   /** FR-2.3 — set the target level of one objective. */
   setRequirementLevel: (objectiveId: string, level: RequirementLevel) => void
+  /** FR-4.1 — add or remove an instrument. Adding respects the bus class slots when a bus is chosen. */
+  toggleInstrument: (instrumentId: string, data: GameData) => void
   /** Move to a step. Every step after 'brief' needs a chosen scenario. */
   goTo: (step: DesignStep) => void
 }
@@ -61,6 +64,17 @@ export const useMissionStore = create<MissionStore>((set, get) => ({
     const design = get().design
     if (!design || !(objectiveId in design.requirementLevels)) return
     set({ design: { ...design, requirementLevels: { ...design.requirementLevels, [objectiveId]: level } } })
+  },
+  toggleInstrument: (instrumentId, data) => {
+    const design = get().design
+    if (!design || !data.instruments.some((i) => i.id === instrumentId)) return
+    if (design.instrumentIds.includes(instrumentId)) {
+      const dutyCycle = Object.fromEntries(Object.entries(design.dutyCycle).filter(([id]) => id !== instrumentId))
+      set({ design: { ...design, instrumentIds: design.instrumentIds.filter((id) => id !== instrumentId), dutyCycle } })
+      return
+    }
+    if (design.busClassId && !canAddInstrument(design, data)) return
+    set({ design: { ...design, instrumentIds: [...design.instrumentIds, instrumentId] } })
   },
   goTo: (step) => {
     if (step !== 'brief' && !get().design) return
