@@ -16,11 +16,12 @@
     "id": "lv-cubesat",
     "name": "CubeSat deployer, 3U slot (ISS / rideshare dispenser)",
     "capacityKg": {
-      "LEO": 6
+      "LEO": 6,
+      "SSO": 6
     },
     "costM": 0.9,
     "reliability": 0.98,
-    "ref": "ERS §7.2 ($0.3M per U); priced for a 3U slot (~6 kg, NASA CubeSat 101 ~2 kg per U)"
+    "ref": "ERS §7.2 ($0.3M per U); priced for a 3U slot (~6 kg, NASA CubeSat 101 ~2 kg per U); SSO 6 kg ≈ one 3U slot on an SSO rideshare dispenser (game balance value)"
   },
   {
     "id": "lv-rideshare",
