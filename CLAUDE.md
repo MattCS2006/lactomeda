@@ -32,7 +32,12 @@ Shared contracts — change only after telling the other two:
 - NASA resources must be visibly used — see section 9 of the ERS. Credit them in `REFERENCES.md`.
 
 ## Git workflow
-- Branch per Jira issue: `LAC-<number>-short-name` (e.g. `LAC-42-battery-event`).
-- Commit messages start with the issue key: `LAC-42 add battery failure event`.
+- Branch per Jira issue: `SCRUM-<number>-short-name` (e.g. `SCRUM-74-battery-event`).
+- Commit messages start with the issue key: `SCRUM-74 add battery failure event`.
 - Small PRs into `main`; rebase on `main` before pushing; another dev approves.
 - Never force-push `main`.
+
+## Jira
+Board: https://missionlactomeda.atlassian.net/jira/software/projects/SCRUM/boards/1
+Each story's description holds its acceptance criteria — read the issue before coding.
+Before starting: move the issue to In Progress. When the PR is open: Code Review.

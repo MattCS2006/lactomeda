@@ -43,7 +43,7 @@ claude
 ```
 
 Claude Code reads `CLAUDE.md` automatically, so all three sessions follow the same rules.
-A good first prompt: "Read CLAUDE.md and the Jira issue LAC-XX, then implement it in my folders only."
+A good first prompt: "Read CLAUDE.md and the Jira issue SCRUM-XX, then implement it in my folders only."
 
 ## 5. VS Code extensions (recommended)
 ESLint/oxlint, Prettier, Tailwind CSS IntelliSense, GitLens, Jira (Atlassian) for VS Code.
