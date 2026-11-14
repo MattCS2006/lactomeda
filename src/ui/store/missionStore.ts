@@ -6,7 +6,7 @@ import { isCompatible } from '../payload/compatibility'
 import type { Difficulty, GameData, MissionDesign, RequirementLevel } from '../../engine/types'
 
 /** Design phases in order (ERS §2). More steps are added as their screens land. */
-export const DESIGN_STEPS = ['brief', 'requirements', 'payload', 'design'] as const
+export const DESIGN_STEPS = ['brief', 'requirements', 'payload', 'orbit', 'design'] as const
 export type DesignStep = (typeof DESIGN_STEPS)[number]
 
 export function newSeed(): string {
@@ -49,6 +49,8 @@ interface MissionStore {
   setRequirementLevel: (objectiveId: string, level: RequirementLevel) => void
   /** FR-4.1/4.2 — add or remove an instrument. Adding needs a compatible instrument and, once a bus is chosen, a free slot. Removing always works. */
   toggleInstrument: (instrumentId: string, data: GameData) => void
+  /** FR-5.1 — choose an orbit the scenario allows. Clears any altitude override (FR-5.3). */
+  selectOrbit: (orbitId: string, data: GameData) => void
   /** Move to a step. Every step after 'brief' needs a chosen scenario. */
   goTo: (step: DesignStep) => void
 }
@@ -79,6 +81,14 @@ export const useMissionStore = create<MissionStore>((set, get) => ({
     if (scenario && !isCompatible(instrument, scenario, design, data)) return
     if (design.busClassId && !canAddInstrument(design, data)) return
     set({ design: { ...design, instrumentIds: [...design.instrumentIds, instrumentId] } })
+  },
+  selectOrbit: (orbitId, data) => {
+    const design = get().design
+    if (!design) return
+    const scenario = data.scenarios.find((s) => s.id === design.scenarioId)
+    if (!scenario?.allowedOrbitIds.includes(orbitId) || !data.orbits.some((o) => o.id === orbitId)) return
+    if (design.orbitId === orbitId) return
+    set({ design: { ...design, orbitId, altitudeKm: undefined } })
   },
   goTo: (step) => {
     if (step !== 'brief' && !get().design) return

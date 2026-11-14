@@ -135,3 +135,38 @@ describe('mission store — instruments (FR-4.1)', () => {
     expect(useMissionStore.getState().step).toBe('payload')
   })
 })
+
+describe('mission store — orbit (FR-5.1)', () => {
+  beforeEach(() => useMissionStore.setState({ step: 'brief', design: null }))
+
+  it('selects an orbit the scenario allows', () => {
+    const s = useMissionStore.getState()
+    s.selectScenario('wildfire-eo', gameData)
+    s.selectOrbit('sso', gameData)
+    expect(useMissionStore.getState().design?.orbitId).toBe('sso')
+  })
+
+  it('refuses orbits outside the scenario or unknown ids', () => {
+    const s = useMissionStore.getState()
+    s.selectScenario('student-cubesat', gameData)
+    s.selectOrbit('l2', gameData)
+    s.selectOrbit('nope', gameData)
+    expect(useMissionStore.getState().design?.orbitId).toBeNull()
+  })
+
+  it('clears the altitude override when the orbit changes', () => {
+    const s = useMissionStore.getState()
+    s.selectScenario('wildfire-eo', gameData)
+    s.selectOrbit('leo', gameData)
+    useMissionStore.setState({ design: { ...useMissionStore.getState().design!, altitudeKm: 400 } })
+    useMissionStore.getState().selectOrbit('sso', gameData)
+    expect(useMissionStore.getState().design?.altitudeKm).toBeUndefined()
+  })
+
+  it('orbit is a step after payload', () => {
+    const s = useMissionStore.getState()
+    s.selectScenario('wildfire-eo', gameData)
+    s.goTo('orbit')
+    expect(useMissionStore.getState().step).toBe('orbit')
+  })
+})
