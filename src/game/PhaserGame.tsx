@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import Phaser from 'phaser'
-import { ShipInteriorScene } from './scenes/ShipInteriorScene'
+import { GAME_HEIGHT, GAME_WIDTH, ShipInteriorScene } from './scenes/ShipInteriorScene'
 import { supabase, testRealtime } from '../net/supabase'
 
 export function PhaserGame() {
@@ -11,10 +11,13 @@ export function PhaserGame() {
     const game = new Phaser.Game({
       type: Phaser.AUTO,
       parent: host.current!,
-      width: 640,
-      height: 420,
+      width: GAME_WIDTH,
+      height: GAME_HEIGHT,
       pixelArt: true,
+      roundPixels: true,
       backgroundColor: '#0b0f1a',
+      scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH },
+      physics: { default: 'arcade', arcade: { debug: false } },
       scene: [ShipInteriorScene],
     })
     return () => game.destroy(true)
@@ -27,7 +30,8 @@ export function PhaserGame() {
 
   return (
     <div>
-      <div ref={host} className="mx-auto w-fit border-4 border-slate-600" />
+      {/* Scale.FIT needs a sized parent: 16:9 box that grows up to 2x the game size */}
+      <div ref={host} className="mx-auto aspect-video w-full max-w-[1280px] border-4 border-slate-600" />
       <p className="mt-2 text-center text-xs text-slate-400">
         Multiplayer server:{' '}
         {online === 'checking' ? 'checking…' : online === 'online' ? '🟢 connected' : supabase ? '🔴 cannot connect' : '⚪ not configured (solo mode)'}
