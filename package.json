@@ -8,7 +8,8 @@
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview",
-    "test": "vitest run"
+    "test": "vitest run",
+    "sprites": "node tools/sprites/make-sprites.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.119.0",
@@ -28,6 +29,7 @@
     "@types/seedrandom": "^3.0.8",
     "@vitejs/plugin-react": "^6.1.2",
     "oxlint": "^1.90.0",
+    "pngjs": "^7.0.0",
     "prettier": "^3.10.1",
     "tailwindcss": "^4.3.5",
     "typescript": "~7.0.2",
