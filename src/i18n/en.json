@@ -110,6 +110,14 @@
       "cost": "Cost",
       "data": "Data",
       "science": "Science"
-    }
+    },
+    "incompatible": {
+      "objective": "Measures nothing this mission needs. Mission goals: {{needs}}.",
+      "orbit": "Only works from {{orbits}}, and this mission can’t fly there.",
+      "chosenOrbit": "Doesn’t work from your chosen orbit ({{orbit}}).",
+      "title": "Not available",
+      "warning": "Incompatible — remove it"
+    },
+    "compatibleCount": "{{count}} of {{total}} instruments fit this mission"
   }
 }
