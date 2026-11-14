@@ -12,3 +12,6 @@ export const MINUTES_PER_DAY = 1440
 
 /** Median life used when the system has reliability 1, as a multiple of the required lifetime. */
 export const PERFECT_RELIABILITY_LIFE_FACTOR = 10
+
+/** FR-4.3 (game balance, must stay <= 0.5): each extra copy of the same instrument gives this fraction of the previous copy's science. */
+export const DUPLICATE_SCIENCE_FACTOR = 0.5
