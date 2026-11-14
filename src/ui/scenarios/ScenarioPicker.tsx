@@ -14,7 +14,7 @@ export function ScenarioPicker({ data }: Props) {
   const { t } = useTranslation()
   const design = useMissionStore((s) => s.design)
   const selectScenario = useMissionStore((s) => s.selectScenario)
-  const startDesign = useMissionStore((s) => s.startDesign)
+  const goTo = useMissionStore((s) => s.goTo)
   const cards = useMemo(() => data.scenarios.map((s) => toScenarioCard(s, data)), [data])
   const label = (l: Label) => t(l.key, l.values ?? {})
 
@@ -42,7 +42,7 @@ export function ScenarioPicker({ data }: Props) {
         <button
           type="button"
           disabled={!design}
-          onClick={startDesign}
+          onClick={() => goTo('requirements')}
           className="border-2 border-[#1a1c2c] bg-[#38b764] px-5 py-3 text-xs text-[#1a1c2c] shadow-[inset_-3px_-3px_0_#257179] hover:bg-[#a7f070] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#73eff7] disabled:cursor-not-allowed disabled:bg-[#566c86] disabled:text-[#333c57] disabled:shadow-none"
         >
           {t('scenario.start')} ▶
