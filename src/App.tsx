@@ -1,22 +1,60 @@
 import { useEffect, useState } from 'react'
+import '@fontsource/press-start-2p' // pixel font for titles and HUD (docs/ART.md §7, SIL OFL)
+import { useTranslation } from 'react-i18next'
+import { gameData } from './data'
 import { PhaserGame } from './game/PhaserGame'
 import { bridge } from './game/bridge'
+import './i18n'
+import { ScenarioPicker } from './ui/scenarios/ScenarioPicker'
+import { useMissionStore } from './ui/store/missionStore'
 
 export default function App() {
-  const [lastStation, setLastStation] = useState<string | null>(null)
-
-  useEffect(() => bridge.on('stationInteract', ({ station }) => setLastStation(station)), [])
+  const { t } = useTranslation()
+  const step = useMissionStore((s) => s.step)
+  const design = useMissionStore((s) => s.design)
+  const backToBrief = useMissionStore((s) => s.backToBrief)
+  const scenario = gameData.scenarios.find((s) => s.id === design?.scenarioId)
 
   return (
-    <main className="min-h-screen bg-slate-950 p-6 text-slate-100">
-      <h1 className="mb-2 text-center text-2xl font-bold">Lactomeda — Mission Control</h1>
-      <p className="mb-4 text-center text-sm text-slate-400">
-        Walk with WASD, press E at a station.
-      </p>
+    <main className="min-h-screen bg-[#1a1c2c] p-6 text-[#f4f4f4]">
+      <header className="mb-6 text-center">
+        <h1 className="font-['Press_Start_2P'] text-lg leading-relaxed sm:text-xl">{t('app.title')}</h1>
+        <p className="text-sm text-[#94b0c2]">{t('app.tagline')}</p>
+      </header>
+
+      {step === 'brief' || !scenario ? (
+        <ScenarioPicker data={gameData} />
+      ) : (
+        <>
+          <div className="mx-auto mb-4 flex max-w-4xl items-center justify-between">
+            <p className="font-['Press_Start_2P'] text-xs leading-relaxed">{t('scenario.current', { name: scenario.name })}</p>
+            <button
+              type="button"
+              onClick={backToBrief}
+              className="border-2 border-[#94b0c2] bg-[#333c57] px-3 py-1 text-sm hover:bg-[#566c86]"
+            >
+              ◀ {t('scenario.change')}
+            </button>
+          </div>
+          {/* Placeholder until the design screens land: keeps the ship preview from SCRUM-27 */}
+          <ShipPlaceholder />
+        </>
+      )}
+    </main>
+  )
+}
+
+function ShipPlaceholder() {
+  const { t } = useTranslation()
+  const [lastStation, setLastStation] = useState<string | null>(null)
+  useEffect(() => bridge.on('stationInteract', ({ station }) => setLastStation(station)), [])
+  return (
+    <>
+      <p className="mb-4 text-center text-sm text-[#94b0c2]">{t('placeholder.hint')}</p>
       <PhaserGame />
       <p className="mt-4 text-center">
-        {lastStation ? `Interacted with: ${lastStation}` : 'No station used yet'}
+        {lastStation ? t('placeholder.station', { station: lastStation }) : t('placeholder.noStation')}
       </p>
-    </main>
+    </>
   )
 }
