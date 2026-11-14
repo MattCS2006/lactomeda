@@ -8,6 +8,7 @@
 import type {
   Budgets,
   Explanation,
+  MinigameKind,
   MissionEvent,
   ScoreResult,
   SimState,
@@ -15,6 +16,9 @@ import type {
 } from '../engine/types'
 
 export type GamePhase = 'design' | 'launch' | 'flight' | 'debrief'
+
+/** Per-tick snapshot for HUD and rooms. The full log stays in the controller (keeps multiplayer messages small). */
+export type SimSnapshot = Omit<SimState, 'log'>
 
 export type BridgeEvents = {
   // ── Phaser -> React ──────────────────────────────────────────────────
@@ -24,9 +28,13 @@ export type BridgeEvents = {
   stationProximity: { station: Station; near: boolean }
   /** Player pressed E at a station */
   stationInteract: { station: Station }
+  /** Repair mini-game finished; score 0-1 */
+  minigameDone: { eventId: string; optionId: string; score: number }
 
   // ── React -> Engine/Phaser ───────────────────────────────────────────
-  /** The team chose an option. minigameScore 0-1 scales the option's effects */
+  /** Player picked an option that has a mini-game: Phaser opens it */
+  minigameStart: { eventId: string; optionId: string; kind: MinigameKind }
+  /** The team chose an option. minigameScore 0-1 scales the option's costs */
   eventResolved: { eventId: string; optionId: string; minigameScore?: number }
   /** Pause or resume the flight simulation */
   simPaused: { paused: boolean }
@@ -37,18 +45,18 @@ export type BridgeEvents = {
   /** Design changed, new budgets ready (design phase HUD) */
   budgetsUpdated: { budgets: Budgets }
   /** One tick simulated; snapshot for HUD and room visuals */
-  simTick: { state: SimState }
-  /** An alarm starts in a room */
-  alarmStart: { event: MissionEvent }
-  /** Alarm finished: resolved by the team, or timer ran out (default option applied) */
-  alarmEnd: { eventId: string; optionId: string; reason: 'resolved' | 'timeout' }
+  simTick: { state: SimSnapshot }
+  /** An alarm starts in a room (several can ring at once) */
+  alarmStart: { event: MissionEvent; deadlineTick: number }
+  /** Alarm finished: resolved by the team, timed out (default option applied) or escalated */
+  alarmEnd: { eventId: string; optionId: string; reason: 'resolved' | 'timeout' | 'escalated' }
   /** Mission over */
   missionEnded: { status: 'success' | 'failed'; score: ScoreResult; explanation: Explanation }
 }
 
 type Handler<T> = (payload: T) => void
 
-class Bridge {
+export class Bridge {
   private handlers = new Map<keyof BridgeEvents, Set<Handler<never>>>()
 
   /** Subscribe. Returns an unsubscribe function: call it in useEffect cleanup / scene shutdown. */

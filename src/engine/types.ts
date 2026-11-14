@@ -22,7 +22,18 @@ export type Difficulty = 'cadet' | 'engineer' | 'flightDirector'
 /** Orbit class used to look up launcher capacity. */
 export type OrbitRegime = 'LEO' | 'SSO' | 'GTO' | 'TLI' | 'ESCAPE'
 
+export type RequirementLevel = 'threshold' | 'baseline' | 'goal'
+
 // ─── Catalog data ───────────────────────────────────────────────────────
+
+export interface BusClass {
+  id: string // e.g. 'cubesat-3u', 'smallsat', 'large'
+  name: string
+  maxMassKg: number
+  baseCostM: number
+  instrumentSlots: number
+  roomCount: number // ship interior size (FR-13.1)
+}
 
 export interface Component {
   id: string
@@ -34,7 +45,7 @@ export interface Component {
   costM: number // millions of USD
   trl: number // Technology Readiness Level 1-9
   reliability: number // 0-1
-  tags?: string[] // e.g. 'radHard', 'redundant'
+  tags?: string[] // e.g. 'radHard'
   // Subsystem-specific stats (only the relevant one is set)
   capacityWh?: number // battery
   dataRateKbps?: number // comms
@@ -63,6 +74,7 @@ export interface Orbit {
   eclipseFraction: number // 0-1
   contactMinPerDay: number // from GMAT
   distanceKm: number // typical comms distance
+  sunDistanceAU: number // 1 near Earth, ~1.52 at Mars (solar power)
   radiation: 'low' | 'medium' | 'high'
   source: 'gmat' | 'analytic'
 }
@@ -86,7 +98,9 @@ export interface GroundNetwork {
 export interface Objective {
   id: string
   label: string
-  levels: Record<RequirementLevel, number> // science needed per level
+  metric: string // e.g. 'resolution', 'revisit', 'dataPerDay'
+  unit: string // e.g. 'm', 'h', 'Mb/day'
+  levels: Record<RequirementLevel, number> // target value per level
 }
 
 export interface Scenario {
@@ -94,12 +108,15 @@ export interface Scenario {
   name: string
   briefing: string
   durationDays: number
+  deadlineDays: number // development schedule limit (FR-6.7)
   budgetM: number
   objectives: Objective[]
   allowedOrbitIds: string[]
+  realMissionIds: string[] // candidates for "most similar NASA mission" (FR-10.4)
 }
 
 export interface GameData {
+  busClasses: BusClass[]
   components: Component[]
   instruments: Instrument[]
   orbits: Orbit[]
@@ -111,15 +128,19 @@ export interface GameData {
 
 // ─── Player design ──────────────────────────────────────────────────────
 
-export type RequirementLevel = 'threshold' | 'baseline' | 'goal'
-
 export interface MissionDesign {
   scenarioId: string
   difficulty: Difficulty
+  missionName?: string // FR-2.5
   requirementLevels: Record<string, RequirementLevel> // key = Objective id
+  busClassId: string | null // FR-3.1
   componentIds: Partial<Record<Subsystem, string>>
+  redundant: Subsystem[] // FR-3.5 — subsystems with a backup unit
+  propellantKg: number // FR-3.6
   instrumentIds: string[]
+  dutyCycle: Record<string, number> // FR-4.4 — instrumentId -> 0..1 (default 1)
   orbitId: string | null
+  altitudeKm?: number // FR-5.3 — override for LEO/SSO
   launcherId: string | null
   groundNetworkId: string | null
   seed: string // same seed + same design = same simulation
@@ -148,13 +169,17 @@ export interface ValidationIssue {
 
 export type Station = 'bridge' | 'comms' | 'power' | 'science' | 'navigation' | 'engine' | 'computer'
 
-export type EffectKey = ResourceKey | 'science' | 'risk'
+export type EffectKey = ResourceKey | 'science' | 'risk' | 'propellant' | 'battery'
+
+export type MinigameKind = 'rewire' | 'alignDish' | 'reboot' | 'balanceWheels'
 
 export interface EventOption {
   id: string
   label: string
-  why: string
+  why: string // one plain-language sentence shown in the pop-up
   effects: Partial<Record<EffectKey, number>>
+  requiresTag?: string // only offered if the design has it, e.g. 'redundant:attitude'
+  minigame?: MinigameKind // optional repair mini-game that scales the cost
 }
 
 export interface MissionEvent {
@@ -165,9 +190,29 @@ export interface MissionEvent {
   timerSec: number // engine scales it by difficulty
   options: EventOption[]
   defaultOptionId: string // applied if the timer runs out
+  trigger: {
+    chancePerDay: number // base odds, scaled by difficulty
+    requiresSubsystem?: Subsystem // e.g. engine events need propulsion (FR-13.1)
+    mitigatedByTags?: string[] // e.g. ['radHard'] halves the odds (FR-7.7)
+  }
+  escalateTo?: string // event id raised if ignored (FR-13.4)
+}
+
+/** An alarm currently ringing; several can be active at once (FR-13.8). */
+export interface ActiveEvent {
+  event: MissionEvent
+  startedTick: number
+  deadlineTick: number
 }
 
 // ─── Simulation ─────────────────────────────────────────────────────────
+
+export type EndReason =
+  | 'launchFailure'
+  | 'lifetimeReached'
+  | 'criticalFailure'
+  | 'budgetExhausted'
+  | 'objectivesMet'
 
 export interface SimLogEntry {
   tick: number
@@ -179,14 +224,17 @@ export interface SimLogEntry {
 export interface SimState {
   tick: number
   day: number
-  status: 'running' | 'awaitingDecision' | 'success' | 'failed'
+  status: 'running' | 'success' | 'failed' // the sim keeps running while alarms ring
+  endReason?: EndReason // set when status is not 'running' (FR-7.9)
   batteryWh: number
+  propellantKg: number
+  spentM: number // money spent so far
   storedDataMb: number
   downlinkedDataMb: number
   science: number
   risk: number // 0-1, accumulated
   health: Partial<Record<Subsystem, number>> // 0-1
-  activeEvent: MissionEvent | null
+  activeEvents: ActiveEvent[]
   log: SimLogEntry[]
   rng: number // internal RNG state, do not touch outside engine
 }
@@ -194,22 +242,32 @@ export interface SimState {
 // ─── Results ────────────────────────────────────────────────────────────
 
 export interface ScoreResult {
-  total: number // 0-100
-  breakdown: { science: number; budget: number; risk: number; margins: number }
+  total: number // 0-1000 (FR-10.1)
+  breakdown: {
+    science: number // max 400
+    objectives: number // max 250
+    efficiency: number // max 150
+    reliability: number // max 100
+    collaboration: number // max 100 — solo: decision quality
+  }
   objectivesMet: Record<string, RequirementLevel | null> // key = Objective id
-  grade: 'S' | 'A' | 'B' | 'C' | 'F'
+  stars: 0 | 1 | 2 | 3 // FR-10.2
+  outcome: 'fullSuccess' | 'partialSuccess' | 'failure'
 }
 
 export interface ExplanationPoint {
   kind: 'good' | 'bad' | 'tip'
   text: string
+  decision?: string // the design choice behind it, e.g. 'battery: Li-ion 20 Wh'
+  value?: number // the number that proves it (FR-10.3)
+  unit?: string
   resource?: ResourceKey
   subsystem?: Subsystem
 }
 
 export interface Explanation {
   summary: string
-  points: ExplanationPoint[]
+  points: ExplanationPoint[] // top 3 shown in the debrief
 }
 
 // ─── Engine API (implemented by Dev 1 in src/engine/index.ts) ───────────
@@ -218,14 +276,16 @@ export interface Explanation {
 export interface EngineAPI {
   computeBudgets(design: MissionDesign, data: GameData): Budgets
   validate(design: MissionDesign, data: GameData): ValidationIssue[]
+  /** Rolls the launch (FR-7.1). A failed launch returns a finished state with endReason 'launchFailure'. */
   initSim(design: MissionDesign, data: GameData): SimState
   simulateTick(state: SimState, design: MissionDesign, data: GameData): SimState
   resolveEvent(
     state: SimState,
+    eventId: string,
     optionId: string,
     design: MissionDesign,
     data: GameData,
-    minigameScore?: number, // 0-1, scales the option's effects; default 1
+    minigameScore?: number, // 0-1, scales the option's costs; default 1
   ): SimState
   score(state: SimState, design: MissionDesign, data: GameData): ScoreResult
   explain(design: MissionDesign, state: SimState | null, data: GameData): Explanation
