@@ -5,6 +5,7 @@ import { gameData } from './data'
 import { PhaserGame } from './game/PhaserGame'
 import { bridge } from './game/bridge'
 import './i18n'
+import { RequirementsStep } from './ui/requirements/RequirementsStep'
 import { ScenarioPicker } from './ui/scenarios/ScenarioPicker'
 import { useMissionStore } from './ui/store/missionStore'
 
@@ -12,7 +13,7 @@ export default function App() {
   const { t } = useTranslation()
   const step = useMissionStore((s) => s.step)
   const design = useMissionStore((s) => s.design)
-  const backToBrief = useMissionStore((s) => s.backToBrief)
+  const goTo = useMissionStore((s) => s.goTo)
   const scenario = gameData.scenarios.find((s) => s.id === design?.scenarioId)
 
   return (
@@ -24,13 +25,15 @@ export default function App() {
 
       {step === 'brief' || !scenario ? (
         <ScenarioPicker data={gameData} />
+      ) : step === 'requirements' ? (
+        <RequirementsStep data={gameData} />
       ) : (
         <>
           <div className="mx-auto mb-4 flex max-w-4xl items-center justify-between">
             <p className="text-xs">{t('scenario.current', { name: scenario.name })}</p>
             <button
               type="button"
-              onClick={backToBrief}
+              onClick={() => goTo('brief')}
               className="border-2 border-[#94b0c2] bg-[#333c57] px-3 py-2 text-[10px] hover:bg-[#566c86]"
             >
               ◀ {t('scenario.change')}

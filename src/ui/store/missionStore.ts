@@ -1,9 +1,11 @@
 // Mission design state for the design screens (Dev 2). One MissionDesign object;
 // every screen edits it through this store (ERS §3 architecture).
 import { create } from 'zustand'
-import type { Difficulty, GameData, MissionDesign } from '../../engine/types'
+import type { Difficulty, GameData, MissionDesign, RequirementLevel } from '../../engine/types'
 
-export type DesignStep = 'brief' | 'design'
+/** Design phases in order (ERS §2). More steps are added as their screens land. */
+export const DESIGN_STEPS = ['brief', 'requirements', 'design'] as const
+export type DesignStep = (typeof DESIGN_STEPS)[number]
 
 export function newSeed(): string {
   // Only picks the seed; the engine itself never uses Math.random.
@@ -41,8 +43,10 @@ interface MissionStore {
   design: MissionDesign | null
   /** Pick (or switch) scenario. Switching resets the design, since targets and budget change. */
   selectScenario: (scenarioId: string, data: Pick<GameData, 'scenarios'>, difficulty?: Difficulty) => void
-  startDesign: () => void
-  backToBrief: () => void
+  /** FR-2.3 — set the target level of one objective. */
+  setRequirementLevel: (objectiveId: string, level: RequirementLevel) => void
+  /** Move to a step. Every step after 'brief' needs a chosen scenario. */
+  goTo: (step: DesignStep) => void
 }
 
 export const useMissionStore = create<MissionStore>((set, get) => ({
@@ -53,8 +57,13 @@ export const useMissionStore = create<MissionStore>((set, get) => ({
     if (current?.scenarioId === scenarioId) return
     set({ design: createDesign(scenarioId, data, difficulty ?? current?.difficulty) })
   },
-  startDesign: () => {
-    if (get().design) set({ step: 'design' })
+  setRequirementLevel: (objectiveId, level) => {
+    const design = get().design
+    if (!design || !(objectiveId in design.requirementLevels)) return
+    set({ design: { ...design, requirementLevels: { ...design.requirementLevels, [objectiveId]: level } } })
   },
-  backToBrief: () => set({ step: 'brief' }),
+  goTo: (step) => {
+    if (step !== 'brief' && !get().design) return
+    set({ step })
+  },
 }))

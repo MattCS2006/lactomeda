@@ -4,7 +4,8 @@
     "tagline": "Design a space mission, then keep it alive."
   },
   "phase": {
-    "brief": "Phase 1 · Mission Brief"
+    "brief": "Phase 1 · Mission Brief",
+    "requirements": "Phase 2 · Requirements"
   },
   "scenario": {
     "heading": "Choose your mission",
@@ -18,7 +19,7 @@
     "orbits": "Allowed orbits",
     "select": "Select",
     "selected": "Selected",
-    "start": "Start mission design",
+    "start": "Set requirements",
     "change": "Change scenario",
     "current": "Mission: {{name}}"
   },
@@ -44,5 +45,31 @@
     "hint": "Walk with WASD, press E at a station.",
     "station": "Interacted with: {{station}}",
     "noStation": "No station used yet"
+  },
+  "common": {
+    "back": "Back"
+  },
+  "requirements": {
+    "heading": "Set your targets",
+    "intro": "Turn the goals of {{name}} into numbers you will be judged on. Harder targets can earn more points, but they make the spacecraft harder to design.",
+    "confirm": "Confirm requirements",
+    "level": {
+      "threshold": "Threshold",
+      "baseline": "Baseline",
+      "goal": "Goal"
+    },
+    "levelHelp": {
+      "threshold": "The minimum. Below this, the objective fails.",
+      "baseline": "What the mission promises. A solid, balanced choice.",
+      "goal": "The stretch target. Best science, hardest design."
+    },
+    "atMost": "max {{value}} {{unit}}",
+    "atLeast": "min {{value}} {{unit}}"
+  },
+  "metric": {
+    "resolution": "Image resolution",
+    "revisit": "Revisit time",
+    "dataPerDay": "Data per day",
+    "lifetime": "Mission lifetime"
   }
 }
