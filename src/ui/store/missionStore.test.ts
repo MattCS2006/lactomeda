@@ -170,3 +170,38 @@ describe('mission store — orbit (FR-5.1)', () => {
     expect(useMissionStore.getState().step).toBe('orbit')
   })
 })
+
+describe('mission store — launcher (FR-5.4)', () => {
+  beforeEach(() => useMissionStore.setState({ step: 'brief', design: null }))
+
+  it('selects a launcher that reaches the chosen orbit', () => {
+    const s = useMissionStore.getState()
+    s.selectScenario('wildfire-eo', gameData)
+    s.selectOrbit('sso', gameData)
+    s.selectLauncher('lv-medium', gameData)
+    expect(useMissionStore.getState().design?.launcherId).toBe('lv-medium')
+  })
+
+  it('refuses launchers that cannot reach the orbit or are not offered in the scenario', () => {
+    const s = useMissionStore.getState()
+    s.selectScenario('space-telescope', gameData)
+    s.selectOrbit('l2', gameData)
+    s.selectLauncher('lv-small', gameData)
+    s.selectLauncher('lv-csli', gameData)
+    expect(useMissionStore.getState().design?.launcherId).toBeNull()
+  })
+
+  it('drops the launcher when the new orbit is out of its reach, keeps it otherwise', () => {
+    const s = useMissionStore.getState()
+    s.selectScenario('space-telescope', gameData)
+    s.selectOrbit('leo', gameData)
+    s.selectLauncher('lv-small', gameData)
+    useMissionStore.getState().selectOrbit('l2', gameData)
+    expect(useMissionStore.getState().design?.launcherId).toBeNull()
+
+    useMissionStore.getState().selectOrbit('leo', gameData)
+    useMissionStore.getState().selectLauncher('lv-medium', gameData)
+    useMissionStore.getState().selectOrbit('l2', gameData)
+    expect(useMissionStore.getState().design?.launcherId).toBe('lv-medium')
+  })
+})

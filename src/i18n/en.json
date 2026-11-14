@@ -124,7 +124,7 @@
   "orbit": {
     "heading": "Choose your orbit",
     "intro": "Where your spacecraft flies decides how sharp its images are, how long it sits in shadow, how often it can talk to the ground and how harsh the radiation is.",
-    "confirm": "Confirm orbit",
+    "confirm": "Continue",
     "goodFor": "Good for",
     "tradeoff": "Trade-off",
     "notAllowed": "This mission can’t fly here: it is outside the scenario’s allowed orbits.",
@@ -191,6 +191,25 @@
         "goodFor": "Mars science and relaying rover data.",
         "tradeoff": "Sunlight is only 43% of Earth’s, and the trip takes months."
       }
+    }
+  },
+  "launcher": {
+    "heading": "Choose your launcher",
+    "intro": "The rocket must lift your spacecraft to the orbit you chose. Bigger rockets carry more and reach farther, but cost more. Cheaper rides can be less reliable.",
+    "pickOrbitFirst": "Pick an orbit above to see which launchers can reach it.",
+    "capacity": "Can lift to",
+    "cost": "Cost",
+    "reliability": "Reliability",
+    "reliabilityValue": "{{value}}% ({{fail}}% chance of failure)",
+    "free": "Free",
+    "cantReach": "Can’t reach {{orbit}}.",
+    "yourOrbit": "your orbit",
+    "regime": {
+      "LEO": "Low orbit",
+      "SSO": "Sun-synchronous",
+      "GTO": "High Earth orbit",
+      "TLI": "Moon / L2",
+      "ESCAPE": "Deep space"
     }
   }
 }
