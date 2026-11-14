@@ -29,9 +29,11 @@ export type RequirementLevel = 'threshold' | 'baseline' | 'goal'
 export interface BusClass {
   id: string // e.g. 'cubesat-3u', 'smallsat', 'large'
   name: string
+  volumeL: number // internal volume in litres (1U = 1 L)
   maxMassKg: number
   baseCostM: number
-  instrumentSlots: number
+  componentSlots: number // component units that fit, redundant backups included (FR-3.5)
+  instrumentSlots: number // max instruments
   roomCount: number // ship interior size (FR-13.1)
   ref?: string // source note for REFERENCES.md
 }
