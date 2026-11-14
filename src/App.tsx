@@ -16,10 +16,10 @@ export default function App() {
   const scenario = gameData.scenarios.find((s) => s.id === design?.scenarioId)
 
   return (
-    <main className="min-h-screen bg-[#1a1c2c] p-6 text-[#f4f4f4]">
+    <main className="min-h-screen bg-[#1a1c2c] p-6 font-['Press_Start_2P'] text-[11px] leading-relaxed text-[#f4f4f4]">
       <header className="mb-6 text-center">
-        <h1 className="font-['Press_Start_2P'] text-lg leading-relaxed sm:text-xl">{t('app.title')}</h1>
-        <p className="text-sm text-[#94b0c2]">{t('app.tagline')}</p>
+        <h1 className="text-lg sm:text-xl">{t('app.title')}</h1>
+        <p className="mt-2 text-[10px] text-[#94b0c2]">{t('app.tagline')}</p>
       </header>
 
       {step === 'brief' || !scenario ? (
@@ -27,11 +27,11 @@ export default function App() {
       ) : (
         <>
           <div className="mx-auto mb-4 flex max-w-4xl items-center justify-between">
-            <p className="font-['Press_Start_2P'] text-xs leading-relaxed">{t('scenario.current', { name: scenario.name })}</p>
+            <p className="text-xs">{t('scenario.current', { name: scenario.name })}</p>
             <button
               type="button"
               onClick={backToBrief}
-              className="border-2 border-[#94b0c2] bg-[#333c57] px-3 py-1 text-sm hover:bg-[#566c86]"
+              className="border-2 border-[#94b0c2] bg-[#333c57] px-3 py-2 text-[10px] hover:bg-[#566c86]"
             >
               ◀ {t('scenario.change')}
             </button>
@@ -50,7 +50,7 @@ function ShipPlaceholder() {
   useEffect(() => bridge.on('stationInteract', ({ station }) => setLastStation(station)), [])
   return (
     <>
-      <p className="mb-4 text-center text-sm text-[#94b0c2]">{t('placeholder.hint')}</p>
+      <p className="mb-4 text-center text-[10px] text-[#94b0c2]">{t('placeholder.hint')}</p>
       <PhaserGame />
       <p className="mt-4 text-center">
         {lastStation ? t('placeholder.station', { station: lastStation }) : t('placeholder.noStation')}
