@@ -27,7 +27,7 @@ const batteryFailure: MissionEvent = {
 }
 
 const data: GameData = {
-  busClasses: [{ id: 'cubesat-3u', name: '3U CubeSat', maxMassKg: 4, baseCostM: 0.5, instrumentSlots: 1, roomCount: 3 }],
+  busClasses: [{ id: 'cubesat-3u', name: '3U CubeSat', volumeL: 3, maxMassKg: 4, baseCostM: 0.5, componentSlots: 9, instrumentSlots: 1, roomCount: 3 }],
   components: [
     { id: 'bat-li-20', subsystem: 'battery', name: 'Li-ion 20 Wh', tier: 'simple', massKg: 0.3, powerW: 0, costM: 0.05, trl: 9, reliability: 0.97, capacityWh: 20 },
   ],

@@ -1,54 +1,88 @@
 [
   {
-    "id": "cubesat-3u",
-    "name": "3U CubeSat",
-    "maxMassKg": 4,
-    "baseCostM": 0.1,
+    "id": "cubesat-1u",
+    "name": "1U CubeSat",
+    "volumeL": 1,
+    "maxMassKg": 2,
+    "baseCostM": 0.05,
+    "componentSlots": 8,
     "instrumentSlots": 1,
     "roomCount": 3,
-    "ref": "ERS FR-3.1 + FR-13.1 (CubeSat 3-4 rooms); mass limit ~2 kg per U from NASA CubeSat 101; cost and slots are game balance values"
+    "ref": "ERS FR-3.1 + FR-13.1 (CubeSat 3-4 rooms); 1U = 10 cm cube (~1 L) and up to ~2 kg per U from NASA CubeSat 101; cost and slots are game balance values"
+  },
+  {
+    "id": "cubesat-2u",
+    "name": "2U CubeSat",
+    "volumeL": 2,
+    "maxMassKg": 4,
+    "baseCostM": 0.08,
+    "componentSlots": 8,
+    "instrumentSlots": 1,
+    "roomCount": 3,
+    "ref": "ERS FR-3.1 + FR-13.1 (CubeSat 3-4 rooms); 1U = 10 cm cube (~1 L) and up to ~2 kg per U from NASA CubeSat 101; cost and slots are game balance values"
+  },
+  {
+    "id": "cubesat-3u",
+    "name": "3U CubeSat",
+    "volumeL": 3,
+    "maxMassKg": 6,
+    "baseCostM": 0.1,
+    "componentSlots": 9,
+    "instrumentSlots": 2,
+    "roomCount": 3,
+    "ref": "ERS FR-3.1 + FR-13.1 (CubeSat 3-4 rooms); 1U = 10 cm cube (~1 L) and up to ~2 kg per U from NASA CubeSat 101; cost and slots are game balance values"
   },
   {
     "id": "cubesat-6u",
     "name": "6U CubeSat",
+    "volumeL": 6,
     "maxMassKg": 12,
     "baseCostM": 0.2,
+    "componentSlots": 10,
     "instrumentSlots": 2,
-    "roomCount": 3,
-    "ref": "ERS FR-3.1 + FR-13.1 (CubeSat 3-4 rooms); mass limit ~2 kg per U from NASA CubeSat 101; cost and slots are game balance values"
+    "roomCount": 4,
+    "ref": "ERS FR-3.1 + FR-13.1 (CubeSat 3-4 rooms); 1U = 10 cm cube (~1 L) and up to ~2 kg per U from NASA CubeSat 101; cost and slots are game balance values"
   },
   {
     "id": "cubesat-12u",
     "name": "12U CubeSat",
+    "volumeL": 12,
     "maxMassKg": 24,
     "baseCostM": 0.4,
-    "instrumentSlots": 2,
+    "componentSlots": 11,
+    "instrumentSlots": 3,
     "roomCount": 4,
-    "ref": "ERS FR-3.1 + FR-13.1 (CubeSat 3-4 rooms); mass limit ~2 kg per U from NASA CubeSat 101; cost and slots are game balance values; 24 kg matches the ERS \u00a77.2 deployer slot"
+    "ref": "ERS FR-3.1 + FR-13.1 (CubeSat 3-4 rooms); 1U = 10 cm cube (~1 L) and up to ~2 kg per U from NASA CubeSat 101; cost and slots are game balance values; 24 kg matches the ERS §7.2 deployer slot"
   },
   {
     "id": "smallsat",
     "name": "SmallSat (ESPA class)",
+    "volumeL": 400,
     "maxMassKg": 180,
     "baseCostM": 5,
-    "instrumentSlots": 3,
+    "componentSlots": 12,
+    "instrumentSlots": 4,
     "roomCount": 5,
-    "ref": "ERS FR-3.1; 180 kg is NASA's SmallSat upper limit; cost, slots and rooms are game balance values"
+    "ref": "ERS FR-3.1; 180 kg is NASA's SmallSat upper limit; volume, cost, slots and rooms are game balance values"
   },
   {
     "id": "medium",
     "name": "Medium spacecraft",
+    "volumeL": 4000,
     "maxMassKg": 1500,
     "baseCostM": 50,
-    "instrumentSlots": 4,
+    "componentSlots": 14,
+    "instrumentSlots": 5,
     "roomCount": 6,
     "ref": "ERS FR-3.1; game balance values"
   },
   {
     "id": "large",
     "name": "Large spacecraft",
+    "volumeL": 30000,
     "maxMassKg": 6500,
     "baseCostM": 200,
+    "componentSlots": 16,
     "instrumentSlots": 6,
     "roomCount": 7,
     "ref": "ERS FR-3.1 + FR-13.1 (large spacecraft 7 rooms); mass sized for a JWST-class observatory (~6,200 kg); game balance values"
