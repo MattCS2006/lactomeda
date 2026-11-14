@@ -1,0 +1,159 @@
+[
+  {
+    "id": "student-cubesat",
+    "name": "Student CubeSat",
+    "briefing": "Your university team builds its first CubeSat: take pictures of Earth and measure the magnetic field from low orbit.",
+    "durationDays": 365,
+    "deadlineDays": 540,
+    "budgetM": 2,
+    "objectives": [
+      {
+        "id": "earthImaging",
+        "label": "Take images of Earth",
+        "metric": "resolution",
+        "unit": "m",
+        "levels": {
+          "threshold": 100,
+          "baseline": 60,
+          "goal": 30
+        }
+      },
+      {
+        "id": "spaceWeather",
+        "label": "Measure the space environment",
+        "metric": "dataPerDay",
+        "unit": "Mb/day",
+        "levels": {
+          "threshold": 20,
+          "baseline": 50,
+          "goal": 200
+        }
+      },
+      {
+        "id": "missionLifetime",
+        "label": "Keep the mission alive",
+        "metric": "lifetime",
+        "unit": "days",
+        "levels": {
+          "threshold": 90,
+          "baseline": 180,
+          "goal": 365
+        }
+      }
+    ],
+    "allowedOrbitIds": [
+      "leo",
+      "sso"
+    ],
+    "realMissionIds": [
+      "minxss",
+      "marco"
+    ],
+    "ref": "ERS \u00a72 (MVP scenario) + FR-14.6 (based on NASA CubeSat 101); budget, deadline and targets are game balance values"
+  },
+  {
+    "id": "wildfire-eo",
+    "name": "Wildfire Earth Observation",
+    "briefing": "Detect active wildfires and map burn scars fast enough for firefighters to use the data.",
+    "durationDays": 730,
+    "deadlineDays": 1460,
+    "budgetM": 120,
+    "objectives": [
+      {
+        "id": "fireDetection",
+        "label": "Detect active fires quickly",
+        "metric": "revisit",
+        "unit": "h",
+        "levels": {
+          "threshold": 24,
+          "baseline": 12,
+          "goal": 6
+        }
+      },
+      {
+        "id": "burnScar",
+        "label": "Map burn scars in detail",
+        "metric": "resolution",
+        "unit": "m",
+        "levels": {
+          "threshold": 100,
+          "baseline": 30,
+          "goal": 10
+        }
+      },
+      {
+        "id": "missionLifetime",
+        "label": "Keep the mission alive",
+        "metric": "lifetime",
+        "unit": "days",
+        "levels": {
+          "threshold": 365,
+          "baseline": 730,
+          "goal": 1095
+        }
+      }
+    ],
+    "allowedOrbitIds": [
+      "leo",
+      "sso",
+      "geo"
+    ],
+    "realMissionIds": [
+      "landsat-9",
+      "goes-r"
+    ],
+    "ref": "ERS \u00a72 (MVP scenario) + FR-10.4 (real missions); budget, deadline and targets are game balance values"
+  },
+  {
+    "id": "space-telescope",
+    "name": "Space Telescope at L2",
+    "briefing": "Send a telescope to Sun-Earth L2 to image the deep universe and read the light of distant planets.",
+    "durationDays": 1825,
+    "deadlineDays": 2920,
+    "budgetM": 1000,
+    "objectives": [
+      {
+        "id": "deepSky",
+        "label": "Image the deep sky sharply",
+        "metric": "resolution",
+        "unit": "arcsec",
+        "levels": {
+          "threshold": 0.5,
+          "baseline": 0.2,
+          "goal": 0.1
+        }
+      },
+      {
+        "id": "exoplanetSpectra",
+        "label": "Measure exoplanet spectra",
+        "metric": "dataPerDay",
+        "unit": "Mb/day",
+        "levels": {
+          "threshold": 5000,
+          "baseline": 15000,
+          "goal": 30000
+        }
+      },
+      {
+        "id": "missionLifetime",
+        "label": "Keep the mission alive",
+        "metric": "lifetime",
+        "unit": "days",
+        "levels": {
+          "threshold": 730,
+          "baseline": 1825,
+          "goal": 3650
+        }
+      }
+    ],
+    "allowedOrbitIds": [
+      "l2",
+      "leo"
+    ],
+    "realMissionIds": [
+      "jwst",
+      "hubble"
+    ],
+    "ref": "ERS \u00a72 (MVP scenario) + FR-10.4 (real missions); budget, deadline and targets are game balance values"
+  }
+]

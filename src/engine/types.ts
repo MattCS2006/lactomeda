@@ -33,6 +33,7 @@ export interface BusClass {
   baseCostM: number
   instrumentSlots: number
   roomCount: number // ship interior size (FR-13.1)
+  ref?: string // source note for REFERENCES.md
 }
 
 export interface Component {
@@ -51,6 +52,7 @@ export interface Component {
   dataRateKbps?: number // comms
   deltaVms?: number // propulsion
   storageMb?: number // computer
+  ref?: string // source note for REFERENCES.md
 }
 
 export interface Instrument {
@@ -63,6 +65,7 @@ export interface Instrument {
   science: number
   objectives: string[] // Objective ids
   preferredOrbits: string[] // Orbit ids
+  ref?: string // source note for REFERENCES.md
 }
 
 export interface Orbit {
@@ -77,6 +80,7 @@ export interface Orbit {
   sunDistanceAU: number // 1 near Earth, ~1.52 at Mars (solar power)
   radiation: 'low' | 'medium' | 'high'
   source: 'gmat' | 'analytic'
+  ref?: string // source note for REFERENCES.md
 }
 
 export interface Launcher {
@@ -85,6 +89,8 @@ export interface Launcher {
   capacityKg: Partial<Record<OrbitRegime, number>>
   costM: number
   reliability: number // 0-1
+  onlyScenarioIds?: string[] // if set, only offered in these scenarios (e.g. NASA CSLI for student CubeSats)
+  ref?: string // source note for REFERENCES.md
 }
 
 export interface GroundNetwork {
@@ -93,6 +99,7 @@ export interface GroundNetwork {
   costM: number
   contactMultiplier: number // scales Orbit.contactMinPerDay
   maxDistanceKm: number
+  ref?: string // source note for REFERENCES.md
 }
 
 export interface Objective {
@@ -113,6 +120,7 @@ export interface Scenario {
   objectives: Objective[]
   allowedOrbitIds: string[]
   realMissionIds: string[] // candidates for "most similar NASA mission" (FR-10.4)
+  ref?: string // source note for REFERENCES.md
 }
 
 export interface GameData {
