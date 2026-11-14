@@ -1,0 +1,20 @@
+# References
+
+Everything external used in this project (required by NASA Space Apps).
+
+## NASA and partner resources (challenge Resources tab)
+- Design and Develop Science Missions — mission segments structure the game (ERS §9)
+- General Mission Analysis Tool (GMAT) — orbit data in `gmat/`
+- Concept Maturity Levels (JPL) — design phases CML 1–4
+- Mission Design Lab (MDL) — design review structure and ship stations
+- NASA Mission Viz — debrief links to real missions
+- A Learning Game About Telescopes — instrument compatibility and real-mission comparison
+- CubeSat 101 — Student CubeSat scenario and tutorial
+- Visualize a Space Mission Using VR (Space Apps 2023) — flight timeline HUD
+- CSA Digital Games and Activities — educational design reference
+
+## Libraries
+- React, Vite, TypeScript, Phaser, Zustand, Tailwind CSS, i18next, seedrandom, Supabase JS, Vitest
+
+## Art, fonts and audio
+- (add every tileset, sprite pack, font and sound with its licence here)
