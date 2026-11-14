@@ -179,5 +179,23 @@
       "geo"
     ],
     "ref": "ERS \u00a77.4 (starter instruments)"
+  },
+  {
+    "id": "inst-magnetometer-cubesat",
+    "name": "CubeSat magnetometer",
+    "massKg": 0.2,
+    "powerW": 0.5,
+    "costM": 0.1,
+    "dataMbPerDay": 50,
+    "science": 10,
+    "objectives": [
+      "spaceWeather"
+    ],
+    "preferredOrbits": [
+      "leo",
+      "sso",
+      "molniya"
+    ],
+    "ref": "CubeSat-class magnetometer; values are estimates based on typical CubeSat magnetometers in NASA's State-of-the-Art of Small Spacecraft Technology report \u2014 verify (NFR-09)"
   }
 ]

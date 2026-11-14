@@ -84,6 +84,7 @@ describe('mission store — instruments (FR-4.1)', () => {
       'inst-multispectral',
       'inst-magnetometer',
       'inst-particle',
+      'inst-magnetometer-cubesat',
     ])
   })
 

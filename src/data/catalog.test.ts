@@ -1,7 +1,8 @@
 // Catalog health check (SCRUM-25). Fails when the data has broken links,
 // impossible values, or a scenario that no design could win.
 import { describe, expect, it } from 'vitest'
-import type { Subsystem } from '../engine/types'
+import { RESOURCE_KEYS, estimateBudgets } from '../engine/rules/resources'
+import type { MissionDesign, Subsystem } from '../engine/types'
 import { gameData } from './index'
 
 const { busClasses, components, instruments, orbits, launchers, groundNetworks, scenarios } = gameData
@@ -77,6 +78,61 @@ describe('data catalog', () => {
         }),
       )
       expect(cheapest, `${s.id}: cheapest design $${cheapest.toFixed(2)}M > budget $${s.budgetM}M`).toBeLessThanOrEqual(s.budgetM)
+    }
+  })
+
+  // One explicit reference design per scenario, built only from catalog ids. Each must leave every
+  // one of the 6 resources out of the red (FR-6.1), so the scenario is provably winnable.
+  const reference = (d: Partial<MissionDesign> & Pick<MissionDesign, 'scenarioId' | 'busClassId' | 'componentIds' | 'instrumentIds' | 'orbitId' | 'launcherId' | 'groundNetworkId'>): MissionDesign => ({
+    difficulty: 'cadet', requirementLevels: {}, redundant: [], propellantKg: 0, dutyCycle: {}, seed: 'reference', ...d,
+  })
+  const REFERENCE_DESIGNS: MissionDesign[] = [
+    // Student CubeSat: 3U bus, camera + CubeSat magnetometer, SSO via the 3U deployer, university ground station.
+    reference({
+      scenarioId: 'student-cubesat', busClassId: 'cubesat-3u',
+      componentIds: { structure: 'str-3u', power: 'pwr-deploy', battery: 'bat-40', computer: 'obc-cubesat', attitude: 'adcs-mag', propulsion: 'prop-none', thermal: 'thm-passive', comms: 'com-sband' },
+      instrumentIds: ['inst-visible-cam', 'inst-magnetometer-cubesat'],
+      orbitId: 'sso', launcherId: 'lv-cubesat', groundNetworkId: 'gn-university',
+    }),
+    // Wildfire EO: SmallSat, multispectral imager (covers earthImaging, fireDetection and burnScar), LEO rideshare.
+    reference({
+      scenarioId: 'wildfire-eo', busClassId: 'smallsat',
+      componentIds: { structure: 'str-smallsat', power: 'pwr-array-small', battery: 'bat-1k', computer: 'obc-radtol', attitude: 'adcs-smallsat', propulsion: 'prop-none', thermal: 'thm-heaters', comms: 'com-xband' },
+      instrumentIds: ['inst-multispectral'],
+      orbitId: 'leo', launcherId: 'lv-rideshare', groundNetworkId: 'gn-university',
+    }),
+    // Space Telescope: Large bus at L2, space telescope (deepSky + exoplanetSpectra), cryo thermal, deep-space antenna, NASA Near Space Network (reaches L2).
+    reference({
+      scenarioId: 'space-telescope', busClassId: 'large',
+      componentIds: { structure: 'str-large', power: 'pwr-array-large', battery: 'bat-10k', computer: 'obc-radhard', attitude: 'adcs-fine', propulsion: 'prop-mono', thermal: 'thm-cryo', comms: 'com-hga' },
+      instrumentIds: ['inst-telescope'],
+      orbitId: 'l2', launcherId: 'lv-medium', groundNetworkId: 'gn-nen',
+    }),
+  ]
+
+  it('has a reference design for every scenario', () => {
+    expect(REFERENCE_DESIGNS.map((d) => d.scenarioId).sort()).toEqual(scenarios.map((s) => s.id).sort())
+  })
+
+  it.each(REFERENCE_DESIGNS.map((d) => [d.scenarioId, d] as const))('%s reference design has no red budget', (_id, design) => {
+    const scenario = scenarios.find((s) => s.id === design.scenarioId)!
+    const orbit = orbits.find((o) => o.id === design.orbitId)!
+    const launcher = launchers.find((l) => l.id === design.launcherId)!
+
+    // The design is legal for the scenario and covers its objectives.
+    expect(scenario.allowedOrbitIds, `${scenario.id}: orbit not allowed`).toContain(orbit.id)
+    expect(launcher.onlyScenarioIds ?? [scenario.id], `${scenario.id}: launcher not offered`).toContain(scenario.id)
+    expect(launcher.capacityKg[orbit.regime] ?? 0, `${scenario.id}: ${launcher.id} cannot reach ${orbit.regime}`).toBeGreaterThan(0)
+    const covered = new Set(design.instrumentIds.flatMap((id) => instruments.find((i) => i.id === id)!.objectives))
+    for (const o of scenario.objectives) {
+      if (o.id === 'missionLifetime') continue // met by reliability, not by an instrument
+      expect(covered.has(o.id), `${scenario.id}: no instrument covers ${o.id}`).toBe(true)
+    }
+
+    const budgets = estimateBudgets(design, gameData)
+    for (const key of RESOURCE_KEYS) {
+      const b = budgets[key]
+      expect(b.status, `${scenario.id}: ${key} is red (used ${b.used.toFixed(2)} / available ${b.available.toFixed(2)})`).not.toBe('red')
     }
   })
 })
