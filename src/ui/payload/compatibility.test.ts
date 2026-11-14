@@ -15,7 +15,13 @@ describe('instrument compatibility (FR-4.2)', () => {
   })
 
   it('offers the expected instruments per MVP scenario', () => {
-    expect(compatibleIds('student-cubesat')).toEqual(['inst-visible-cam', 'inst-multispectral', 'inst-magnetometer', 'inst-particle'])
+    expect(compatibleIds('student-cubesat')).toEqual([
+      'inst-visible-cam',
+      'inst-multispectral',
+      'inst-magnetometer',
+      'inst-particle',
+      'inst-magnetometer-cubesat',
+    ])
     expect(compatibleIds('wildfire-eo')).toEqual(['inst-multispectral', 'inst-thermal-ir', 'inst-sar', 'inst-laser-alt'])
     expect(compatibleIds('space-telescope')).toEqual(['inst-spectrometer', 'inst-telescope'])
   })

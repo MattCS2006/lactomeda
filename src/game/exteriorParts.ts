@@ -73,6 +73,7 @@ export const INSTRUMENT_PARTS: Record<string, PartDef> = {
   'inst-sar': { key: 'ext_inst_sar', mount: 'bottom' },
   'inst-spectrometer': { key: 'ext_inst_spectrometer', mount: 'front' },
   'inst-magnetometer': { key: 'ext_inst_magnetometer', mount: 'top' },
+  'inst-magnetometer-cubesat': { key: 'ext_inst_magnetometer', mount: 'top' },
   'inst-telescope': { key: 'ext_inst_telescope', mount: 'bottom' },
   'inst-laser-alt': { key: 'ext_inst_laser', mount: 'bottom' },
   'inst-particle': { key: 'ext_inst_particle', mount: 'front' },
