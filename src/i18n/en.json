@@ -1,0 +1,48 @@
+{
+  "app": {
+    "title": "Lactomeda — Mission Control",
+    "tagline": "Design a space mission, then keep it alive."
+  },
+  "phase": {
+    "brief": "Phase 1 · Mission Brief"
+  },
+  "scenario": {
+    "heading": "Choose your mission",
+    "intro": "Every scenario has its own goal, budget and deadline. There is no single right design — pick one and start planning.",
+    "objectives": "Objectives",
+    "destination": "Destination",
+    "budget": "Budget",
+    "deadline": "Build deadline",
+    "duration": "Mission length",
+    "difficulty": "Recommended difficulty",
+    "orbits": "Allowed orbits",
+    "select": "Select",
+    "selected": "Selected",
+    "start": "Start mission design",
+    "change": "Change scenario",
+    "current": "Mission: {{name}}"
+  },
+  "destination": {
+    "earth": "Earth orbit",
+    "l2": "Sun–Earth L2",
+    "moon": "The Moon",
+    "mars": "Mars"
+  },
+  "difficulty": {
+    "cadet": "Cadet",
+    "engineer": "Engineer",
+    "flightDirector": "Flight Director"
+  },
+  "units": {
+    "moneyM": "${{value}}M",
+    "moneyB": "${{value}}B",
+    "days": "{{count}} days",
+    "months": "{{count}} months",
+    "years": "{{count}} years"
+  },
+  "placeholder": {
+    "hint": "Walk with WASD, press E at a station.",
+    "station": "Interacted with: {{station}}",
+    "noStation": "No station used yet"
+  }
+}
