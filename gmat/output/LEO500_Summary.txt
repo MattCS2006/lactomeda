@@ -1,0 +1,4 @@
+Sat.UTCGregorian          Sat.Earth.Altitude        Sat.Earth.OrbitPeriod     
+01 Jan 2027 00:00:00.000   499.3130363               5676.978031               
+Sat.UTCGregorian          Sat.Earth.Altitude        Sat.Earth.OrbitPeriod     
+08 Jan 2027 00:00:00.000   504.0414326               5662.331242               
