@@ -2,6 +2,7 @@
 // every screen edits it through this store (ERS §3 architecture).
 import { create } from 'zustand'
 import { canAddInstrument } from '../../engine/rules/busClass'
+import { isCompatible } from '../payload/compatibility'
 import type { Difficulty, GameData, MissionDesign, RequirementLevel } from '../../engine/types'
 
 /** Design phases in order (ERS §2). More steps are added as their screens land. */
@@ -46,7 +47,7 @@ interface MissionStore {
   selectScenario: (scenarioId: string, data: Pick<GameData, 'scenarios'>, difficulty?: Difficulty) => void
   /** FR-2.3 — set the target level of one objective. */
   setRequirementLevel: (objectiveId: string, level: RequirementLevel) => void
-  /** FR-4.1 — add or remove an instrument. Adding respects the bus class slots when a bus is chosen. */
+  /** FR-4.1/4.2 — add or remove an instrument. Adding needs a compatible instrument and, once a bus is chosen, a free slot. Removing always works. */
   toggleInstrument: (instrumentId: string, data: GameData) => void
   /** Move to a step. Every step after 'brief' needs a chosen scenario. */
   goTo: (step: DesignStep) => void
@@ -73,6 +74,9 @@ export const useMissionStore = create<MissionStore>((set, get) => ({
       set({ design: { ...design, instrumentIds: design.instrumentIds.filter((id) => id !== instrumentId), dutyCycle } })
       return
     }
+    const instrument = data.instruments.find((i) => i.id === instrumentId)!
+    const scenario = data.scenarios.find((s) => s.id === design.scenarioId)
+    if (scenario && !isCompatible(instrument, scenario, design, data)) return
     if (design.busClassId && !canAddInstrument(design, data)) return
     set({ design: { ...design, instrumentIds: [...design.instrumentIds, instrumentId] } })
   },

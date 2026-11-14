@@ -76,10 +76,26 @@ describe('mission store — requirement levels (FR-2.3)', () => {
 describe('mission store — instruments (FR-4.1)', () => {
   beforeEach(() => useMissionStore.setState({ step: 'brief', design: null }))
 
-  it('all 10 instruments are selectable when no bus is chosen yet', () => {
+  it('every compatible instrument is selectable when no bus is chosen yet', () => {
     useMissionStore.getState().selectScenario('student-cubesat', gameData)
     for (const i of gameData.instruments) useMissionStore.getState().toggleInstrument(i.id, gameData)
-    expect(useMissionStore.getState().design?.instrumentIds).toEqual(gameData.instruments.map((i) => i.id))
+    expect(useMissionStore.getState().design?.instrumentIds).toEqual([
+      'inst-visible-cam',
+      'inst-multispectral',
+      'inst-magnetometer',
+      'inst-particle',
+    ])
+  })
+
+  it('refuses incompatible instruments (FR-4.2) but always lets the player remove one', () => {
+    const s = useMissionStore.getState()
+    s.selectScenario('wildfire-eo', gameData)
+    s.toggleInstrument('inst-telescope', gameData)
+    expect(useMissionStore.getState().design?.instrumentIds).toEqual([])
+    // e.g. selected before the orbit changed: still removable
+    useMissionStore.setState({ design: { ...useMissionStore.getState().design!, instrumentIds: ['inst-telescope'] } })
+    useMissionStore.getState().toggleInstrument('inst-telescope', gameData)
+    expect(useMissionStore.getState().design?.instrumentIds).toEqual([])
   })
 
   it('toggles an instrument off again and drops its duty cycle', () => {
@@ -87,6 +103,7 @@ describe('mission store — instruments (FR-4.1)', () => {
     s.selectScenario('student-cubesat', gameData)
     s.toggleInstrument('inst-visible-cam', gameData)
     const d = useMissionStore.getState().design!
+    expect(d.instrumentIds).toEqual(['inst-visible-cam'])
     useMissionStore.setState({ design: { ...d, dutyCycle: { 'inst-visible-cam': 0.5 } } })
     useMissionStore.getState().toggleInstrument('inst-visible-cam', gameData)
     expect(useMissionStore.getState().design?.instrumentIds).toEqual([])
