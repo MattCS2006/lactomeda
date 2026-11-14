@@ -1,6 +1,9 @@
 import Phaser from 'phaser'
 import type { Station } from '../../engine/types'
-import { bridge } from '../bridge'
+import { bridge, type SimSnapshot } from '../bridge'
+import { startDemoSim } from '../demoSim'
+import { MVP_STATIONS, STATION_NAMES } from '../stations'
+import { stationStatus, type StationState } from '../stationStatus'
 import {
   PLAYER_SPEED,
   axesToVelocity,
@@ -19,18 +22,49 @@ export const GAME_HEIGHT = 360 // ~11 tiles
 const ROOM_W = 30 * TILE // 960
 const ROOM_H = 18 * TILE // 576
 
-const STATION_W = 96
-const STATION_H = 64
+// Consoles are 32x32 sprites drawn at 2x (integer scale, stays crisp).
+const CONSOLE_SCALE = 2
+const STATION_W = 32 * CONSOLE_SCALE
+const STATION_H = 32 * CONSOLE_SCALE
 /** How close (px from the station box edge) the player must be to use it. */
 const INTERACT_RANGE = 36
+const BLINK_MS = 250 // toggle every 250 ms = 2 Hz blink
 
 const STATIONS = [
-  { id: 'bridge', x: 160, y: 96, label: 'Bridge' },
-  { id: 'comms', x: 800, y: 96, label: 'Comms' },
-  { id: 'power', x: 160, y: 480, label: 'Power' },
-  { id: 'science', x: 800, y: 480, label: 'Science Lab' },
-  { id: 'navigation', x: 480, y: 288, label: 'Navigation' },
-] as const satisfies readonly { id: Station; x: number; y: number; label: string }[]
+  { id: 'bridge', x: 160, y: 96 },
+  { id: 'comms', x: 800, y: 96 },
+  { id: 'power', x: 160, y: 480 },
+  { id: 'science', x: 800, y: 480 },
+  { id: 'navigation', x: 480, y: 288 },
+] as const satisfies readonly { id: (typeof MVP_STATIONS)[number]; x: number; y: number }[]
+
+type StationId = (typeof STATIONS)[number]['id']
+
+const consoleKey = (id: Station) => `console_${id}`
+const CONSOLE_ALARM = 'console_alarm'
+const CONSOLE_OFF = 'console_off'
+
+// Label look per state (Sweetie 16, see docs/ART.md). Text prefix keeps it readable without colour.
+const LABEL_STYLE: Record<StationState, { color: string; bg: string; prefix: string }> = {
+  ok: { color: '#f4f4f4', bg: '#1a1c2c', prefix: '' },
+  warning: { color: '#ffcd75', bg: '#1a1c2c', prefix: '* ' },
+  alarm: { color: '#f4f4f4', bg: '#b13e53', prefix: '! ' },
+  off: { color: '#94b0c2', bg: '#1a1c2c', prefix: 'x ' },
+}
+
+// Status panel (camera-fixed). docs/ART.md §7: dark metal fill, 2 px light border, dark outline.
+const PANEL_W = 250
+const PANEL_PAD = 8
+const PANEL_TOP = 12
+const PANEL_ROW_H = 14
+const PANEL_HEADER_H = 26
+const PANEL_FONT = { fontFamily: 'monospace', fontSize: '11px' } as const
+
+interface StationView {
+  sprite: Phaser.Physics.Arcade.Sprite
+  label: Phaser.GameObjects.Text
+  state: StationState
+}
 
 const SHEET = 'astro-orange'
 const JOY_X = 56
@@ -57,10 +91,26 @@ export class ShipInteriorScene extends Phaser.Scene {
     left2: Phaser.Input.Keyboard.Key
     right2: Phaser.Input.Keyboard.Key
     use: Phaser.Input.Keyboard.Key
+    close: Phaser.Input.Keyboard.Key
   }
   private facing: Facing = { dir: 'down', flipX: false }
   private nearStation: Station | null = null
   private pressLabel!: Phaser.GameObjects.Text
+
+  // Stations and live telemetry
+  private views = new Map<StationId, StationView>()
+  private snapshot: SimSnapshot | null = null
+  /** Highest battery level seen; SimSnapshot has no capacity, so this stands in for it. */
+  private batteryCapacityWh = 0
+  private blinkOn = false
+
+  // Status panel
+  private panel!: Phaser.GameObjects.Container
+  private panelFrame!: Phaser.GameObjects.Graphics
+  private panelTitle!: Phaser.GameObjects.Text
+  private panelLabels!: Phaser.GameObjects.Text
+  private panelValues!: Phaser.GameObjects.Text
+  private panelStation: StationId | null = null
 
   // Touch controls
   private joyAxes = { x: 0, y: 0 }
@@ -77,6 +127,9 @@ export class ShipInteriorScene extends Phaser.Scene {
       frameWidth: 32,
       frameHeight: 32,
     })
+    for (const s of STATIONS) this.load.image(consoleKey(s.id), `assets/sprites/${consoleKey(s.id)}.png`)
+    this.load.image(CONSOLE_ALARM, `assets/sprites/${CONSOLE_ALARM}.png`)
+    this.load.image(CONSOLE_OFF, `assets/sprites/${CONSOLE_OFF}.png`)
   }
 
   create() {
@@ -118,11 +171,27 @@ export class ShipInteriorScene extends Phaser.Scene {
       left2: kb.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT),
       right2: kb.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT),
       use: kb.addKey('E'),
+      close: kb.addKey('ESC'),
     }
 
     if (this.sys.game.device.input.touch) this.createTouchControls()
 
+    // Reset per-run state (the scene instance is reused on restart)
+    this.views.clear()
+    this.snapshot = null
+    this.batteryCapacityWh = 0
+    this.panelStation = null
+    this.createStationViews(solids)
+    this.createPanel()
+
+    const offTick = bridge.on('simTick', ({ state }) => this.onSimTick(state))
+    const blink = this.time.addEvent({ delay: BLINK_MS, loop: true, callback: () => this.onBlink() })
+    const stopDemo = startDemoSim() // no-op unless the URL has ?demo=1; delete with demoSim.ts
+
     this.events.once('shutdown', () => {
+      offTick()
+      stopDemo()
+      blink.remove()
       if (this.nearStation) bridge.emit('stationProximity', { station: this.nearStation, near: false })
       this.nearStation = null
     })
@@ -153,9 +222,121 @@ export class ShipInteriorScene extends Phaser.Scene {
 
     const usePressed = Phaser.Input.Keyboard.JustDown(this.keys.use) || this.usePressed
     this.usePressed = false
+    if (Phaser.Input.Keyboard.JustDown(this.keys.close)) this.closePanel()
     if (usePressed && this.nearStation) {
-      bridge.emit('stationInteract', { station: this.nearStation })
+      const id = this.nearStation as StationId
+      if (this.panelStation === id) {
+        this.closePanel()
+      } else {
+        this.openPanel(id)
+        bridge.emit('stationInteract', { station: id })
+      }
     }
+  }
+
+  // ── Station consoles ─────────────────────────────────────────────────
+  private createStationViews(solids: Phaser.Physics.Arcade.StaticGroup) {
+    for (const s of STATIONS) {
+      const sprite = solids.create(s.x, s.y, consoleKey(s.id)) as Phaser.Physics.Arcade.Sprite
+      sprite.setScale(CONSOLE_SCALE).setDepth(s.y).refreshBody()
+      const label = this.add
+        .text(s.x, s.y + STATION_H / 2 + 2, STATION_NAMES[s.id], {
+          fontFamily: 'monospace',
+          fontSize: '10px',
+          padding: { x: 3, y: 1 },
+        })
+        .setOrigin(0.5, 0)
+        .setDepth(UI_DEPTH - 2)
+      this.views.set(s.id, { sprite, label, state: 'ok' })
+    }
+    this.refreshStations()
+  }
+
+  private onSimTick(state: SimSnapshot) {
+    this.snapshot = state
+    this.batteryCapacityWh = Math.max(this.batteryCapacityWh, state.batteryWh)
+    this.refreshStations()
+    this.refreshPanel()
+  }
+
+  private statusFor(id: StationId) {
+    return stationStatus(id, this.snapshot, { batteryCapacityWh: this.batteryCapacityWh || undefined })
+  }
+
+  private refreshStations() {
+    for (const [id, view] of this.views) {
+      view.state = this.statusFor(id).state
+      const style = LABEL_STYLE[view.state]
+      view.label
+        .setText(style.prefix + STATION_NAMES[id])
+        .setColor(style.color)
+        .setBackgroundColor(style.bg)
+      this.applyConsoleTexture(id, view)
+    }
+  }
+
+  private applyConsoleTexture(id: StationId, view: StationView) {
+    const key =
+      view.state === 'alarm' && this.blinkOn ? CONSOLE_ALARM : view.state === 'off' ? CONSOLE_OFF : consoleKey(id)
+    if (view.sprite.texture.key !== key) view.sprite.setTexture(key)
+  }
+
+  /** 2 Hz blink for consoles in alarm. */
+  private onBlink() {
+    this.blinkOn = !this.blinkOn
+    for (const [id, view] of this.views) if (view.state === 'alarm') this.applyConsoleTexture(id, view)
+  }
+
+  // ── Status panel ─────────────────────────────────────────────────────
+  private createPanel() {
+    this.panelFrame = this.add.graphics()
+    this.panelTitle = this.add.text(PANEL_PAD, PANEL_PAD, '', { ...PANEL_FONT, fontSize: '12px', color: '#ffcd75' })
+    this.panelLabels = this.add.text(PANEL_PAD, PANEL_HEADER_H, '', {
+      ...PANEL_FONT,
+      color: '#94b0c2',
+      lineSpacing: PANEL_ROW_H - 11,
+    })
+    this.panelValues = this.add
+      .text(PANEL_W - PANEL_PAD, PANEL_HEADER_H, '', {
+        ...PANEL_FONT,
+        color: '#f4f4f4',
+        align: 'right',
+        lineSpacing: PANEL_ROW_H - 11,
+      })
+      .setOrigin(1, 0)
+    this.panel = this.add
+      .container((GAME_WIDTH - PANEL_W) / 2, PANEL_TOP, [this.panelFrame, this.panelTitle, this.panelLabels, this.panelValues])
+      .setScrollFactor(0)
+      .setDepth(UI_DEPTH + 1)
+      .setVisible(false)
+  }
+
+  private openPanel(id: StationId) {
+    this.panelStation = id
+    this.panel.setVisible(true)
+    this.refreshPanel()
+  }
+
+  private closePanel() {
+    this.panelStation = null
+    this.panel.setVisible(false)
+  }
+
+  private refreshPanel() {
+    const id = this.panelStation
+    if (!id) return
+    const status = this.statusFor(id)
+    const style = LABEL_STYLE[status.state]
+    this.panelTitle.setText(`${STATION_NAMES[id]}  [${status.state.toUpperCase()}]`).setColor(style.color === '#f4f4f4' ? '#ffcd75' : style.color)
+    this.panelLabels.setText(status.lines.map((l) => l.label).join('\n'))
+    this.panelValues.setText(status.lines.map((l) => l.value).join('\n'))
+
+    const h = PANEL_HEADER_H + status.lines.length * PANEL_ROW_H + PANEL_PAD
+    const g = this.panelFrame
+    g.clear()
+    g.fillStyle(0x1a1c2c).fillRect(-1, -1, PANEL_W + 2, h + 2) // outer outline (K)
+    g.fillStyle(0x94b0c2).fillRect(0, 0, PANEL_W, h) // 2 px border (G)
+    g.fillStyle(0x333c57).fillRect(2, 2, PANEL_W - 4, h - 4) // dark metal (D)
   }
 
   // ── Animations ───────────────────────────────────────────────────────
@@ -197,18 +378,6 @@ export class ShipInteriorScene extends Phaser.Scene {
     wall(TILE / 2, ROOM_H / 2, TILE, ROOM_H) // left
     wall(ROOM_W - TILE / 2, ROOM_H / 2, TILE, ROOM_H) // right
 
-    for (const s of STATIONS) {
-      solids.add(
-        this.add
-          .rectangle(s.x, s.y, STATION_W, STATION_H, 0x2b3a55)
-          .setStrokeStyle(2, 0x8fb3ff)
-          .setDepth(1),
-      )
-      this.add
-        .text(s.x, s.y, s.label, { fontFamily: 'monospace', fontSize: '10px', color: '#f4f4f4' })
-        .setOrigin(0.5)
-        .setDepth(2)
-    }
     return solids
   }
 
@@ -235,6 +404,8 @@ export class ShipInteriorScene extends Phaser.Scene {
       if (next) bridge.emit('stationProximity', { station: next, near: true })
       this.nearStation = next
     }
+    // Walked out of range (or to another console): close the panel
+    if (this.panelStation && this.panelStation !== next) this.closePanel()
 
     if (nearest) {
       this.pressLabel.setPosition(nearest.x, nearest.y - STATION_H / 2 - 4).setVisible(true)
