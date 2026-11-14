@@ -1,9 +1,10 @@
+import { STATUS_GREEN_MARGIN } from './constants'
 import type { ResourceBudget } from './types'
 
-/** Margin = (available - used) / available. Green >= 20%, amber 0-20%, red < 0. */
+/** Margin = (available - used) / available (0 if nothing is available). Thresholds live in constants.ts. */
 export function makeBudget(used: number, available: number): ResourceBudget {
-  const margin = available > 0 ? (available - used) / available : -1
-  const status = margin >= 0.2 ? 'green' : margin >= 0 ? 'amber' : 'red'
+  const margin = available > 0 ? (available - used) / available : 0
+  const status = used > available ? 'red' : margin >= STATUS_GREEN_MARGIN ? 'green' : 'amber'
   return { used, available, margin, status }
 }
 
