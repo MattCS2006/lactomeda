@@ -168,6 +168,174 @@ for (const icon of Object.keys(ICONS)) {
   save(`console_${icon}.png`, consoles[icon])
 }
 
+// ---------- spacecraft exterior (SCRUM-92, FR-9.1) ----------
+// Side-view parts, transparent background, 1 px auto-outline (so art stays 1 px inside the canvas).
+// Parts that mount on the sides are drawn for the RIGHT side; the game flips them for the left.
+// Sizes are written to src/game/exteriorSprites.generated.ts so the layout code never guesses.
+const EXT_DIR = 'exterior'
+const exterior = {} // key -> canvas
+function part(key, w, h, draw) {
+  const cv = canvas(w, h)
+  draw(cv, PAL)
+  cv.outline()
+  exterior[key] = cv
+}
+// 1 px line (Bresenham)
+function line(cv, x0, y0, x1, y1, c) {
+  const dx = Math.abs(x1 - x0), dy = Math.abs(y1 - y0), sx = x0 < x1 ? 1 : -1, sy = y0 < y1 ? 1 : -1
+  let err = dx - dy
+  for (;;) {
+    cv.set(x0, y0, c)
+    if (x0 === x1 && y0 === y1) break
+    const e2 = 2 * err
+    if (e2 > -dy) { err -= dy; x0 += sx }
+    if (e2 < dx) { err += dx; y0 += sy }
+  }
+}
+// solar cells: dark blue with lighter grid lines every `step` px
+function cells(cv, x, y, w, h, step = 3) {
+  cv.rect(x, y, w, h, PAL.B)
+  for (let i = 0; i < w; i += step) cv.rect(x + i, y, 1, h, PAL.V)
+  for (let j = 0; j < h; j += step) cv.rect(x, y + j, w, 1, PAL.V)
+  cv.set(x + 1, y + 1, PAL.c)
+}
+// parabolic dish seen from the side, opening up
+function dish(cv, cx, topY, halfW, depth) {
+  for (let dx = -halfW; dx <= halfW; dx++) {
+    const y = topY + Math.round(depth * (1 - (dx / halfW) ** 2))
+    cv.set(cx + dx, y, PAL.W); cv.set(cx + dx, y + 1, PAL.G)
+  }
+}
+
+// --- bus bodies ---
+function cubesatBody(w, h) {
+  return (cv, { W, G, M, D, Y }) => {
+    cv.rect(1, 1, w - 2, h - 2, G)
+    cv.rect(w - 4, 1, 3, h - 2, M) // shaded side
+    for (let y = 17; y < h - 1; y += 16) cv.rect(1, y, w - 2, 1, M) // 1U seams
+    cv.rect(1, 1, 2, h - 2, W); cv.rect(3, 1, 1, h - 2, D) // left rail
+    cv.rect(w - 3, 1, 2, h - 2, W); cv.rect(w - 4, 1, 1, h - 2, D) // right rail
+    cv.rect(1, 1, w - 2, 1, W); cv.rect(1, h - 2, w - 2, 1, D) // end caps
+    cv.rect(w - 9, 4, 2, 1, Y) // tiny label
+  }
+}
+function foilBody(w, h, { base, shade, trim }) {
+  return (cv, { W, G, D, M }) => {
+    cv.rect(1, 1, w - 2, h - 2, base)
+    for (let y = 1; y < h - 1; y++) for (let x = 1; x < w - 1; x++) if ((x * 7 + y * 13) % 5 === 0) cv.set(x, y, shade) // crinkled foil
+    cv.rect(1, h - 4, w - 2, 3, shade) // lower shadow
+    cv.rect(1, 1, w - 2, 1, W) // top highlight
+    if (trim) { cv.rect(1, Math.floor(h / 2), w - 2, 2, trim); cv.rect(1, Math.floor(h / 2) + 2, w - 2, 1, D) }
+    cv.rect(2, h - 7, 6, 2, G); cv.rect(w - 9, 3, 7, 3, M); cv.rect(w - 8, 4, 5, 1, D) // panels and vents
+    for (const [x, y] of [[2, 2], [w - 3, 2], [2, h - 3], [w - 3, h - 3]]) cv.set(x, y, D) // bolts
+  }
+}
+part('ext_bus_cubesat-1u', 16, 16, cubesatBody(16, 16))
+part('ext_bus_cubesat-2u', 16, 24, cubesatBody(16, 24))
+part('ext_bus_cubesat-3u', 16, 32, cubesatBody(16, 32))
+part('ext_bus_cubesat-6u', 24, 32, cubesatBody(24, 32))
+part('ext_bus_cubesat-12u', 32, 48, cubesatBody(32, 48))
+part('ext_bus_smallsat', 40, 40, foilBody(40, 40, { base: PAL.Y, shade: PAL.r }))
+part('ext_bus_medium', 52, 52, foilBody(52, 52, { base: PAL.W, shade: PAL.G, trim: PAL.Y }))
+part('ext_bus_large', 64, 64, foilBody(64, 64, { base: PAL.Y, shade: PAL.r, trim: PAL.W }))
+part('ext_bus_generic', 24, 24, (cv, { M, D }) => { // unknown bus or none chosen yet: dashed frame
+  cv.rect(1, 1, 22, 22, D)
+  for (let i = 1; i < 23; i += 2) { cv.set(i, 1, M); cv.set(i, 22, M); cv.set(1, i, M); cv.set(22, i, M) }
+})
+
+// --- power ---
+part('ext_solar_body', 12, 6, (cv) => cells(cv, 1, 1, 10, 4, 3)) // cells glued on the bus face
+function wing(w, h, yoke, segs) {
+  return (cv, { M, D }) => {
+    cv.rect(0, Math.floor(h / 2) - 1, yoke + 1, 2, M) // yoke
+    const pw = Math.floor((w - 1 - yoke) / segs)
+    for (let i = 0; i < segs; i++) { cv.rect(1 + yoke + i * pw, 1, pw, h - 2, D); cells(cv, 2 + yoke + i * pw, 2, pw - 2, h - 4, 3) }
+  }
+}
+part('ext_solar_wing_deploy', 14, 10, wing(14, 10, 2, 1))
+part('ext_solar_wing_small', 26, 12, wing(26, 12, 3, 2))
+part('ext_solar_wing_large', 44, 16, wing(44, 16, 4, 3))
+part('ext_rtg', 20, 10, (cv, { M, D, G, r, Y }) => {
+  cv.rect(0, 4, 4, 2, M) // boom
+  cv.rect(3, 2, 14, 6, D); cv.rect(3, 2, 14, 1, G) // cylinder
+  for (let x = 5; x < 15; x += 2) { cv.rect(x, 1, 1, 8, M); cv.set(x, 1, G) } // cooling fins
+  cv.rect(16, 3, 2, 4, r); cv.set(17, 4, Y) // hot end cap
+})
+
+// --- antennas (stand on the bus roof, base at the bottom edge) ---
+part('ext_ant_uhf', 3, 14, (cv, { W, R, D }) => { cv.rect(1, 1, 1, 11, W); cv.set(1, 1, R); cv.set(1, 12, D) })
+part('ext_ant_sband', 10, 5, (cv, { D, G, c }) => { cv.rect(1, 1, 8, 3, D); cv.rect(2, 1, 6, 1, G); cv.set(4, 2, c); cv.set(5, 2, c) })
+part('ext_ant_xband', 14, 12, (cv, { M, D, c }) => {
+  dish(cv, 7, 3, 5, 2)
+  cv.rect(7, 1, 1, 3, M); cv.set(7, 1, c) // feed
+  cv.rect(6, 7, 2, 3, M); cv.rect(5, 10, 4, 1, D) // stub + base
+})
+part('ext_ant_hga', 22, 16, (cv, { M, D, c }) => {
+  dish(cv, 11, 5, 9, 4)
+  cv.rect(11, 1, 1, 6, M); cv.set(11, 1, c); cv.set(11, 2, c) // feed
+  line(cv, 3, 5, 10, 2, M); line(cv, 19, 5, 12, 2, M) // struts
+  cv.rect(10, 11, 2, 3, M); cv.rect(8, 14, 6, 1, D)
+})
+part('ext_ant_optical', 8, 14, (cv, { G, W, D, M, c, V }) => {
+  cv.rect(2, 1, 4, 9, G); cv.rect(2, 1, 1, 9, W) // tube
+  cv.rect(2, 1, 4, 1, D); cv.rect(3, 2, 2, 1, c); cv.set(3, 3, V) // aperture
+  cv.rect(2, 5, 4, 1, D); cv.rect(3, 10, 2, 1, M); cv.rect(1, 11, 6, 2, D) // gimbal + base
+})
+
+// --- instruments ---
+part('ext_inst_camera', 8, 8, (cv, { M, D, V, c }) => { cv.rect(1, 1, 6, 6, M); cv.rect(2, 2, 4, 4, D); cv.rect(3, 3, 2, 2, V); cv.set(3, 3, c) })
+part('ext_inst_multispectral', 10, 8, (cv, { D, C, n, R, W }) => {
+  cv.rect(1, 1, 8, 6, D)
+  ;[[2, C], [4, n], [6, R]].forEach(([x, col]) => { cv.rect(x, 2, 2, 4, col); cv.set(x, 2, W) })
+})
+part('ext_inst_thermal', 8, 8, (cv, { M, r, Y, D }) => { cv.rect(1, 1, 6, 6, M); cv.rect(2, 2, 4, 4, r); cv.rect(3, 3, 2, 2, Y); cv.rect(1, 6, 6, 1, D) })
+part('ext_inst_sar', 22, 8, (cv, { M, D, G, c }) => {
+  cv.rect(10, 1, 2, 2, M) // stub
+  cv.rect(1, 3, 20, 4, D); cv.rect(1, 3, 20, 1, G)
+  for (let x = 2; x < 20; x += 3) cv.set(x, 5, c) // radiating slots
+})
+part('ext_inst_spectrometer', 8, 10, (cv, { D, c, R, r, Y, N }) => {
+  cv.rect(1, 1, 6, 8, D); cv.rect(2, 2, 4, 1, c)
+  ;[R, r, Y, N].forEach((col, i) => cv.rect(2, 4 + i, 4, 1, col)) // dispersed spectrum
+})
+part('ext_inst_magnetometer', 18, 6, (cv, { D, M, Y }) => { cv.rect(1, 3, 3, 2, D); cv.rect(3, 3, 12, 1, M); cv.rect(15, 2, 2, 3, Y) }) // boom + sensor
+part('ext_inst_telescope', 12, 20, (cv, { D, M, W, G, V, c }) => {
+  cv.rect(2, 1, 8, 2, M) // mount
+  cv.rect(2, 3, 8, 14, W); cv.rect(8, 3, 2, 14, G) // tube
+  cv.rect(2, 7, 8, 1, D); cv.rect(2, 12, 8, 1, D) // rings
+  cv.rect(2, 16, 8, 2, D); cv.rect(3, 17, 6, 1, V); cv.set(4, 17, c) // aperture
+})
+part('ext_inst_laser', 8, 10, (cv, { D, M, R }) => { cv.rect(1, 1, 6, 5, D); cv.rect(2, 6, 4, 2, M); cv.rect(3, 8, 2, 1, R) })
+part('ext_inst_particle', 8, 8, (cv, { D, G, n }) => { cv.rect(1, 1, 6, 6, D); for (const y of [2, 4]) cv.rect(2, y, 4, 1, G); cv.set(3, 6, n); cv.set(4, 6, n) })
+part('ext_inst_radiometer', 10, 8, (cv, { M, D, c }) => { cv.rect(1, 2, 8, 5, M); cv.rect(7, 1, 2, 7, D); cv.set(8, 4, c) })
+
+// --- propulsion and attitude ---
+function nozzle(cv, cx, y0, y1, w0, w1, col, hi) {
+  for (let y = y0; y <= y1; y++) {
+    const w = Math.round(w0 + ((w1 - w0) * (y - y0)) / (y1 - y0))
+    cv.rect(cx - Math.floor(w / 2), y, w, 1, col); cv.set(cx - Math.floor(w / 2), y, hi)
+  }
+}
+part('ext_thruster_cold', 8, 7, (cv, { G, W, D }) => { cv.rect(2, 1, 4, 1, D); nozzle(cv, 4, 2, 5, 2, 4, G, W) })
+part('ext_thruster_bell', 12, 12, (cv, { D, M, G, K }) => { cv.rect(3, 1, 6, 3, D); nozzle(cv, 6, 4, 9, 4, 10, M, G); cv.rect(3, 9, 6, 1, K) })
+part('ext_thruster_hall', 12, 9, (cv, { D, M, c, C }) => {
+  cv.rect(2, 1, 8, 3, D); cv.rect(1, 4, 10, 2, M)
+  cv.rect(2, 6, 8, 1, C); cv.rect(4, 6, 4, 1, c) // ion glow ring
+})
+part('ext_star_tracker', 8, 8, (cv, { D, M, V, c }) => { cv.rect(2, 1, 4, 5, D); cv.rect(3, 1, 2, 1, V); cv.set(3, 1, c); cv.rect(1, 5, 6, 2, M) })
+part('ext_sun_sensor', 5, 4, (cv, { Y, W }) => { cv.rect(1, 1, 3, 2, Y); cv.set(2, 1, W) })
+part('ext_generic_part', 8, 8, (cv, { P, D, W }) => { cv.rect(1, 1, 6, 6, P); cv.rect(2, 2, 4, 4, D); cv.set(4, 3, W); cv.set(4, 5, W) }) // fallback for unknown ids
+
+fs.mkdirSync(path.join(OUT, EXT_DIR), { recursive: true })
+for (const [key, cv] of Object.entries(exterior)) save(`${EXT_DIR}/${key}.png`, cv)
+const sizeLines = Object.entries(exterior).map(([k, cv]) => `  '${k}': { w: ${cv.w}, h: ${cv.h} },`)
+fs.writeFileSync(
+  'src/game/exteriorSprites.generated.ts',
+  `// GENERATED by tools/sprites/make-sprites.mjs (npm run sprites). Do not edit by hand.\n` +
+    `/** Every exterior sprite (public/assets/sprites/exterior/<key>.png) and its size in px. */\n` +
+    `export const EXTERIOR_SPRITES = {\n${sizeLines.join('\n')}\n} as const\n`,
+)
+
 // preview sheet for docs (scaled 4x)
 const S = 4, gap = 8
 const items = [sheets.orange, sheets.green, ...Object.values(consoles)]
@@ -183,4 +351,4 @@ const png = new PNG({ width: big.w, height: big.h })
 big.px.forEach((row, y) => row.forEach((c, x2) => { const [r, g, b] = hex(c || '#0b0f1a'); png.data.set([r, g, b, 255], (y * big.w + x2) * 4) }))
 fs.writeFileSync('docs/art-preview.png', PNG.sync.write(png))
 
-console.log(`Wrote ${Object.keys(TEAM).length} astronaut sheets and ${Object.keys(ICONS).length} consoles to ${OUT}`)
+console.log(`Wrote ${Object.keys(TEAM).length} astronaut sheets and ${Object.keys(ICONS).length} consoles and ${Object.keys(exterior).length} exterior parts to ${OUT}`)
