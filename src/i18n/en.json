@@ -295,5 +295,43 @@
     "debrief": "Your concept reached CML {{level}}: {{name}}.",
     "debriefNone": "Your concept has not reached CML 1 yet.",
     "help": "NASA JPL rates how mature a mission concept is with Concept Maturity Levels. Each phase of the game moves your concept up one level."
+  },
+  "segments": {
+    "heading": "Mission segments",
+    "help": "NASA splits every science mission into four segments: launch, space, ground and user.",
+    "name": {
+      "launch": "Launch",
+      "space": "Space",
+      "ground": "Ground",
+      "user": "User"
+    },
+    "tabDone": "done",
+    "tabTodo": "to do",
+    "summary": "Mission summary by segment",
+    "summaryIntro": "Your design so far, organised the way NASA plans a science mission.",
+    "notChosen": "Not chosen yet",
+    "raw": "{{text}}",
+    "percent": "{{value}}%",
+    "objectiveValue": "{{objective}} — {{level}}",
+    "line": {
+      "launcher": "Launcher",
+      "launchCost": "Launch cost",
+      "reliability": "Launch reliability",
+      "capacity": "Capacity to your orbit",
+      "bus": "Bus",
+      "instruments": "Instruments",
+      "orbit": "Orbit",
+      "mass": "Spacecraft mass",
+      "network": "Ground stations",
+      "contact": "Contact per day",
+      "dataPerDay": "Science data per day",
+      "users": "Who uses the data",
+      "objective": "Objective"
+    },
+    "users": {
+      "student-cubesat": "Your university team, space-weather researchers and radio amateurs who listen to your CubeSat.",
+      "wildfire-eo": "Firefighters and emergency agencies, who use fresh fire maps to decide where to send crews.",
+      "space-telescope": "Astronomers around the world, who request observing time and download the data from public archives."
+    }
   }
 }

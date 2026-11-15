@@ -7,6 +7,7 @@ import { bridge } from './game/bridge'
 import './i18n'
 import { OrbitStep } from './ui/orbit/OrbitStep'
 import { MaturityMeter } from './ui/maturity/MaturityMeter'
+import { SegmentTabs } from './ui/segments/SegmentTabs'
 import { PayloadStep } from './ui/payload/PayloadStep'
 import { RequirementsStep } from './ui/requirements/RequirementsStep'
 import { ResourceBar } from './ui/resources/ResourceBar'
@@ -31,6 +32,8 @@ export default function App() {
       <ResourceBar data={gameData} />
       {/* FR-14.3 — JPL Concept Maturity Levels */}
       <MaturityMeter data={gameData} />
+      {/* FR-14.5 — the four NASA mission segments organise the navigation */}
+      <SegmentTabs />
 
       {step === 'brief' || !scenario ? (
         <ScenarioPicker data={gameData} />
