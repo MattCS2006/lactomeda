@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest'
-import { gameData } from '../../data'
+import { gameData, presetFor } from '../../data'
 import { createDesign, useMissionStore } from './missionStore'
 
 describe('mission store — scenario selection', () => {
@@ -203,5 +203,126 @@ describe('mission store — launcher (FR-5.4)', () => {
     useMissionStore.getState().selectLauncher('lv-medium', gameData)
     useMissionStore.getState().selectOrbit('l2', gameData)
     expect(useMissionStore.getState().design?.launcherId).toBe('lv-medium')
+  })
+})
+
+describe('mission store — student mode (Cadet)', () => {
+  const state = () => useMissionStore.getState()
+  beforeEach(() => {
+    useMissionStore.setState({ screen: 'design', step: 'brief', furthest: 'brief', design: null })
+  })
+
+  it('a new mission defaults to Cadet with baseline targets', () => {
+    state().selectScenario('wildfire-eo', gameData)
+    expect(state().design?.difficulty).toBe('cadet')
+    expect(Object.values(state().design!.requirementLevels).every((l) => l === 'baseline')).toBe(true)
+  })
+
+  it('"Use recommended targets" puts every objective back to baseline', () => {
+    state().selectScenario('wildfire-eo', gameData)
+    const [first, second] = Object.keys(state().design!.requirementLevels)
+    state().setRequirementLevel(first!, 'goal')
+    state().setRequirementLevel(second!, 'threshold')
+    state().applyRecommendedTargets()
+    expect(Object.values(state().design!.requirementLevels).every((l) => l === 'baseline')).toBe(true)
+  })
+
+  it('loads the starter spacecraft, keeps scenario, difficulty, targets and seed, and jumps to the Bus step', () => {
+    state().selectScenario('space-telescope', gameData, 'engineer')
+    const before = state().design!
+    const objective = Object.keys(before.requirementLevels)[0]!
+    state().setRequirementLevel(objective, 'goal')
+    state().loadPreset(gameData)
+
+    const d = state().design!
+    const preset = presetFor('space-telescope')!
+    expect(d).toMatchObject({
+      scenarioId: 'space-telescope',
+      difficulty: 'engineer',
+      seed: before.seed,
+      busClassId: preset.busClassId,
+      componentIds: preset.componentIds,
+      instrumentIds: preset.instrumentIds,
+      orbitId: preset.orbitId,
+      launcherId: preset.launcherId,
+      groundNetworkId: preset.groundNetworkId,
+      propellantKg: preset.propellantKg,
+    })
+    expect(d.requirementLevels[objective]).toBe('goal')
+    expect(state().step).toBe('bus')
+    expect(state().furthest).toBe('bus')
+  })
+
+  it('editing a loaded preset never changes the catalog preset', () => {
+    state().selectScenario('student-cubesat', gameData)
+    state().loadPreset(gameData)
+    const snapshot = JSON.stringify(presetFor('student-cubesat'))
+    state().selectPart('comms', 'com-uhf', gameData)
+    state().removeInstrument('inst-visible-cam')
+    expect(JSON.stringify(presetFor('student-cubesat'))).toBe(snapshot)
+  })
+
+  it('loadPreset does nothing without a design', () => {
+    state().loadPreset(gameData)
+    expect(state().design).toBeNull()
+    expect(state().step).toBe('brief')
+  })
+
+  it('on Cadet, picking a bus auto-picks structure, thermal, computer and attitude to fit it', () => {
+    state().selectScenario('wildfire-eo', gameData)
+    state().selectBus('smallsat', gameData)
+    expect(state().design!.componentIds).toEqual({
+      structure: 'str-smallsat',
+      thermal: 'thm-heaters',
+      computer: 'obc-radtol',
+      attitude: 'adcs-smallsat',
+    })
+  })
+
+  it('on Cadet, changing the bus re-picks the auto parts and leaves the player-chosen ones alone', () => {
+    state().selectScenario('student-cubesat', gameData)
+    state().selectBus('cubesat-3u', gameData)
+    state().selectPart('comms', 'com-sband', gameData)
+    expect(state().design!.componentIds).toMatchObject({ structure: 'str-3u', computer: 'obc-cubesat' })
+
+    state().selectBus('large', gameData)
+    expect(state().design!.componentIds).toEqual({
+      structure: 'str-large',
+      thermal: 'thm-radiators',
+      computer: 'obc-radhard',
+      attitude: 'adcs-cmg',
+      comms: 'com-sband',
+    })
+  })
+
+  it('on Cadet, re-selecting the same bus keeps a part the player changed under advanced parts', () => {
+    state().selectScenario('student-cubesat', gameData)
+    state().selectBus('cubesat-3u', gameData)
+    state().selectPart('attitude', 'adcs-cubesat', gameData)
+    state().selectBus('cubesat-3u', gameData)
+    expect(state().design!.componentIds.attitude).toBe('adcs-cubesat')
+  })
+
+  it('Engineer and Flight Director keep the full choice: nothing is auto-picked', () => {
+    for (const difficulty of ['engineer', 'flightDirector'] as const) {
+      useMissionStore.setState({ design: null })
+      state().selectScenario('wildfire-eo', gameData, difficulty)
+      state().selectBus('smallsat', gameData)
+      expect(state().design!.componentIds, difficulty).toEqual({})
+    }
+  })
+
+  it('switching to Cadet fills the empty auto subsystems but keeps parts already chosen', () => {
+    state().selectScenario('wildfire-eo', gameData, 'engineer')
+    state().selectBus('smallsat', gameData)
+    state().selectPart('thermal', 'thm-cryo', gameData) // advanced: dropped on Cadet, then auto-picked
+    state().selectPart('computer', 'obc-radhard', gameData) // simple: kept
+    state().setDifficulty('cadet', gameData)
+    expect(state().design!.componentIds).toEqual({
+      structure: 'str-smallsat',
+      thermal: 'thm-heaters',
+      computer: 'obc-radhard',
+      attitude: 'adcs-smallsat',
+    })
   })
 })

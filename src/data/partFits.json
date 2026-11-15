@@ -1,0 +1,20 @@
+{
+  "str-3u": ["cubesat-1u", "cubesat-2u", "cubesat-3u"],
+  "str-12u": ["cubesat-6u", "cubesat-12u"],
+  "str-smallsat": ["smallsat"],
+  "str-large": ["medium", "large"],
+  "str-composite": ["medium", "large"],
+  "obc-cubesat": ["cubesat-1u", "cubesat-2u", "cubesat-3u", "cubesat-6u", "cubesat-12u"],
+  "obc-radtol": ["cubesat-6u", "cubesat-12u", "smallsat", "medium"],
+  "obc-radhard": ["smallsat", "medium", "large"],
+  "obc-edge": ["cubesat-6u", "cubesat-12u", "smallsat", "medium"],
+  "adcs-mag": ["cubesat-1u", "cubesat-2u", "cubesat-3u", "cubesat-6u"],
+  "adcs-cubesat": ["cubesat-1u", "cubesat-2u", "cubesat-3u", "cubesat-6u", "cubesat-12u"],
+  "adcs-smallsat": ["smallsat", "medium"],
+  "adcs-cmg": ["medium", "large"],
+  "adcs-fine": ["smallsat", "medium", "large"],
+  "thm-passive": ["cubesat-1u", "cubesat-2u", "cubesat-3u", "cubesat-6u", "cubesat-12u"],
+  "thm-heaters": ["cubesat-6u", "cubesat-12u", "smallsat", "medium"],
+  "thm-radiators": ["medium", "large"],
+  "thm-cryo": ["smallsat", "medium", "large"]
+}

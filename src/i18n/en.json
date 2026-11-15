@@ -885,5 +885,22 @@
       "orbitInsertion": "Orbit insertion: you made it to space!",
       "anomaly": "Launch anomaly"
     }
+  },
+  "student": {
+    "preset": {
+      "heading": "New to mission design?",
+      "button": "Start with a working spacecraft",
+      "scratch": "Build from scratch",
+      "hint": "Change any part and watch the bars — try to keep them green!"
+    },
+    "advanced": {
+      "summary": "Advanced parts (auto-picked for you)",
+      "help": "We picked parts that fit your bus. Open this to swap them yourself."
+    },
+    "targets": {
+      "recommended": "Use recommended targets",
+      "recommendedHelp": "Baseline targets make a solid mission that is not too hard — great for a first flight.",
+      "customize": "Customize targets"
+    }
   }
 }

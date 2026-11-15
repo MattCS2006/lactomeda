@@ -22,20 +22,17 @@ export function RequirementsStep({ data }: Props) {
   const design = useMissionStore((s) => s.design)
   const setLevel = useMissionStore((s) => s.setRequirementLevel)
   const goTo = useMissionStore((s) => s.goTo)
+  const applyRecommended = useMissionStore((s) => s.applyRecommendedTargets)
   const scenario = data.scenarios.find((s) => s.id === design?.scenarioId)
   if (!design || !scenario) return null
 
   const potential = scorePotential(design.requirementLevels)
   const pressured = pressuredResources(scenario.objectives, design.requirementLevels)
+  // Student mode: on Cadet the recommended (baseline) targets are one click; the full picker is tucked away
+  const cadet = design.difficulty === 'cadet'
 
-  return (
-    <section aria-labelledby="req-heading" className="mx-auto max-w-5xl">
-      <p className="text-[10px] uppercase text-shine">{t('phase.requirements')}</p>
-      <h2 id="req-heading" className="mt-2 text-base">
-        {t('requirements.heading')}
-      </h2>
-      <p className="mt-3 max-w-3xl text-xs text-metal-light">{t('requirements.intro', { name: scenario.name })}</p>
-
+  const targetPicker = (
+    <>
       <dl className="mt-4 grid gap-2 border-2 border-metal bg-screen p-3 text-[10px] sm:grid-cols-3">
         {LEVELS.map((level) => (
           <div key={level}>
@@ -77,6 +74,43 @@ export function RequirementsStep({ data }: Props) {
           )}
         </div>
       </div>
+    </>
+  )
+
+  return (
+    <section aria-labelledby="req-heading" className="mx-auto max-w-5xl">
+      <p className="text-[10px] uppercase text-shine">{t('phase.requirements')}</p>
+      <h2 id="req-heading" className="mt-2 text-base">
+        {t('requirements.heading')}
+      </h2>
+      <p className="mt-3 max-w-3xl text-xs text-metal-light">{t('requirements.intro', { name: scenario.name })}</p>
+
+      {cadet && (
+        <div className="pixel-panel mt-6 p-4">
+          <button
+            type="button"
+            onClick={() => {
+              applyRecommended()
+              goTo('bus')
+            }}
+            className="border-2 border-outline bg-ok px-6 py-4 text-sm text-outline shadow-[inset_-3px_-3px_0_var(--color-teal)] hover:bg-ok-light focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-shine"
+          >
+            ✓ {t('student.targets.recommended')} ▶
+          </button>
+          <p className="mt-3 text-[10px] text-metal-light">{t('student.targets.recommendedHelp')}</p>
+        </div>
+      )}
+
+      {cadet ? (
+        <details className="mt-6">
+          <summary className="cursor-pointer text-[10px] text-shine focus-visible:outline-2 focus-visible:outline-shine">
+            {t('student.targets.customize')}
+          </summary>
+          {targetPicker}
+        </details>
+      ) : (
+        targetPicker
+      )}
 
       <div className="mt-6 flex justify-between gap-3">
         <button type="button" onClick={() => goTo('brief')} className="pixel-button px-4 py-3 text-[10px]">

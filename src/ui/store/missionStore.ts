@@ -2,9 +2,10 @@
 // every screen edits it through this store (ERS §3 architecture).
 import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
-import { gameData } from '../../data'
+import { gameData, presetFor } from '../../data'
 import { canAddInstrument } from '../../engine/rules/busClass'
 import { isComponentAvailable, selectComponent as withComponent } from '../../engine/rules/components'
+import { withAutoParts } from '../bus/autoPick'
 import { altitudeRange, clampAltitude } from '../orbit/altitudeView'
 import { groundReasons } from '../orbit/groundView'
 import { launcherReasons, launchersFor } from '../orbit/launcherView'
@@ -24,7 +25,7 @@ export function newSeed(): string {
   return Math.random().toString(36).slice(2, 10)
 }
 
-/** A fresh design for a scenario: baseline targets, nothing chosen yet. */
+/** A fresh design for a scenario: baseline targets, nothing chosen yet. New missions start on Cadet (student mode). */
 export function createDesign(
   scenarioId: string,
   data: Pick<GameData, 'scenarios'>,
@@ -60,9 +61,16 @@ interface MissionStore {
   selectScenario: (scenarioId: string, data: Pick<GameData, 'scenarios'>, difficulty?: Difficulty) => void
   /** FR-2.3 — set the target level of one objective. */
   setRequirementLevel: (objectiveId: string, level: RequirementLevel) => void
-  /** FR-2.2 — change difficulty. Parts the new level doesn't offer (advanced parts on Cadet) are removed. */
+  /** FR-2.2 — change difficulty. Parts the new level doesn't offer (advanced parts on Cadet) are removed; on Cadet the empty auto subsystems are then filled. */
   setDifficulty: (difficulty: Difficulty, data: GameData) => void
-  /** FR-3.1 — choose the bus size class. */
+  /** Student mode — every objective back to its baseline (recommended) target. */
+  applyRecommendedTargets: () => void
+  /**
+   * Student mode — replace the design with the scenario's starter spacecraft (src/data/presets.json),
+   * keeping the scenario, difficulty, targets and seed, and jump to the Bus step.
+   */
+  loadPreset: (data: GameData) => void
+  /** FR-3.1 — choose the bus size class. On Cadet, structure/thermal/computer/attitude are re-picked to fit it. */
   selectBus: (busClassId: string, data: GameData) => void
   /** FR-3.2 — choose the part for one subsystem (engine selectComponent checks it). */
   selectPart: (subsystem: Subsystem, componentId: string, data: GameData) => void
@@ -116,13 +124,48 @@ export const useMissionStore = create<MissionStore>()(
             return part !== undefined && isComponentAvailable(part, difficulty)
           }),
         ) as MissionDesign['componentIds']
-        const redundant = design.redundant.filter((s) => s in componentIds)
-        set({ design: { ...design, difficulty, componentIds, redundant } })
+        const next = { ...design, difficulty, componentIds }
+        const filled = difficulty === 'cadet' ? withAutoParts(next, data, true) : next
+        const redundant = design.redundant.filter((s) => s in filled.componentIds)
+        set({ design: { ...filled, redundant } })
+      },
+      applyRecommendedTargets: () => {
+        const design = get().design
+        if (!design) return
+        const requirementLevels = Object.fromEntries(
+          Object.keys(design.requirementLevels).map((id) => [id, 'baseline' as const]),
+        )
+        set({ design: { ...design, requirementLevels } })
+      },
+      loadPreset: (data) => {
+        const design = get().design
+        const preset = design && presetFor(design.scenarioId)
+        if (!design || !preset) return
+        // Copy every nested list/map so later edits never touch the catalog object
+        const loaded: MissionDesign = {
+          ...preset,
+          componentIds: { ...preset.componentIds },
+          redundant: [...preset.redundant],
+          instrumentIds: [...preset.instrumentIds],
+          dutyCycle: { ...preset.dutyCycle },
+          scenarioId: design.scenarioId,
+          difficulty: design.difficulty,
+          requirementLevels: design.requirementLevels,
+          seed: design.seed,
+        }
+        // Presets only use simple parts, so they are valid on every difficulty; check anyway
+        const parts = Object.values(loaded.componentIds).map((id) => data.components.find((c) => c.id === id))
+        if (parts.some((c) => !c || !isComponentAvailable(c, loaded.difficulty))) return
+        set({ design: loaded })
+        get().goTo('bus')
       },
       selectBus: (busClassId, data) => {
         const design = get().design
         if (!design || !data.busClasses.some((b) => b.id === busClassId)) return
-        set({ design: { ...design, busClassId } })
+        if (design.busClassId === busClassId) return
+        const next = { ...design, busClassId }
+        // Student mode: re-pick the parts the player doesn't see so they always fit the new bus
+        set({ design: next.difficulty === 'cadet' ? withAutoParts(next, data) : next })
       },
       selectPart: (subsystem, componentId, data) => {
         const design = get().design
