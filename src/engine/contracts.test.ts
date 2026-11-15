@@ -37,7 +37,7 @@ const data: GameData = {
   orbits: [
     { id: 'sso-600', name: 'Sun-synchronous 600 km', regime: 'SSO', altitudeKm: 600, periodMin: 96.7, eclipseFraction: 0.35, contactMinPerDay: 40, distanceKm: 1500, sunDistanceAU: 1, radiation: 'low', insertionDeltaVms: 0, source: 'analytic' },
   ],
-  launchers: [{ id: 'rideshare', name: 'Rideshare', capacityKg: { SSO: 500 }, costM: 0.3, reliability: 0.97 }],
+  launchers: [{ id: 'rideshare', name: 'Rideshare', capacityKg: { SSO: 500 }, costM: 0.3, reliability: 0.97, fairingVolumeL: 420 }],
   groundNetworks: [{ id: 'uni', name: 'University station', costM: 0.1, contactMultiplier: 1, maxDistanceKm: 3000 }],
   scenarios: [
     {

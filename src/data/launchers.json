@@ -7,7 +7,8 @@
     },
     "costM": 0,
     "reliability": 0.95,
-    "ref": "NASA CubeSat 101 (CubeSat Launch Initiative, CSLI): NASA provides launches to selected educational CubeSats at no cost; up to 12U / ~24 kg; reliability is a game estimate",
+    "fairingVolumeL": 12,
+    "ref": "NASA CubeSat 101 (CubeSat Launch Initiative, CSLI): NASA provides launches to selected educational CubeSats at no cost; up to 12U / ~24 kg; reliability is a game estimate; fairing volume is an estimate — verify (NFR-09)",
     "onlyScenarioIds": [
       "student-cubesat"
     ]
@@ -21,7 +22,8 @@
     },
     "costM": 0.9,
     "reliability": 0.98,
-    "ref": "ERS §7.2 ($0.3M per U); priced for a 3U slot (~6 kg, NASA CubeSat 101 ~2 kg per U); SSO 6 kg ≈ one 3U slot on an SSO rideshare dispenser (game balance value)"
+    "fairingVolumeL": 3,
+    "ref": "ERS §7.2 ($0.3M per U); priced for a 3U slot (~6 kg, NASA CubeSat 101 ~2 kg per U); SSO 6 kg ≈ one 3U slot on an SSO rideshare dispenser (game balance value); fairing volume is an estimate — verify (NFR-09)"
   },
   {
     "id": "lv-rideshare",
@@ -32,7 +34,8 @@
     },
     "costM": 30,
     "reliability": 0.97,
-    "ref": "ERS §7.2 (500 kg slot, ~$6M per 100 kg; cost shown for a full slot)"
+    "fairingVolumeL": 420,
+    "ref": "ERS §7.2 (500 kg slot, ~$6M per 100 kg; cost shown for a full slot); fairing volume is an estimate — verify (NFR-09)"
   },
   {
     "id": "lv-small",
@@ -43,7 +46,8 @@
     },
     "costM": 8,
     "reliability": 0.93,
-    "ref": "ERS §7.2; SSO value from Rocket Lab Electron Payload User's Guide; verify"
+    "fairingVolumeL": 2300,
+    "ref": "ERS §7.2; SSO value from Rocket Lab Electron Payload User's Guide; verify; fairing volume is an estimate — verify (NFR-09)"
   },
   {
     "id": "lv-medium",
@@ -57,7 +61,8 @@
     },
     "costM": 70,
     "reliability": 0.98,
-    "ref": "ERS §7.2; SSO/GTO/TLI/escape from SpaceX Falcon Payload User's Guide; verify"
+    "fairingVolumeL": 130000,
+    "ref": "ERS §7.2; SSO/GTO/TLI/escape from SpaceX Falcon Payload User's Guide; verify; fairing volume is an estimate — verify (NFR-09)"
   },
   {
     "id": "lv-heavy",
@@ -71,7 +76,8 @@
     },
     "costM": 120,
     "reliability": 0.97,
-    "ref": "ERS §7.2 (21,000-63,000 kg LEO, midpoint used); other regimes are game estimates; verify"
+    "fairingVolumeL": 130000,
+    "ref": "ERS §7.2 (21,000-63,000 kg LEO, midpoint used); other regimes are game estimates; verify; fairing volume is an estimate — verify (NFR-09)"
   },
   {
     "id": "lv-superheavy",
@@ -83,6 +89,7 @@
     },
     "costM": 2000,
     "reliability": 0.95,
-    "ref": "ERS §7.2; TLI from NASA SLS Block 1 fact sheet; escape is a game estimate"
+    "fairingVolumeL": 400000,
+    "ref": "ERS §7.2; TLI from NASA SLS Block 1 fact sheet; escape is a game estimate; fairing volume is an estimate — verify (NFR-09)"
   }
 ]
