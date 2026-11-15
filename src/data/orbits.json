@@ -12,7 +12,7 @@
     "radiation": "low",
     "insertionDeltaVms": 0,
     "source": "gmat",
-    "ref": "NASA GMAT R2025a, gmat/leo500.script (7-day run from 2027-01-01, 51.6° inclination, ground station San José CR at 10° min elevation): 3.1 passes/day, avg 5.8 min; insertion delta-v is an estimate — verify (NFR-09)"
+    "ref": "NASA GMAT R2025a, gmat/leo500.script, values from gmat/output/leo500.json (7-day run from 2027-01-01, 51.6° inclination, ground station San José CR at 10° min elevation): 3.1 passes/day, avg 5.8 min; insertion delta-v is an estimate — verify (NFR-09)"
   },
   {
     "id": "sso",
