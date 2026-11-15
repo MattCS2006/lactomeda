@@ -2,16 +2,17 @@ import Phaser from 'phaser'
 import { composeExterior, type ExteriorLayout } from '../exteriorLayout'
 import { EXTERIOR_REGISTRY_KEY, type ExteriorSource } from '../exteriorSource'
 import { EXTERIOR_SPRITES } from '../exteriorSprites.generated'
+import { PALETTE, PALETTE_NUM } from '../palette'
 
 // Spacecraft exterior on a dark starfield (SCRUM-92, FR-9.1). It re-composes whenever ShipPreview
 // updates the registry entry, so picking a part redraws the ship without restarting the game.
 
 const SPRITE_DIR = 'assets/sprites/exterior'
-const BG = '#0b0f1a'
+const BG = PALETTE.outline
 const PADDING = 16 // px kept free around the ship (screen px)
 const BOB_MS = 700 // idle bob: 1 art px up/down, stepped so sprites stay on the pixel grid
 const STAR_COUNT = 70
-const STAR_COLORS = [0xf4f4f4, 0x94b0c2, 0x566c86, 0x73eff7] // Sweetie 16
+const STAR_COLORS = [PALETTE_NUM.white, PALETTE_NUM.metalLight, PALETTE_NUM.metal, PALETTE_NUM.shine]
 
 /** Largest whole-number scale that fits the layout inside the canvas (never below 1). */
 export function fitScale(layout: Pick<ExteriorLayout, 'width' | 'height'>, canvasW: number, canvasH: number): number {

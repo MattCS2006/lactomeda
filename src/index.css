@@ -4,9 +4,65 @@ html,
 body,
 #root {
   margin: 0;
-  background: #020617;
+  background: #1a1c2c; /* palette outline */
 }
 
 canvas {
   image-rendering: pixelated;
+}
+
+/* ── Pixel-art UI tokens (SCRUM-93, docs/ART.md): Sweetie 16, same names as src/game/palette.ts ── */
+@theme {
+  --color-outline: #1a1c2c;
+  --color-metal-dark: #333c57;
+  --color-metal: #566c86;
+  --color-metal-light: #94b0c2;
+  --color-white: #f4f4f4;
+  --color-screen: #29366f;
+  --color-visor: #3b5dc9;
+  --color-info: #41a6f6;
+  --color-shine: #73eff7;
+  --color-ok: #38b764;
+  --color-ok-light: #a7f070;
+  --color-warning: #ffcd75;
+  --color-orange: #ef7d57;
+  --color-alarm: #b13e53;
+  --color-teal: #257179;
+  --color-purple: #5d275d;
+
+  --font-pixel: 'Press Start 2P', monospace;
+}
+
+/* Panel: dark metal, 2px light border, 2px dark outline outside (same look as the in-game panels) */
+.pixel-panel {
+  background: var(--color-metal-dark);
+  border: 2px solid var(--color-metal-light);
+  box-shadow: 0 0 0 2px var(--color-outline);
+  color: var(--color-white);
+}
+
+/* Button: a pixel-panel you can press */
+.pixel-button {
+  background: var(--color-metal-dark);
+  border: 2px solid var(--color-metal-light);
+  box-shadow: 0 0 0 2px var(--color-outline);
+  color: var(--color-white);
+  font-family: var(--font-pixel);
+  cursor: pointer;
+}
+
+.pixel-button:hover:not(:disabled) {
+  background: var(--color-metal);
+}
+
+.pixel-button:focus-visible {
+  outline: 2px solid var(--color-shine);
+  outline-offset: 2px;
+}
+
+.pixel-button:disabled {
+  background: var(--color-outline);
+  border-color: var(--color-metal);
+  color: var(--color-metal);
+  cursor: not-allowed;
 }
