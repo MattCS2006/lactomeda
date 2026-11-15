@@ -5,6 +5,7 @@ import {
   ROOM_CODE_LENGTH,
   createRoomClient,
   generateRoomCode,
+  hasStarted,
   isValidRoomCode,
   normalizeRoomCode,
   playersFromPresence,
@@ -182,5 +183,19 @@ describe('FR-8.1 create / join — acceptance: join in ≤ 3 clicks; a 5th playe
     off()
     p!.leave()
     expect(seen).toEqual(['connecting', 'joined'])
+  })
+
+  it('FR-8.2: role picks travel with presence and the host starts the design for everyone', () => {
+    const { client } = fakeRealtime()
+    const [host, a] = makePlayers(2, client)
+    host!.create('host')
+    a!.join(host!.getState().code!, 'a')
+    a!.chooseRole('director')
+    expect(host!.getState().players.find((p) => p.id === 'p1')?.role).toBe('director')
+    a!.start() // only the host can start
+    expect(hasStarted(host!.getState().players)).toBe(false)
+    host!.start()
+    expect(hasStarted(a!.getState().players)).toBe(true)
+    expect(hasStarted(host!.getState().players)).toBe(true)
   })
 })

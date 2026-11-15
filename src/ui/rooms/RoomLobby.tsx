@@ -2,12 +2,22 @@
 // (Join Room → type the code → Join). The room itself lives in src/net/rooms.ts (Supabase Realtime Presence).
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import { useTranslation } from 'react-i18next'
-import { MAX_PLAYERS, ROOM_CODE_LENGTH, normalizeRoomCode } from '../../net/rooms'
+import { MAX_PLAYERS, ROOM_CODE_LENGTH, hasStarted, normalizeRoomCode } from '../../net/rooms'
+import { RolePicker } from './RolePicker'
 import { roomClient } from '../../net/roomClient'
 
 export type RoomMode = 'create' | 'join'
 
-export function RoomLobby({ mode, onClose }: { mode: RoomMode; onClose: () => void }) {
+export function RoomLobby({
+  mode,
+  onClose,
+  onStarted,
+}: {
+  mode: RoomMode
+  onClose: () => void
+  /** The host started the team design (FR-8.2: every role assigned): close without leaving the room. */
+  onStarted: () => void
+}) {
   const { t } = useTranslation()
   const room = useSyncExternalStore(roomClient.subscribe, roomClient.getState)
   const [name, setName] = useState(() => t('rooms.defaultName', { tag: room.selfId.slice(0, 3).toUpperCase() }))
@@ -29,6 +39,12 @@ export function RoomLobby({ mode, onClose }: { mode: RoomMode; onClose: () => vo
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [onClose])
+
+  // When the host starts, everyone moves on to the design together
+  const started = room.status === 'joined' && hasStarted(room.players)
+  useEffect(() => {
+    if (started) onStarted()
+  }, [started, onStarted])
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -55,7 +71,7 @@ export function RoomLobby({ mode, onClose }: { mode: RoomMode; onClose: () => vo
         role="dialog"
         aria-modal="true"
         aria-labelledby="room-heading"
-        className="pixel-panel w-full max-w-md p-5"
+        className="pixel-panel max-h-full w-full max-w-2xl overflow-y-auto p-5"
         onClick={(e) => e.stopPropagation()}
       >
         <h2 id="room-heading" className="text-base">
@@ -146,7 +162,7 @@ export function RoomLobby({ mode, onClose }: { mode: RoomMode; onClose: () => vo
                 ))}
               </ol>
             </div>
-            <p className="text-metal-light">{t('rooms.waiting')}</p>
+            <RolePicker />
             <div className="flex justify-end">
               <button type="button" onClick={close} className="pixel-button px-4 py-2 text-[10px]">
                 {t('rooms.leave')}
