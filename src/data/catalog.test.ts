@@ -423,6 +423,8 @@ describe('curated catalog (max 3 options per category)', () => {
     for (const key of RESOURCE_KEYS) expect(budgets[key].status, `${scenario.id}: ${key} is red`).not.toBe('red')
     expect(designReview(design, cur).hardBlockers, `${scenario.id}: hard blockers`).toEqual([])
     for (const r of evaluateObjectives(design, cur)) expect(r.levelAchieved, `${scenario.id}: ${r.objectiveId}`).not.toBeNull()
+  })
+})
 
 // Station tasks: optional mini-missions that earn points (kind 'task')
 describe('station tasks (kind "task")', () => {

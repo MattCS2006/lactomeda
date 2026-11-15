@@ -907,5 +907,34 @@
     "label": "Idioma",
     "en": "English",
     "es": "Español"
+  },
+  "demoFixes": {
+    "issues": {
+      "MISSING_INSTRUMENT": "No has elegido ningún instrumento. Sin uno, tu misión no reúne datos ni ciencia. Añade uno en la pantalla de Carga útil."
+    },
+    "debrief": {
+      "scoreHeading": "Tu puntaje",
+      "points": "{{points}} / {{max}}",
+      "part": {
+        "science": "Ciencia reunida",
+        "objectives": "Metas de la misión",
+        "efficiency": "Margen de sobra en tus presupuestos",
+        "reliability": "Piezas que siguieron funcionando",
+        "collaboration": "Alarmas atendidas a tiempo"
+      },
+      "pointsHeading": "Las 3 cosas más importantes",
+      "kind": {
+        "good": "Salió bien",
+        "bad": "Salió mal",
+        "tip": "Prueba esto la próxima vez"
+      },
+      "launchHeading": "Por qué falló el lanzamiento",
+      "cause": "Qué pasó:",
+      "lesson": "Lo que aprenden los ingenieros:"
+    },
+    "task": {
+      "label": "Tarea opcional",
+      "hint": "Hazla para ganar la recompensa de abajo, u omítela: no pierdes nada."
+    }
   }
 }
