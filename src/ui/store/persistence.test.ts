@@ -52,7 +52,7 @@ describe('auto-save (FR-11.1)', () => {
   it('saves on every edit, and only the design + step (no functions)', () => {
     state().selectScenario('student-cubesat', gameData)
     const saved = JSON.parse(memory.get(SAVE_KEY)!)
-    expect(Object.keys(saved.state).sort()).toEqual(['design', 'step'])
+    expect(Object.keys(saved.state).sort()).toEqual(['design', 'furthest', 'step'])
     expect(saved.state.design.scenarioId).toBe('student-cubesat')
     state().toggleInstrument('inst-visible-cam', gameData)
     expect(JSON.parse(memory.get(SAVE_KEY)!).state.design.instrumentIds).toEqual(['inst-visible-cam'])

@@ -47,6 +47,8 @@ export function createDesign(
 
 interface MissionStore {
   step: DesignStep
+  /** Furthest step the player has moved on to with this design (drives the CML meter, FR-14.3). */
+  furthest: DesignStep
   design: MissionDesign | null
   /** Pick (or switch) scenario. Switching resets the design, since targets and budget change. */
   selectScenario: (scenarioId: string, data: Pick<GameData, 'scenarios'>, difficulty?: Difficulty) => void
@@ -73,11 +75,13 @@ export const useMissionStore = create<MissionStore>()(
   persist(
     (set, get) => ({
       step: 'brief',
+      furthest: 'brief',
       design: null,
       selectScenario: (scenarioId, data, difficulty) => {
         const current = get().design
         if (current?.scenarioId === scenarioId) return
-        set({ design: createDesign(scenarioId, data, difficulty ?? current?.difficulty) })
+        // A new design starts its maturity again
+        set({ design: createDesign(scenarioId, data, difficulty ?? current?.difficulty), furthest: 'brief' })
       },
       setRequirementLevel: (objectiveId, level) => {
         const design = get().design
@@ -154,20 +158,23 @@ export const useMissionStore = create<MissionStore>()(
       },
       goTo: (step) => {
         if (step !== 'brief' && !get().design) return
-        set({ step })
+        const { furthest } = get()
+        set({ step, furthest: DESIGN_STEPS.indexOf(step) > DESIGN_STEPS.indexOf(furthest) ? step : furthest })
       },
     }),
     {
       name: SAVE_KEY,
       version: SAVE_VERSION,
       storage: createJSONStorage(() => safeStorage),
-      partialize: (state) => ({ step: state.step, design: state.design }),
+      partialize: (state) => ({ step: state.step, furthest: state.furthest, design: state.design }),
       // Check what was saved against today's catalog before using it
       merge: (persisted, current) => {
-        const saved = (persisted ?? {}) as Partial<Pick<MissionStore, 'step' | 'design'>>
+        const saved = (persisted ?? {}) as Partial<Pick<MissionStore, 'step' | 'furthest' | 'design'>>
         const design = sanitizeDesign(saved.design, gameData)
-        const step = design && DESIGN_STEPS.includes(saved.step as DesignStep) ? (saved.step as DesignStep) : 'brief'
-        return { ...current, design, step }
+        const valid = (s: unknown): s is DesignStep => DESIGN_STEPS.includes(s as DesignStep)
+        const step = design && valid(saved.step) ? saved.step : 'brief'
+        const furthest = design && valid(saved.furthest) ? saved.furthest : step
+        return { ...current, design, step, furthest }
       },
     },
   ),
