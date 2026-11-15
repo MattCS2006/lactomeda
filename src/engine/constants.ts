@@ -109,6 +109,14 @@ export const CRITICAL_SUBSYSTEMS: readonly Subsystem[] = ['power', 'battery', 'c
 /** Game balance: a repair restores REPAIR_BASE_HEALTH + (1 - REPAIR_BASE_HEALTH) x the mini-game score of health. */
 export const REPAIR_BASE_HEALTH = 0.5
 
+// ─── FR-3.6 propellant, station-keeping and lifetime ────────────────────
+
+/** Standard gravity (m/s^2) for the rocket equation: delta-v = Isp x G0 x ln(m0 / m1). */
+export const G0 = 9.80665
+
+/** Game balance: atmospheric scale height (km). Each DRAG_SCALE_HEIGHT_KM lower than the nominal altitude multiplies drag (station-keeping, decay rate) by e. */
+export const DRAG_SCALE_HEIGHT_KM = 70
+
 // ─── FR-10.1 score ──────────────────────────────────────────────────────
 
 /** FR-10.1: maximum points per component; they add up to 1000. */

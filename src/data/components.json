@@ -328,7 +328,8 @@
     "trl": 9,
     "reliability": 0.96,
     "deltaVms": 30,
-    "ref": "Estimate from NASA 'State-of-the-Art of Small Spacecraft Technology' (Propulsion); verify (NFR-09)"
+    "ispS": 65,
+    "ref": "Estimate from NASA 'State-of-the-Art of Small Spacecraft Technology' (Propulsion); verify (NFR-09); ispS is an estimate \u2014 verify (NFR-09)"
   },
   {
     "id": "prop-mono",
@@ -341,7 +342,8 @@
     "trl": 9,
     "reliability": 0.98,
     "deltaVms": 200,
-    "ref": "Estimate from Wertz & Larson, SMAD (Propulsion); verify (NFR-09)"
+    "ispS": 220,
+    "ref": "Estimate from Wertz & Larson, SMAD (Propulsion); verify (NFR-09); ispS is an estimate \u2014 verify (NFR-09)"
   },
   {
     "id": "prop-biprop",
@@ -354,7 +356,8 @@
     "trl": 9,
     "reliability": 0.98,
     "deltaVms": 1500,
-    "ref": "Estimate from Wertz & Larson, SMAD (Propulsion); verify (NFR-09)"
+    "ispS": 315,
+    "ref": "Estimate from Wertz & Larson, SMAD (Propulsion); verify (NFR-09); ispS is an estimate \u2014 verify (NFR-09)"
   },
   {
     "id": "prop-hall",
@@ -367,7 +370,8 @@
     "trl": 7,
     "reliability": 0.95,
     "deltaVms": 3000,
-    "ref": "Estimate from NASA 'State-of-the-Art of Small Spacecraft Technology' (Propulsion); verify (NFR-09)"
+    "ispS": 1600,
+    "ref": "Estimate from NASA 'State-of-the-Art of Small Spacecraft Technology' (Propulsion); verify (NFR-09); ispS is an estimate \u2014 verify (NFR-09)"
   },
   {
     "id": "thm-passive",

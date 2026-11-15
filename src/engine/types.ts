@@ -53,6 +53,7 @@ export interface Component {
   capacityWh?: number // battery
   dataRateKbps?: number // comms
   deltaVms?: number // propulsion
+  ispS?: number // specific impulse (s), propulsion only
   storageMb?: number // computer
   ref?: string // source note for REFERENCES.md
 }
@@ -113,6 +114,8 @@ export interface Orbit {
   sunDistanceAU: number // 1 near Earth, ~1.52 at Mars (solar power)
   radiation: 'low' | 'medium' | 'high'
   insertionDeltaVms: number // delta-v the spacecraft itself must provide after launcher separation (m/s)
+  stationKeepingMsPerYear: number // delta-v per year to hold the orbit at its nominal altitude (m/s)
+  decayLifetimeDays?: number // how long the orbit lasts with no station-keeping; absent = no decay
   source: 'gmat' | 'analytic'
   ref?: string // source note for REFERENCES.md
 }

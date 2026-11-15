@@ -51,8 +51,8 @@ describe('massBreakdown against the reference designs', () => {
       expect(b.dryMassKg).toBeCloseTo(dry, 9)
       expect(b.contingencyFraction).toBe(FRACTION[difficulty])
       expect(b.contingencyKg).toBeCloseTo(dry * FRACTION[difficulty], 9)
-      expect(b.propellantKg).toBe(0)
-      expect(b.totalMassKg).toBeCloseTo(dry * (1 + FRACTION[difficulty]), 9)
+      expect(b.propellantKg).toBe(design.propellantKg) // FR-3.6: the Space Telescope reference design carries propellant
+      expect(b.totalMassKg).toBeCloseTo(dry * (1 + FRACTION[difficulty]) + design.propellantKg, 9)
       expect(wetMassKg(design, gameData)).toBe(b.totalMassKg)
       // the reference design must stay winnable at every difficulty
       expect(b.totalMassKg).toBeLessThanOrEqual(hand.busMaxKg)

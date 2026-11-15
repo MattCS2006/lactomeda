@@ -224,3 +224,20 @@ describe('failure events (FR-3.5)', () => {
     for (const e of gameData.events.filter((x) => x.id.startsWith('failure-'))) expect(e.trigger.chancePerDay, e.id).toBe(0)
   })
 })
+
+// FR-3.6: propellant drives delta-v and station-keeping
+describe('propellant data (FR-3.6)', () => {
+  it('gives every propulsion part except prop-none a specific impulse', () => {
+    for (const c of components.filter((x) => x.subsystem === 'propulsion' && x.id !== 'prop-none')) {
+      expect(c.ispS, `${c.id} ispS`).toBeGreaterThan(0)
+    }
+    expect(components.find((c) => c.id === 'prop-none')!.ispS).toBeUndefined()
+  })
+
+  it('gives every orbit a station-keeping delta-v per year, and a sensible decay lifetime where there is one', () => {
+    for (const o of orbits) {
+      expect(o.stationKeepingMsPerYear, `${o.id} stationKeepingMsPerYear`).toBeGreaterThanOrEqual(0)
+      if (o.decayLifetimeDays !== undefined) expect(o.decayLifetimeDays, `${o.id} decayLifetimeDays`).toBeGreaterThan(0)
+    }
+  })
+})
