@@ -744,8 +744,8 @@
     "pause": "Pause",
     "times": "{{n}}×",
     "abort": "Abort mission",
-    "alarmAt": "{{station}} station",
-    "secondsLeft": "{{s}} s left"
+    "secondsLeft": "{{s}} s left",
+    "goTo": "Go to the {{station}} station and press E"
   },
   "rooms": {
     "heading": {
@@ -807,5 +807,34 @@
     "teamCount_one": "{{count}} player",
     "teamCount_other": "{{count}} players",
     "yourRoles": "Your role:"
+  },
+  "station": {
+    "bridge": "Bridge",
+    "comms": "Comms",
+    "power": "Power",
+    "science": "Science Lab",
+    "navigation": "Navigation",
+    "engine": "Engine Bay",
+    "computer": "Computer Core"
+  },
+  "decision": {
+    "station": "{{station}} station",
+    "timeLeft": "{{s}} s to decide",
+    "noEffect": "No change now",
+    "default": "Happens if nobody decides in time.",
+    "later": "Decide later",
+    "effect": {
+      "health": "Part health {{value}}",
+      "battery": "Battery {{value}}",
+      "science": "Science {{value}}",
+      "data": "Data {{value}} Mb",
+      "propellant": "Fuel {{value}} kg",
+      "budget": "Budget {{value}} $M",
+      "risk": "Risk {{value}}",
+      "mass": "Mass {{value}}",
+      "power": "Power {{value}}",
+      "comms": "Comms {{value}}",
+      "time": "Time {{value}}"
+    }
   }
 }
