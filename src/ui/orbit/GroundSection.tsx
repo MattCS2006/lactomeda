@@ -2,7 +2,7 @@
 import { useTranslation } from 'react-i18next'
 import type { GameData } from '../../engine/types'
 import { formatNumber } from '../payload/payloadView'
-import type { Label } from '../scenarios/scenarioView'
+import { translateLabel, type Label } from '../scenarios/scenarioView'
 import { useMissionStore } from '../store/missionStore'
 import { toGroundCard, type GroundCard } from './groundView'
 
@@ -19,7 +19,7 @@ export function GroundSection({ data }: Props) {
   const cards = data.groundNetworks
     .map((g) => toGroundCard(g, design, data))
     .sort((a, b) => Number(a.reasons.length > 0) - Number(b.reasons.length > 0))
-  const label = (l: Label) => t(l.key, l.values ?? {})
+  const label = (l: Label) => translateLabel(t, l)
 
   return (
     <section aria-labelledby="ground-heading" className="mt-10">

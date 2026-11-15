@@ -5,6 +5,7 @@ import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { GameData } from '../../engine/types'
 import { useMissionStore } from '../store/missionStore'
+import { translateLabel } from '../scenarios/scenarioView'
 import { resourceCells, type ResourceCell } from './resourceBarView'
 import { lookFor } from './statusView'
 
@@ -33,6 +34,8 @@ function ResourceCellView({ cell }: { cell: ResourceCell }) {
   const { t } = useTranslation()
   const name = t(`resource.${cell.key}`)
   const pending = cell.available === null
+  const used = translateLabel(t, cell.used)
+  const available = cell.available ? translateLabel(t, cell.available) : null
   const look = lookFor(cell.status)
   const state = `${look.icon} ${t(look.textKey)}`
   return (
@@ -42,10 +45,10 @@ function ResourceCellView({ cell }: { cell: ResourceCell }) {
         pending
           ? t('resources.ariaPending', {
               name,
-              used: cell.used,
+              used,
               needs: cell.needs.map((n) => t(`resources.need.${n}`)).join(', '),
             })
-          : t('resources.aria', { name, used: cell.used, available: cell.available, margin: cell.marginPct, state })
+          : t('resources.aria', { name, used, available, margin: cell.marginPct, state })
       }
     >
       <span className="flex items-center justify-between gap-1">
@@ -54,9 +57,9 @@ function ResourceCellView({ cell }: { cell: ResourceCell }) {
         <span className={`shrink-0 border px-2 py-1 text-[8px] uppercase ${look.badge}`}>{state}</span>
       </span>
       <span className="whitespace-nowrap">
-        {cell.used}
+        {used}
         <span className="text-metal-light"> / </span>
-        {pending ? <span className="text-metal-light">—</span> : cell.available}
+        {pending ? <span className="text-metal-light">—</span> : available}
       </span>
       {pending ? (
         <span className="text-metal-light">

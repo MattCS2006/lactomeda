@@ -33,17 +33,18 @@ export function groundReasons(network: GroundNetwork, orbit: Orbit | null): Labe
     return [
       {
         key: 'ground.tooFar',
-        values: { reach: formatKm(network.maxDistanceKm), distance: formatKm(orbit.distanceKm) },
+        values: { reach: kmLabel(network.maxDistanceKm), distance: kmLabel(orbit.distanceKm) },
       },
     ]
   }
   return []
 }
 
-export function formatKm(km: number): string {
-  if (km >= 1e9) return `${Math.round(km / 1e9).toLocaleString('en-US')} billion km`
-  if (km >= 1e6) return `${(Math.round((km / 1e6) * 10) / 10).toLocaleString('en-US')} million km`
-  return `${Math.round(km).toLocaleString('en-US')} km`
+/** Distances as labels: 3,000 km · 1.5 million km · 10 billion km */
+export function kmLabel(km: number): Label {
+  if (km >= 1e9) return { key: 'units.kmBillion', values: { value: Math.round(km / 1e9).toLocaleString('en-US') } }
+  if (km >= 1e6) return { key: 'units.kmMillion', values: { value: String(Math.round((km / 1e6) * 10) / 10) } }
+  return { key: 'units.km', values: { value: Math.round(km).toLocaleString('en-US') } }
 }
 
 function round2(n: number): number {
@@ -68,7 +69,7 @@ export function toGroundCard(
     costPerYear: moneyLabel(network.costM),
     missionCost: moneyLabel(round2(network.costM * years)),
     missionYears: round2(years),
-    reach: { key: 'ground.reachValue', values: { value: formatKm(network.maxDistanceKm) } },
+    reach: { key: 'ground.reachValue', values: { value: kmLabel(network.maxDistanceKm) } },
     reasons: groundReasons(network, orbit),
   }
 }

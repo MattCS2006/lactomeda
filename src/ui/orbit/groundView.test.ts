@@ -3,7 +3,7 @@ import { gameData } from '../../data'
 import { estimateBudgets } from '../../engine/rules/resources'
 import en from '../../i18n/en.json'
 import { createDesign } from '../store/missionStore'
-import { contactMinutes, formatKm, groundReasons, toGroundCard } from './groundView'
+import { contactMinutes, groundReasons, kmLabel, toGroundCard } from './groundView'
 
 const network = (id: string) => gameData.groundNetworks.find((g) => g.id === id)!
 const orbit = (id: string) => gameData.orbits.find((o) => o.id === id)!
@@ -46,7 +46,15 @@ describe('ground station networks (FR-5.6)', () => {
 
   it('disables networks that cannot reach the orbit, with both distances', () => {
     const reasons = groundReasons(network('gn-university'), orbit('l2'))
-    expect(reasons).toEqual([{ key: 'ground.tooFar', values: { reach: '3,000 km', distance: '1.5 million km' } }])
+    expect(reasons).toEqual([
+      {
+        key: 'ground.tooFar',
+        values: {
+          reach: { key: 'units.km', values: { value: '3,000' } },
+          distance: { key: 'units.kmMillion', values: { value: '1.5' } },
+        },
+      },
+    ])
     expect(groundReasons(network('gn-university'), null)).toEqual([])
   })
 
@@ -59,8 +67,8 @@ describe('ground station networks (FR-5.6)', () => {
   })
 
   it('formats distances', () => {
-    expect(formatKm(3000)).toBe('3,000 km')
-    expect(formatKm(2_000_000)).toBe('2 million km')
-    expect(formatKm(1e10)).toBe('10 billion km')
+    expect(kmLabel(3000)).toEqual({ key: 'units.km', values: { value: '3,000' } })
+    expect(kmLabel(2_000_000)).toEqual({ key: 'units.kmMillion', values: { value: '2' } })
+    expect(kmLabel(1e10)).toEqual({ key: 'units.kmBillion', values: { value: '10' } })
   })
 })

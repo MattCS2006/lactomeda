@@ -1,13 +1,22 @@
 // Pure helpers that turn a Scenario from scenarios.json into what a picker card shows (FR-2.1).
 // No React here, so it is unit-tested in Node.
+import type { TFunction } from 'i18next'
 import type { Difficulty, GameData, Orbit, Scenario } from '../../engine/types'
 
 export type DestinationKey = 'earth' | 'l2' | 'moon' | 'mars'
 
-/** A translatable label: an i18n key plus its interpolation values. */
+/** A translatable label: an i18n key plus its interpolation values (which may be labels too). */
 export interface Label {
   key: string
-  values?: Record<string, string | number>
+  values?: Record<string, string | number | Label>
+}
+
+/** Translate a label, translating nested labels first (e.g. "{{distance}}" = "1.5 million km"). */
+export function translateLabel(t: TFunction, l: Label): string {
+  const values = Object.fromEntries(
+    Object.entries(l.values ?? {}).map(([k, v]) => [k, typeof v === 'object' ? translateLabel(t, v) : v]),
+  )
+  return t(l.key, values)
 }
 
 export interface ScenarioCard {

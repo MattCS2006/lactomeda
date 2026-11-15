@@ -41,7 +41,15 @@
     "moneyB": "${{value}}B",
     "days": "{{count}} days",
     "months": "{{count}} months",
-    "years": "{{count}} years"
+    "years": "{{count}} years",
+    "kg": "{{value}} kg",
+    "watts": "{{value}} W",
+    "mbPerDay": "{{value}} Mb/day",
+    "mbPerDayShort": "{{value}} Mb/d",
+    "minPerDay": "{{value}} min/day",
+    "km": "{{value}} km",
+    "kmMillion": "{{value}} million km",
+    "kmBillion": "{{value}} billion km"
   },
   "placeholder": {
     "hint": "Walk with WASD, press E at a station.",

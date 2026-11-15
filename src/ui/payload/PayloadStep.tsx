@@ -59,10 +59,13 @@ export function PayloadStep({ data }: Props) {
             ? t('payload.selectedCount', { count: totals.count })
             : t('payload.slots', { used: slots.used, max: slots.max })}
         </span>
-        <Total label={t('payload.stat.mass')} value={`${formatNumber(totals.massKg)} kg`} />
-        <Total label={t('payload.stat.power')} value={`${formatNumber(totals.powerW)} W`} />
-        <Total label={t('payload.stat.cost')} value={`$${formatNumber(totals.costM)}M`} />
-        <Total label={t('payload.stat.data')} value={`${formatNumber(totals.dataMbPerDay)} Mb/day`} />
+        <Total label={t('payload.stat.mass')} value={t('units.kg', { value: formatNumber(totals.massKg) })} />
+        <Total label={t('payload.stat.power')} value={t('units.watts', { value: formatNumber(totals.powerW) })} />
+        <Total label={t('payload.stat.cost')} value={t('units.moneyM', { value: formatNumber(totals.costM) })} />
+        <Total
+          label={t('payload.stat.data')}
+          value={t('units.mbPerDay', { value: formatNumber(totals.dataMbPerDay) })}
+        />
         <Total label={t('payload.stat.science')} value={formatNumber(totals.science)} />
       </div>
       {slots.max === null && <p className="mt-2 text-[10px] text-metal-light">{t('payload.noBus')}</p>}
@@ -198,10 +201,13 @@ function InstrumentCardView({
         </span>
 
         <dl className="mt-4 grid grid-cols-3 gap-x-2 gap-y-3 text-[10px]">
-          <Stat term={t('payload.stat.mass')} value={`${formatNumber(card.massKg)} kg`} />
-          <Stat term={t('payload.stat.power')} value={`${formatNumber(card.powerW)} W`} />
-          <Stat term={t('payload.stat.cost')} value={`$${formatNumber(card.costM)}M`} />
-          <Stat term={t('payload.stat.data')} value={`${formatNumber(card.dataMbPerDay)} Mb/d`} />
+          <Stat term={t('payload.stat.mass')} value={t('units.kg', { value: formatNumber(card.massKg) })} />
+          <Stat term={t('payload.stat.power')} value={t('units.watts', { value: formatNumber(card.powerW) })} />
+          <Stat term={t('payload.stat.cost')} value={t('units.moneyM', { value: formatNumber(card.costM) })} />
+          <Stat
+            term={t('payload.stat.data')}
+            value={t('units.mbPerDayShort', { value: formatNumber(card.dataMbPerDay) })}
+          />
           <div className="col-span-2">
             <dt className="mb-1 text-[10px] uppercase text-metal-light">{t('payload.stat.science')}</dt>
             <dd className="flex items-center gap-2">
