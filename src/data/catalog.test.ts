@@ -193,3 +193,34 @@ describe('simple vs advanced components (FR-3.4)', () => {
     }
   })
 })
+
+// FR-3.5: repairable failures, one alarm per subsystem
+describe('failure events (FR-3.5)', () => {
+  const failing = SUBSYSTEMS.filter((s) => s !== 'structure')
+
+  it('has exactly one failure-<subsystem> event per subsystem except structure, with the 4 options', () => {
+    expect(gameData.events.filter((e) => e.id.startsWith('failure-')).map((e) => e.id).sort()).toEqual(
+      failing.map((s) => `failure-${s}`).sort(),
+    )
+    for (const s of failing) {
+      const event = gameData.events.find((e) => e.id === `failure-${s}`)!
+      expect(event.options.map((o) => o.id), s).toEqual(['repair', 'backup', 'safeMode', 'abandon'])
+      expect(event.trigger, s).toEqual({ chancePerDay: 0, requiresSubsystem: s })
+      expect(event.defaultOptionId, s).toBe('abandon')
+      expect(event.timerSec, s).toBe(60)
+      expect(event.options.find((o) => o.id === 'repair')!.minigame, s).toBeDefined()
+    }
+  })
+
+  it('only gates options with the redundant:<subsystem> tag', () => {
+    for (const event of gameData.events) {
+      for (const o of event.options) {
+        if (o.requiresTag !== undefined) expect(o.requiresTag, `${event.id}/${o.id}`).toBe(`redundant:${event.trigger.requiresSubsystem}`)
+      }
+    }
+  })
+
+  it('never rolls a failure event at random (chancePerDay 0)', () => {
+    for (const e of gameData.events.filter((x) => x.id.startsWith('failure-'))) expect(e.trigger.chancePerDay, e.id).toBe(0)
+  })
+})

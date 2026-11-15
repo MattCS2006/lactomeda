@@ -9,6 +9,7 @@ import { validateLaunch } from './rules/launch'
 import { validateLink } from './rules/link'
 import { validateOrbit } from './rules/orbit'
 import { validatePower } from './rules/power'
+import { validateRedundancy } from './rules/redundancy'
 
 /** Every rule validator, in a fixed order. Add new `validate*` functions here. */
 export const VALIDATORS: readonly ((design: MissionDesign, data: GameData) => ValidationIssue[])[] = [
@@ -21,6 +22,7 @@ export const VALIDATORS: readonly ((design: MissionDesign, data: GameData) => Va
   validateCost,
   validateData,
   validatePayload,
+  validateRedundancy,
 ]
 
 /** All issues from every rule, without exact duplicates (same code + subsystem + resource + message). */
