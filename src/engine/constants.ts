@@ -1,3 +1,5 @@
+import type { Subsystem } from './types'
+
 // Tunable numbers for the engine. These are game balance values, not measured data:
 // change them here, never inline in the rules.
 
@@ -95,6 +97,17 @@ export const DIFFICULTY_EVENT_FACTOR: Record<'cadet' | 'engineer' | 'flightDirec
 
 /** An event whose `mitigatedByTags` match the design has its chance multiplied by this (FR-7.7 hook). */
 export const MITIGATED_EVENT_FACTOR = 0.5
+
+// ─── FR-3.5 redundancy and repairable failures ──────────────────────────
+
+/** Game balance: subsystems that cannot have a backup unit (and that never roll for failure). */
+export const NON_REDUNDANT_SUBSYSTEMS: readonly Subsystem[] = ['structure']
+
+/** Game balance: if one of these goes offline and its alarm is ignored, the mission ends (FR-7.9). */
+export const CRITICAL_SUBSYSTEMS: readonly Subsystem[] = ['power', 'battery', 'computer', 'attitude', 'comms']
+
+/** Game balance: a repair restores REPAIR_BASE_HEALTH + (1 - REPAIR_BASE_HEALTH) x the mini-game score of health. */
+export const REPAIR_BASE_HEALTH = 0.5
 
 // ─── FR-10.1 score ──────────────────────────────────────────────────────
 

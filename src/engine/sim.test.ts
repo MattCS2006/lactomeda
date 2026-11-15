@@ -5,8 +5,9 @@ import { gameData } from '../data'
 import { REFERENCE_DESIGNS } from '../data/referenceDesigns'
 import { SECONDS_PER_TICK } from './constants'
 import { draw } from './rng'
+import { availableOptions } from './rules/redundancy'
 import { eventChance, initSim, resolveEvent, runMission, simulateTick } from './sim'
-import type { GameData, MissionDesign, MissionEvent } from './types'
+import type { GameData, MissionDesign, MissionEvent, SimState, Subsystem } from './types'
 
 const ev = (over: Partial<MissionEvent> & Pick<MissionEvent, 'id' | 'station'>): MissionEvent => ({
   title: `Event ${over.id}`,
@@ -25,7 +26,13 @@ const testEvents: MissionEvent[] = [
   ev({ id: 'radio-noise', station: 'comms', trigger: { chancePerDay: 0.15, mitigatedByTags: ['radHard'] } }),
   ev({ id: 'valve-stuck', station: 'engine', trigger: { chancePerDay: 0.1, requiresSubsystem: 'propulsion' } }),
 ]
-const withEvents = (events: MissionEvent[]): GameData => ({ ...gameData, events })
+/**
+ * A copy of the catalog where every component is perfect (reliability 1). FR-3.5 adds daily failure rolls, so a test that
+ * expects a whole mission with no failures runs on this copy.
+ */
+const perfect = (g: GameData): GameData => ({ ...g, components: g.components.map((c) => ({ ...c, reliability: 1 })) })
+const flawless = perfect(gameData)
+const withEvents = (events: MissionEvent[]): GameData => perfect({ ...gameData, events })
 const data = withEvents(testEvents)
 
 const student = (over: Partial<MissionDesign> = {}): MissionDesign => ({
@@ -115,9 +122,9 @@ describe('simulateTick', () => {
   it('ends with lifetimeReached after durationDays ticks for a design with no events', () => {
     for (const d of REFERENCE_DESIGNS) {
       const design = { ...d, seed: 'reference' }
-      const days = gameData.scenarios.find((s) => s.id === d.scenarioId)!.durationDays
-      const state = runMission(design, gameData)
-      expect(initSim(design, gameData).status, `${d.scenarioId} launch`).toBe('running')
+      const days = flawless.scenarios.find((s) => s.id === d.scenarioId)!.durationDays
+      const state = runMission(design, flawless)
+      expect(initSim(design, flawless).status, `${d.scenarioId} launch`).toBe('running')
       expect(state).toMatchObject({ status: 'success', endReason: 'lifetimeReached', day: days, tick: days })
       expect(state.science).toBeGreaterThan(0)
       expect(state.downlinkedDataMb).toBeGreaterThan(0)
@@ -125,19 +132,13 @@ describe('simulateTick', () => {
   })
 
   it('stops with budgetExhausted when the spending passes the scenario budget', () => {
-    const tight: GameData = { ...gameData, scenarios: gameData.scenarios.map((s) => ({ ...s, budgetM: 0.1 })) }
+    const tight: GameData = { ...flawless, scenarios: flawless.scenarios.map((s) => ({ ...s, budgetM: 0.1 })) }
     expect(runMission(student(), tight)).toMatchObject({ status: 'failed', endReason: 'budgetExhausted' })
   })
 
-  it('stops with criticalFailure when a subsystem health reaches 0', () => {
-    const state = initSim(student(), gameData)
-    const broken = simulateTick({ ...state, health: { ...state.health, power: 0 } }, student(), gameData)
-    expect(broken).toMatchObject({ status: 'failed', endReason: 'criticalFailure' })
-  })
-
   it('returns a finished mission unchanged', () => {
-    const done = runMission(student(), gameData)
-    expect(simulateTick(done, student(), gameData)).toBe(done)
+    const done = runMission(student(), flawless)
+    expect(simulateTick(done, student(), flawless)).toBe(done)
   })
 
   it('times out an ignored event and applies its default option', () => {
@@ -156,11 +157,11 @@ describe('simulateTick', () => {
 
   it('reduces the downlinked data to what the link allows and caps storage', () => {
     const design = student({ componentIds: { ...student().componentIds, comms: 'com-uhf' } }) // 28.8 Mb/day downlink
-    const state = simulateTick(initSim(design, gameData), design, gameData)
+    const state = simulateTick(initSim(design, flawless), design, flawless)
     expect(state.downlinkedDataMb).toBeCloseTo(28.8, 9)
     expect(state.storedDataMb).toBeCloseTo(2050 - 28.8, 9)
     let later = state
-    for (let i = 0; i < 10; i++) later = simulateTick(later, design, gameData)
+    for (let i = 0; i < 10; i++) later = simulateTick(later, design, flawless)
     expect(later.storedDataMb).toBeLessThanOrEqual(8000)
   })
 })
@@ -261,5 +262,221 @@ describe('static guard', () => {
       const text = readFileSync(file, 'utf8')
       for (const word of FORBIDDEN) expect(text.includes(word), `${file} uses ${word}`).toBe(false)
     }
+  })
+})
+
+// ─── FR-3.5 redundancy and repairable failures ──────────────────────────
+
+describe('failures and redundancy (FR-3.5)', () => {
+  const failureEvents = gameData.events.filter((e) => e.id.startsWith('failure-'))
+  const FAILURE_TICKS = Math.ceil(60 / SECONDS_PER_TICK) // the failure alarm timer
+
+  /** Perfect catalog and launchers, no random events, and one component with the given reliability. */
+  const fixture = (subsystem: Subsystem, reliability: number): GameData => {
+    const id = student().componentIds[subsystem]!
+    const base = perfect({ ...gameData, events: failureEvents })
+    return {
+      ...base,
+      components: base.components.map((c) => (c.id === id ? { ...c, reliability } : c)),
+      launchers: base.launchers.map((l) => ({ ...l, reliability: 1 })),
+    }
+  }
+  const ticks = (state: SimState, design: MissionDesign, g: GameData, n: number): SimState => {
+    let next = state
+    for (let i = 0; i < n; i++) next = simulateTick(next, design, g)
+    return next
+  }
+  const failed = (subsystem: Subsystem) => (state: SimState) => state.activeEvents.some((a) => a.event.id === `failure-${subsystem}`)
+
+  it('is reflected in the failure odds: a backup cuts critical failures by at least half (200 fixed seeds, all alarms ignored)', { timeout: 60000 }, () => {
+    const g = fixture('comms', 0.5)
+    const seeds = Array.from({ length: 200 }, (_, i) => `seed-${i}`)
+    const critical = (redundant: Subsystem[]): number =>
+      seeds.filter((seed) => runMission(student({ seed, redundant }), g).endReason === 'criticalFailure').length
+    const without = critical([])
+    const withBackup = critical(['comms'])
+    console.info(`critical failures out of 200: ${without} without redundancy, ${withBackup} with a comms backup`)
+    expect(without).toBeGreaterThan(40)
+    expect(withBackup).toBeLessThanOrEqual(without / 2)
+    expect(withBackup).toBeLessThan(without)
+  })
+
+  it('never ends the mission on the tick a critical subsystem fails: the alarm rings and the mission keeps running', () => {
+    const g = fixture('comms', 0) // fails on the first roll
+    const design = student()
+    const state = simulateTick(initSim(design, g), design, g)
+    expect(state.status).toBe('running')
+    expect(state.endReason).toBeUndefined()
+    expect(state.health.comms).toBe(0)
+    expect(state.activeEvents.map((a) => a.event.id)).toEqual(['failure-comms'])
+    expect(state.activeEvents[0]).toMatchObject({ startedTick: 1, deadlineTick: 1 + FAILURE_TICKS })
+    expect(state.log.map((l) => l.kind)).toEqual(['info', 'failure', 'event'])
+  })
+
+  it('does not roll for structure, for a part that never fails, or for a subsystem that is already offline', () => {
+    const g = fixture('comms', 1)
+    const design = student()
+    let state = initSim(design, g)
+    state = simulateTick(state, design, g)
+    expect(state.rng).toBe(1) // only the launch draw: nothing can fail
+    const flaky = fixture('thermal', 0)
+    const d = student()
+    state = ticks(initSim(d, flaky), d, flaky, 2)
+    expect(state.rng).toBe(2) // one draw for the thermal roll on tick 1; it is offline on tick 2
+  })
+
+  it('repair restores 0.5 + 0.5 x the mini-game score of health and the mission continues', () => {
+    const g = fixture('comms', 0)
+    const design = student()
+    const raised = simulateTick(initSim(design, g), design, g)
+    const full = resolveEvent(raised, 'failure-comms', 'repair', design, g, 1)
+    expect(full.health.comms).toBe(1)
+    expect(full.activeEvents).toEqual([])
+    expect(full.status).toBe('running')
+    expect(full.risk).toBeCloseTo(0.02, 12)
+    expect(resolveEvent(raised, 'failure-comms', 'repair', design, g, 0.4).health.comms).toBeCloseTo(0.7, 12)
+    expect(resolveEvent(raised, 'failure-comms', 'repair', design, g, 0).health.comms).toBeCloseTo(0.5, 12)
+    expect(full.log.at(-1)).toMatchObject({ kind: 'decision' })
+  })
+
+  it('backup on a redundant subsystem restores health 1 and is used up: a second failure no longer offers it', () => {
+    const g = fixture('comms', 0)
+    const design = student({ redundant: ['comms'] })
+    const event = failureEvents.find((e) => e.id === 'failure-comms')!
+    let state = simulateTick(initSim(design, g), design, g)
+    expect(availableOptions(event, design, g, state).map((o) => o.id)).toContain('backup')
+    state = resolveEvent(state, 'failure-comms', 'backup', design, g)
+    expect(state.health.comms).toBe(1)
+    expect(state.backupsUsed).toEqual(['comms'])
+    expect(state.activeEvents).toEqual([])
+
+    state = simulateTick(state, design, g) // the part fails again
+    expect(failed('comms')(state)).toBe(true)
+    expect(availableOptions(event, design, g, state).map((o) => o.id)).not.toContain('backup')
+    const refused = resolveEvent(state, 'failure-comms', 'backup', design, g)
+    expect(refused.health.comms).toBe(0)
+    expect(refused.backupsUsed).toEqual(['comms'])
+    expect(refused.activeEvents).toHaveLength(1)
+    expect(refused.log.at(-1)).toMatchObject({ kind: 'warning' })
+  })
+
+  it('refuses the backup option when the subsystem is not redundant', () => {
+    const g = fixture('comms', 0)
+    const design = student()
+    const state = simulateTick(initSim(design, g), design, g)
+    const refused = resolveEvent(state, 'failure-comms', 'backup', design, g)
+    expect(refused.health.comms).toBe(0)
+    expect(refused.backupsUsed).toEqual([])
+    expect(refused.activeEvents).toHaveLength(1)
+  })
+
+  it('switches to the backup automatically when an alarm on a redundant subsystem is ignored', () => {
+    const g = fixture('comms', 0)
+    const design = student({ redundant: ['comms'] })
+    let state = simulateTick(initSim(design, g), design, g) // tick 1: fails
+    state = ticks(state, design, g, FAILURE_TICKS - 1) // the tick before the deadline
+    expect(state.status).toBe('running')
+    expect(state.backupsUsed).toEqual([])
+    state = simulateTick(state, design, g) // the deadline
+    expect(state.status).toBe('running')
+    expect(state.backupsUsed).toEqual(['comms'])
+    expect(state.log.some((l) => l.kind === 'warning' && l.text.includes('backup') && l.text.includes('automatically'))).toBe(true)
+    // the part (reliability 0) fails again, and now there is no backup left
+    expect(failed('comms')(state)).toBe(true)
+    state = ticks(state, design, g, FAILURE_TICKS)
+    expect(state).toMatchObject({ status: 'failed', endReason: 'criticalFailure' })
+  })
+
+  it('ends the mission with criticalFailure only when the alarm on a critical subsystem times out', () => {
+    const g = fixture('comms', 0)
+    const design = student()
+    let state = simulateTick(initSim(design, g), design, g)
+    state = ticks(state, design, g, FAILURE_TICKS - 1)
+    expect(state.status).toBe('running')
+    state = simulateTick(state, design, g)
+    expect(state).toMatchObject({ status: 'failed', endReason: 'criticalFailure', tick: 1 + FAILURE_TICKS })
+    expect(state.log.at(-1)).toMatchObject({ kind: 'failure' })
+  })
+
+  it('leaves a non-critical subsystem offline when its alarm is ignored, and the mission continues', () => {
+    const g = fixture('thermal', 0)
+    const design = student()
+    let state = simulateTick(initSim(design, g), design, g)
+    expect(failed('thermal')(state)).toBe(true)
+    state = ticks(state, design, g, FAILURE_TICKS)
+    expect(state.status).toBe('running')
+    expect(state.health.thermal).toBe(0)
+    expect(state.activeEvents).toEqual([])
+    const end = runMission(design, g)
+    expect(end).toMatchObject({ status: 'success', endReason: 'lifetimeReached' })
+    expect(end.health.thermal).toBe(0)
+  })
+
+  it('safe mode gives health 0.4 and costs 5 science', () => {
+    const g = fixture('comms', 0)
+    const design = student()
+    const raised = { ...simulateTick(initSim(design, g), design, g) }
+    const state = resolveEvent({ ...raised, science: 12 }, 'failure-comms', 'safeMode', design, g)
+    expect(state.health.comms).toBeCloseTo(0.4, 12)
+    expect(state.science).toBeCloseTo(7, 12)
+    expect(state.status).toBe('running')
+    expect(state.activeEvents).toEqual([])
+  })
+
+  it('leaving it offline on purpose keeps the health at 0', () => {
+    const g = fixture('thermal', 0)
+    const design = student()
+    const state = resolveEvent(simulateTick(initSim(design, g), design, g), 'failure-thermal', 'abandon', design, g)
+    expect(state.health.thermal).toBe(0)
+    expect(state.activeEvents).toEqual([])
+    expect(state.status).toBe('running')
+  })
+
+  it('applies a health effect from another event and raises the failure alarm when it reaches 0', () => {
+    const storm = ev({
+      id: 'storm',
+      station: 'computer',
+      timerSec: 100,
+      options: [{ id: 'hit', label: 'Take the hit', why: 'It damages the computer.', effects: { health: -1 } }],
+      defaultOptionId: 'hit',
+      trigger: { chancePerDay: 1, requiresSubsystem: 'computer' },
+    })
+    const g = { ...fixture('comms', 1), events: [...failureEvents, storm] }
+    const design = student()
+    let state = simulateTick(initSim(design, g), design, g)
+    expect(state.activeEvents.map((a) => a.event.id)).toEqual(['storm'])
+    state = resolveEvent(state, 'storm', 'hit', design, g)
+    expect(state.health.computer).toBe(0)
+    expect(state.status).toBe('running')
+    expect(state.activeEvents.map((a) => a.event.id)).toContain('failure-computer')
+  })
+
+  it('stops halving mitigated event odds once the backup has been used', () => {
+    const wheel = ev({ id: 'wheel', station: 'engine', trigger: { chancePerDay: 0.2, mitigatedByTags: ['redundant:attitude'] } })
+    const design = student({ redundant: ['attitude'] })
+    expect(eventChance(wheel, design, gameData)).toBeCloseTo(0.1, 12)
+    expect(eventChance(wheel, design, gameData, { backupsUsed: ['attitude'] })).toBeCloseTo(0.2, 12)
+  })
+
+  it('gives the same log for the same design, seed and scripted decisions', () => {
+    const g = fixture('comms', 0.01)
+    const design = student({ seed: 'alpha', redundant: ['comms'] })
+    const decisions = [{ tick: 5, eventId: 'failure-comms', optionId: 'repair' }]
+    const a = runMission(design, g, decisions)
+    const b = runMission(design, g, decisions)
+    expect(a.log.some((l) => l.kind === 'failure')).toBe(true)
+    expect(b.log).toEqual(a.log)
+    expect(b).toEqual(a)
+  })
+
+  it('does not mutate its inputs', () => {
+    const g = fixture('comms', 0)
+    const design = student({ redundant: ['comms'] })
+    const raised = simulateTick(initSim(design, g), design, g)
+    const snaps = [JSON.stringify(raised), JSON.stringify(design), JSON.stringify(g)]
+    resolveEvent(raised, 'failure-comms', 'backup', design, g)
+    resolveEvent(raised, 'failure-comms', 'repair', design, g, 0.5)
+    ticks(raised, design, g, FAILURE_TICKS + 2)
+    expect([JSON.stringify(raised), JSON.stringify(design), JSON.stringify(g)]).toEqual(snaps)
   })
 })

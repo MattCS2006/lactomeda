@@ -1,0 +1,338 @@
+[
+  {
+    "id": "failure-power",
+    "station": "power",
+    "title": "Solar array failure",
+    "description": "The power system has stopped producing electricity. Without it the ship will run down.",
+    "timerSec": 60,
+    "options": [
+      {
+        "id": "repair",
+        "label": "Repair it",
+        "why": "A good repair brings it back to full health; a rushed one leaves it weaker.",
+        "effects": {
+          "health": 1,
+          "risk": 0.02
+        },
+        "minigame": "rewire"
+      },
+      {
+        "id": "backup",
+        "label": "Switch to backup unit",
+        "why": "The spare unit takes over at full health, but it can only be used once.",
+        "effects": {
+          "health": 1
+        },
+        "requiresTag": "redundant:power"
+      },
+      {
+        "id": "safeMode",
+        "label": "Enter safe mode",
+        "why": "It runs in a reduced mode at 40% health, and some science is lost.",
+        "effects": {
+          "health": 0.4,
+          "science": -5
+        }
+      },
+      {
+        "id": "abandon",
+        "label": "Leave it offline",
+        "why": "Nothing is spent, but the subsystem stays dead.",
+        "effects": {}
+      }
+    ],
+    "defaultOptionId": "abandon",
+    "trigger": {
+      "chancePerDay": 0,
+      "requiresSubsystem": "power"
+    }
+  },
+  {
+    "id": "failure-battery",
+    "station": "power",
+    "title": "Battery failure",
+    "description": "The battery has stopped holding charge. The ship cannot ride out eclipses.",
+    "timerSec": 60,
+    "options": [
+      {
+        "id": "repair",
+        "label": "Repair it",
+        "why": "A good repair brings it back to full health; a rushed one leaves it weaker.",
+        "effects": {
+          "health": 1,
+          "risk": 0.02
+        },
+        "minigame": "rewire"
+      },
+      {
+        "id": "backup",
+        "label": "Switch to backup unit",
+        "why": "The spare unit takes over at full health, but it can only be used once.",
+        "effects": {
+          "health": 1
+        },
+        "requiresTag": "redundant:battery"
+      },
+      {
+        "id": "safeMode",
+        "label": "Enter safe mode",
+        "why": "It runs in a reduced mode at 40% health, and some science is lost.",
+        "effects": {
+          "health": 0.4,
+          "science": -5
+        }
+      },
+      {
+        "id": "abandon",
+        "label": "Leave it offline",
+        "why": "Nothing is spent, but the subsystem stays dead.",
+        "effects": {}
+      }
+    ],
+    "defaultOptionId": "abandon",
+    "trigger": {
+      "chancePerDay": 0,
+      "requiresSubsystem": "battery"
+    }
+  },
+  {
+    "id": "failure-computer",
+    "station": "computer",
+    "title": "Flight computer crash",
+    "description": "The flight computer has stopped responding. Commands and data storage are down.",
+    "timerSec": 60,
+    "options": [
+      {
+        "id": "repair",
+        "label": "Repair it",
+        "why": "A good repair brings it back to full health; a rushed one leaves it weaker.",
+        "effects": {
+          "health": 1,
+          "risk": 0.02
+        },
+        "minigame": "reboot"
+      },
+      {
+        "id": "backup",
+        "label": "Switch to backup unit",
+        "why": "The spare unit takes over at full health, but it can only be used once.",
+        "effects": {
+          "health": 1
+        },
+        "requiresTag": "redundant:computer"
+      },
+      {
+        "id": "safeMode",
+        "label": "Enter safe mode",
+        "why": "It runs in a reduced mode at 40% health, and some science is lost.",
+        "effects": {
+          "health": 0.4,
+          "science": -5
+        }
+      },
+      {
+        "id": "abandon",
+        "label": "Leave it offline",
+        "why": "Nothing is spent, but the subsystem stays dead.",
+        "effects": {}
+      }
+    ],
+    "defaultOptionId": "abandon",
+    "trigger": {
+      "chancePerDay": 0,
+      "requiresSubsystem": "computer"
+    }
+  },
+  {
+    "id": "failure-attitude",
+    "station": "navigation",
+    "title": "Pointing system failure",
+    "description": "The attitude control system has failed. The ship can no longer point where it needs to.",
+    "timerSec": 60,
+    "options": [
+      {
+        "id": "repair",
+        "label": "Repair it",
+        "why": "A good repair brings it back to full health; a rushed one leaves it weaker.",
+        "effects": {
+          "health": 1,
+          "risk": 0.02
+        },
+        "minigame": "balanceWheels"
+      },
+      {
+        "id": "backup",
+        "label": "Switch to backup unit",
+        "why": "The spare unit takes over at full health, but it can only be used once.",
+        "effects": {
+          "health": 1
+        },
+        "requiresTag": "redundant:attitude"
+      },
+      {
+        "id": "safeMode",
+        "label": "Enter safe mode",
+        "why": "It runs in a reduced mode at 40% health, and some science is lost.",
+        "effects": {
+          "health": 0.4,
+          "science": -5
+        }
+      },
+      {
+        "id": "abandon",
+        "label": "Leave it offline",
+        "why": "Nothing is spent, but the subsystem stays dead.",
+        "effects": {}
+      }
+    ],
+    "defaultOptionId": "abandon",
+    "trigger": {
+      "chancePerDay": 0,
+      "requiresSubsystem": "attitude"
+    }
+  },
+  {
+    "id": "failure-propulsion",
+    "station": "engine",
+    "title": "Propulsion failure",
+    "description": "The propulsion system has failed. The ship cannot change its orbit.",
+    "timerSec": 60,
+    "options": [
+      {
+        "id": "repair",
+        "label": "Repair it",
+        "why": "A good repair brings it back to full health; a rushed one leaves it weaker.",
+        "effects": {
+          "health": 1,
+          "risk": 0.02
+        },
+        "minigame": "rewire"
+      },
+      {
+        "id": "backup",
+        "label": "Switch to backup unit",
+        "why": "The spare unit takes over at full health, but it can only be used once.",
+        "effects": {
+          "health": 1
+        },
+        "requiresTag": "redundant:propulsion"
+      },
+      {
+        "id": "safeMode",
+        "label": "Enter safe mode",
+        "why": "It runs in a reduced mode at 40% health, and some science is lost.",
+        "effects": {
+          "health": 0.4,
+          "science": -5
+        }
+      },
+      {
+        "id": "abandon",
+        "label": "Leave it offline",
+        "why": "Nothing is spent, but the subsystem stays dead.",
+        "effects": {}
+      }
+    ],
+    "defaultOptionId": "abandon",
+    "trigger": {
+      "chancePerDay": 0,
+      "requiresSubsystem": "propulsion"
+    }
+  },
+  {
+    "id": "failure-thermal",
+    "station": "engine",
+    "title": "Thermal control failure",
+    "description": "The thermal control system has failed. Parts of the ship are getting too hot or too cold.",
+    "timerSec": 60,
+    "options": [
+      {
+        "id": "repair",
+        "label": "Repair it",
+        "why": "A good repair brings it back to full health; a rushed one leaves it weaker.",
+        "effects": {
+          "health": 1,
+          "risk": 0.02
+        },
+        "minigame": "rewire"
+      },
+      {
+        "id": "backup",
+        "label": "Switch to backup unit",
+        "why": "The spare unit takes over at full health, but it can only be used once.",
+        "effects": {
+          "health": 1
+        },
+        "requiresTag": "redundant:thermal"
+      },
+      {
+        "id": "safeMode",
+        "label": "Enter safe mode",
+        "why": "It runs in a reduced mode at 40% health, and some science is lost.",
+        "effects": {
+          "health": 0.4,
+          "science": -5
+        }
+      },
+      {
+        "id": "abandon",
+        "label": "Leave it offline",
+        "why": "Nothing is spent, but the subsystem stays dead.",
+        "effects": {}
+      }
+    ],
+    "defaultOptionId": "abandon",
+    "trigger": {
+      "chancePerDay": 0,
+      "requiresSubsystem": "thermal"
+    }
+  },
+  {
+    "id": "failure-comms",
+    "station": "comms",
+    "title": "Radio failure",
+    "description": "The communications system has failed. The ship cannot talk to the ground.",
+    "timerSec": 60,
+    "options": [
+      {
+        "id": "repair",
+        "label": "Repair it",
+        "why": "A good repair brings it back to full health; a rushed one leaves it weaker.",
+        "effects": {
+          "health": 1,
+          "risk": 0.02
+        },
+        "minigame": "alignDish"
+      },
+      {
+        "id": "backup",
+        "label": "Switch to backup unit",
+        "why": "The spare unit takes over at full health, but it can only be used once.",
+        "effects": {
+          "health": 1
+        },
+        "requiresTag": "redundant:comms"
+      },
+      {
+        "id": "safeMode",
+        "label": "Enter safe mode",
+        "why": "It runs in a reduced mode at 40% health, and some science is lost.",
+        "effects": {
+          "health": 0.4,
+          "science": -5
+        }
+      },
+      {
+        "id": "abandon",
+        "label": "Leave it offline",
+        "why": "Nothing is spent, but the subsystem stays dead.",
+        "effects": {}
+      }
+    ],
+    "defaultOptionId": "abandon",
+    "trigger": {
+      "chancePerDay": 0,
+      "requiresSubsystem": "comms"
+    }
+  }
+]

@@ -7,7 +7,9 @@ import type { GameData, MissionDesign, MissionEvent } from '../types'
 import { score, scoreDetails } from './score'
 
 const ref = (id: string): MissionDesign => ({ ...REFERENCE_DESIGNS.find((d) => d.scenarioId === id)!, seed: 'reference' })
-const fly = (d: MissionDesign, data: GameData = gameData) => runMission(d, data)
+// FR-3.5 adds daily failure rolls: these tests fly a copy of the catalog where every component is perfect, and score with the real one.
+const perfect = (g: GameData): GameData => ({ ...g, components: g.components.map((c) => ({ ...c, reliability: 1 })) })
+const fly = (d: MissionDesign, data: GameData = gameData) => runMission(d, perfect(data))
 const points = (d: MissionDesign, data: GameData = gameData) =>
   Object.fromEntries(scoreDetails(fly(d, data), d, data).map((x) => [x.component, x.points]))
 
@@ -21,7 +23,7 @@ const alarm = (timerSec: number): MissionEvent => ({
   defaultOptionId: 'fix',
   trigger: { chancePerDay: 1 },
 })
-const withEvents = (events: MissionEvent[]): GameData => ({ ...gameData, events })
+const withEvents = (events: MissionEvent[]): GameData => perfect({ ...gameData, events })
 
 describe('scoreDetails', () => {
   it('returns the 5 components with their maximum points, agreeing with score().breakdown', () => {
