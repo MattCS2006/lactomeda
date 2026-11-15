@@ -14,6 +14,17 @@
 // player can repair it, switch to the backup, enter safe mode or leave it offline. Only an ignored alarm on a critical
 // subsystem ends the mission (FR-7.9).
 //
+// FR-7.4 event effect conventions (an option's `effects`; negative effects are scaled by the mini-game score):
+//   budget      M USD; negative = money spent (spentM goes up by the absolute value)
+//   science     absolute points (negative = lost, never below 0)
+//   risk        absolute, added to state.risk (clamped 0-1)
+//   health      delta on the event's requiresSubsystem (FR-3.5), clamped 0-1
+//   propellant  FRACTION of the propellant on board now (-0.08 = lose 8% of it)
+//   battery     FRACTION of the charge in the battery now (batteryWh)
+//   data        FRACTION of the data in storage now (storedDataMb)
+// FR-7.4 rate scaling: an event's daily chance is chancePerDay x the difficulty factor (x0.5 if mitigated by a design
+// tag) x REFERENCE_MISSION_DAYS / scenario.durationDays, so a short and a long mission get a similar number of alarms.
+//
 // Hooks for later E7 stories (not implemented here): FR-7.1 launch lesson, FR-7.2 speed controls (the UI decides how
 // often to call simulateTick), FR-7.3 dashboard (reads SimState), FR-7.4 the event deck (data.events),
 // FR-7.6 team votes (resolveEvent), FR-7.7 detailed odds (eventChance), FR-7.10 log export (SimState.log).
@@ -22,6 +33,7 @@ import {
   DIFFICULTY_EVENT_FACTOR,
   MITIGATED_EVENT_FACTOR,
   NON_REDUNDANT_SUBSYSTEMS,
+  REFERENCE_MISSION_DAYS,
   REPAIR_BASE_HEALTH,
   SECONDS_PER_TICK,
   SIM_DAYS_PER_TICK,
@@ -65,7 +77,10 @@ function installedSubsystems(design: MissionDesign, data: GameData): Subsystem[]
     .map(([subsystem]) => subsystem)
 }
 
-/** Chance per day that an event fires for this design: base chance x difficulty, halved if mitigated. 0 if it cannot apply. */
+/**
+ * Chance per day that an event fires for this design: base chance x difficulty x mission length scaling (FR-7.4),
+ * halved if mitigated. 0 if it cannot apply.
+ */
 export function eventChance(
   event: MissionEvent,
   design: MissionDesign,
@@ -76,7 +91,10 @@ export function eventChance(
   if (requiresSubsystem && !installedSubsystems(design, data).includes(requiresSubsystem)) return 0
   const tags = new Set(designTags(design, data, state))
   const mitigated = (mitigatedByTags ?? []).some((tag) => tags.has(tag))
-  const chance = event.trigger.chancePerDay * DIFFICULTY_EVENT_FACTOR[design.difficulty] * (mitigated ? MITIGATED_EVENT_FACTOR : 1)
+  const durationDays = data.scenarios.find((s) => s.id === design.scenarioId)?.durationDays ?? 0
+  const lengthFactor = durationDays > 0 ? REFERENCE_MISSION_DAYS / durationDays : 1
+  const chance =
+    event.trigger.chancePerDay * DIFFICULTY_EVENT_FACTOR[design.difficulty] * lengthFactor * (mitigated ? MITIGATED_EVENT_FACTOR : 1)
   return clamp(chance, 0, 1)
 }
 
@@ -240,14 +258,14 @@ function applyEffects(
       case 'risk':
         next = { ...next, risk: clamp(next.risk + value, 0, 1) }
         break
-      case 'propellant':
-        next = { ...next, propellantKg: Math.max(0, next.propellantKg + value) }
+      case 'propellant': // a fraction of the propellant on board now
+        next = { ...next, propellantKg: Math.max(0, next.propellantKg * (1 + value)) }
         break
-      case 'battery': // a fraction of the battery capacity
-        next = { ...next, batteryWh: clamp(next.batteryWh + value * batteryCapacityWh, 0, batteryCapacityWh) }
+      case 'battery': // a fraction of the charge now
+        next = { ...next, batteryWh: clamp(next.batteryWh * (1 + value), 0, batteryCapacityWh) }
         break
-      case 'data':
-        next = { ...next, storedDataMb: Math.max(0, next.storedDataMb + value) }
+      case 'data': // a fraction of the stored data now
+        next = { ...next, storedDataMb: Math.max(0, next.storedDataMb * (1 + value)) }
         break
       case 'health': {
         const subsystem = event.trigger.requiresSubsystem

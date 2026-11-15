@@ -254,4 +254,10 @@ describe('propellant data (FR-3.6)', () => {
       expect(m.ref, `${m.id} ref`).toBeTruthy()
     }
   })
+
+  it('tags every real propulsion component "thruster", and prop-none does not have it (FR-7.4)', () => {
+    for (const c of components.filter((x) => x.subsystem === 'propulsion')) {
+      expect((c.tags ?? []).includes('thruster'), c.id).toBe(c.id !== 'prop-none')
+    }
+  })
 })

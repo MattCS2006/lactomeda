@@ -187,3 +187,6 @@ export const LAUNCH_LESSON_RELIABILITY_BELOW = 0.97
 
 /** FR-7.1: a spacecraft that leaves less than this fraction of the launcher's capacity free adds a "no margin" lesson to a failed launch. */
 export const LAUNCH_LESSON_MARGIN_BELOW = 0.1
+
+/** FR-7.4: event chances are written for a mission of this many days; a scenario of another length scales them by REFERENCE_MISSION_DAYS / durationDays so every mission gets a similar number of alarms. */
+export const REFERENCE_MISSION_DAYS = 365

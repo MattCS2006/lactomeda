@@ -3,7 +3,7 @@ import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { gameData } from '../data'
 import { REFERENCE_DESIGNS } from '../data/referenceDesigns'
-import { SECONDS_PER_TICK } from './constants'
+import { REFERENCE_MISSION_DAYS, SECONDS_PER_TICK } from './constants'
 import { draw } from './rng'
 import { availableOptions } from './rules/redundancy'
 import { eventChance, initSim, resolveEvent, runMission, simulateTick } from './sim'
@@ -478,5 +478,95 @@ describe('failures and redundancy (FR-3.5)', () => {
     resolveEvent(raised, 'failure-comms', 'repair', design, g, 0.5)
     ticks(raised, design, g, FAILURE_TICKS + 2)
     expect([JSON.stringify(raised), JSON.stringify(design), JSON.stringify(g)]).toEqual(snaps)
+  })
+})
+
+describe('FR-7.4 effect conventions', () => {
+  const design = (): MissionDesign => student({ propellantKg: 0.5 })
+  /** A running state with known amounts, and one active alarm whose only option has these effects. */
+  const resolveWith = (effects: NonNullable<MissionEvent['options'][number]['effects']>, patch: Partial<SimState> = {}, score = 1) => {
+    const event = ev({
+      id: 'convention',
+      station: 'power',
+      options: [{ id: 'go', label: 'Go', why: 'Test.', effects }],
+      defaultOptionId: 'go',
+      trigger: { chancePerDay: 0 },
+    })
+    const base = initSim(design(), data)
+    const state: SimState = {
+      ...base,
+      batteryWh: 40,
+      propellantKg: 0.5,
+      storedDataMb: 1000,
+      spentM: 1,
+      science: 10,
+      risk: 0.2,
+      ...patch,
+      activeEvents: [{ event, startedTick: 0, deadlineTick: 5 }],
+    }
+    return { before: state, after: resolveEvent(state, 'convention', 'go', design(), data, score) }
+  }
+
+  it('budget is M USD: a negative value is money spent', () => {
+    const { before, after } = resolveWith({ budget: -1 })
+    expect(after.spentM).toBeCloseTo(before.spentM + 1, 12)
+  })
+
+  it('science and risk are absolute, and risk stays between 0 and 1', () => {
+    const a = resolveWith({ science: -3, risk: 0.1 })
+    expect(a.after.science).toBeCloseTo(7, 12)
+    expect(a.after.risk).toBeCloseTo(0.3, 12)
+    expect(resolveWith({ science: -50 }).after.science).toBe(0)
+    expect(resolveWith({ risk: 0.9 }).after.risk).toBe(1)
+    expect(resolveWith({ science: 20 }).after.science).toBeCloseTo(30, 12)
+  })
+
+  it('propellant, data and battery are fractions of the current amount', () => {
+    expect(resolveWith({ propellant: -0.08 }).after.propellantKg).toBeCloseTo(0.5 * 0.92, 12)
+    expect(resolveWith({ propellant: -0.08 }, { propellantKg: 80 }).after.propellantKg).toBeCloseTo(80 * 0.92, 12)
+    expect(resolveWith({ data: -0.3 }).after.storedDataMb).toBeCloseTo(700, 12)
+    expect(resolveWith({ data: -0.3 }, { storedDataMb: 50 }).after.storedDataMb).toBeCloseTo(35, 12)
+    expect(resolveWith({ battery: -0.25 }).after.batteryWh).toBeCloseTo(30, 12)
+    expect(resolveWith({ battery: -0.25 }, { batteryWh: 20 }).after.batteryWh).toBeCloseTo(15, 12)
+  })
+
+  it('fractions never go below 0, and the battery never goes above its capacity', () => {
+    expect(resolveWith({ propellant: -2 }).after.propellantKg).toBe(0)
+    expect(resolveWith({ data: -1 }).after.storedDataMb).toBe(0)
+    expect(resolveWith({ battery: 5 }).after.batteryWh).toBe(40)
+  })
+
+  it('negative effects are scaled by the mini-game score, positive ones are not', () => {
+    const half = resolveWith({ budget: -2, propellant: -0.1, science: 4 }, {}, 0.5)
+    expect(half.after.spentM).toBeCloseTo(half.before.spentM + 1, 12)
+    expect(half.after.propellantKg).toBeCloseTo(0.5 * 0.95, 12)
+    expect(half.after.science).toBeCloseTo(14, 12)
+  })
+})
+
+describe('FR-7.4 rate scaling by mission length', () => {
+  const event = ev({ id: 'rate', station: 'power', trigger: { chancePerDay: 0.01 } })
+  const chance = (scenarioId: string, difficulty: MissionDesign['difficulty'] = 'engineer') => {
+    const d = REFERENCE_DESIGNS.find((x) => x.scenarioId === scenarioId)!
+    return eventChance(event, { ...d, difficulty }, data)
+  }
+  const days = (id: string) => gameData.scenarios.find((s) => s.id === id)!.durationDays
+
+  it('multiplies the chance by 365 / durationDays', () => {
+    expect(REFERENCE_MISSION_DAYS).toBe(365)
+    expect(chance('student-cubesat')).toBeCloseTo(0.01, 12) // 365 days: unchanged
+    expect(chance('wildfire-eo')).toBeCloseTo(0.01 * (365 / days('wildfire-eo')), 12)
+    expect(chance('space-telescope')).toBeCloseTo(0.01 * (365 / days('space-telescope')), 12)
+  })
+
+  it('gives every scenario the same expected number of alarms (chance x days)', () => {
+    const expected = (id: string) => chance(id) * days(id)
+    expect(expected('wildfire-eo')).toBeCloseTo(expected('student-cubesat'), 9)
+    expect(expected('space-telescope')).toBeCloseTo(expected('student-cubesat'), 9)
+  })
+
+  it('stacks with the difficulty factor', () => {
+    expect(chance('wildfire-eo', 'cadet')).toBeCloseTo(chance('wildfire-eo') * 0.5, 12)
+    expect(chance('wildfire-eo', 'flightDirector')).toBeCloseTo(chance('wildfire-eo') * 1.5, 12)
   })
 })
