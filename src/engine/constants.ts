@@ -181,3 +181,9 @@ export const LAUNCH_PHASE_MS = 3000
 
 /** FR-7.2: real milliseconds one tick lasts at 1x while an alarm rings, so an alarm lasts its real `timerSec` (the engine counts it in ticks of SECONDS_PER_TICK). */
 export const ALARM_TICK_MS = SECONDS_PER_TICK * 1000
+
+/** FR-7.1: a launcher below this reliability adds a lesson to a failed launch ("this launcher fails about Y in 100 times"). */
+export const LAUNCH_LESSON_RELIABILITY_BELOW = 0.97
+
+/** FR-7.1: a spacecraft that leaves less than this fraction of the launcher's capacity free adds a "no margin" lesson to a failed launch. */
+export const LAUNCH_LESSON_MARGIN_BELOW = 0.1

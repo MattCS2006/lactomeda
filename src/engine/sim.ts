@@ -29,6 +29,7 @@ import {
 import { draw } from './rng'
 import { SUBSYSTEMS, selectedComponent } from './rules/components'
 import { costBreakdown } from './rules/cost'
+import { launchOutcome } from './rules/launchOutcome'
 import { dataBudget } from './rules/data'
 import { availableDeltaVms, orbitHolding, propellantBurned } from './rules/propellant'
 import type { OrbitHolding } from './rules/propellant'
@@ -115,9 +116,20 @@ export function initSim(design: MissionDesign, data: GameData): SimState {
   }
   base = flagOutOfPropellant(loaded, holding)
 
-  if (!launcher || roll.value >= launcher.reliability) {
-    const why = launcher ? `Launch failure: the ${launcher.name} did not reach orbit.` : 'Launch failure: no launcher was chosen.'
-    return withLog({ ...base, status: 'failed', endReason: 'launchFailure' }, 'failure', why)
+  // FR-7.1: launchOutcome is the single source (draw 0 is the roll, draw 1 picks the cause of a failure). Without an
+  // orbit it has no answer, and the plain roll against the launcher's reliability stays as it was.
+  const outcome = launchOutcome(design, data)
+  const failed = !launcher || (outcome ? !outcome.success : roll.value >= launcher.reliability)
+  if (failed) {
+    if (!launcher) return withLog({ ...base, status: 'failed', endReason: 'launchFailure' }, 'failure', 'Launch failure: no launcher was chosen.')
+    const drawn = outcome?.failureModeId ? 2 : 1 // the cause was a second draw
+    let next = withLog(
+      { ...base, rng: drawn, status: 'failed', endReason: 'launchFailure' },
+      'failure',
+      `Launch failure: the ${launcher.name} did not reach orbit.${outcome?.cause ? ` ${outcome.cause}` : ''}`,
+    )
+    for (const lesson of outcome?.lessons ?? []) next = withLog(next, 'info', `Lesson: ${lesson}`)
+    return next
   }
   return withLog(base, 'info', `Launch successful on the ${launcher.name}.`)
 }
