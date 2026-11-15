@@ -2,6 +2,7 @@
 // and a key missing in Spanish falls back to English.
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import en from './en.json'
+import es from './es.json'
 import i18n, { setLanguage } from './index'
 import { LANGUAGE_KEY, savedLanguage } from './language'
 
@@ -62,5 +63,36 @@ describe('language selector', () => {
     await setLanguage('es')
     expect(i18n.t('common.back')).toBe(en.common.back) // never blank, never the key
     bundle[probe] = saved
+  })
+})
+
+function flatten(node: unknown, prefix = ''): Record<string, string> {
+  if (typeof node === 'string') return { [prefix]: node }
+  return Object.entries(node as Record<string, unknown>).reduce(
+    (all, [k, v]) => ({ ...all, ...flatten(v, prefix ? `${prefix}.${k}` : k) }),
+    {} as Record<string, string>,
+  )
+}
+const placeholders = (text: string) => (text.match(/\{\{\s*\w+\s*\}\}/g) ?? []).sort()
+
+describe('Spanish texts (es.json)', () => {
+  const enFlat = flatten(en)
+  const esFlat = flatten(es)
+
+  it('has no keys that English lacks', () => {
+    expect(Object.keys(esFlat).filter((k) => !(k in enFlat))).toEqual([])
+  })
+
+  it('keeps every {{placeholder}} of the English text', () => {
+    const bad = Object.keys(esFlat).filter((k) => placeholders(esFlat[k]).join() !== placeholders(enFlat[k] ?? '').join())
+    expect(bad).toEqual([])
+  })
+
+  it('has no empty texts', () => {
+    expect(Object.keys(esFlat).filter((k) => esFlat[k].trim() === '')).toEqual([])
+  })
+
+  it('translates every key (missing ones would show English)', () => {
+    expect(Object.keys(enFlat).filter((k) => !(k in esFlat))).toEqual([])
   })
 })
