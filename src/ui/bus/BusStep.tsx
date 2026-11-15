@@ -8,6 +8,7 @@ import { translateLabel, type Label } from '../scenarios/scenarioView'
 import { useMissionStore } from '../store/missionStore'
 import { SUBSYSTEMS, busComplete, busIssues, partOptions, toBusCard, type BusCard, type PartCard } from './busView'
 import { InfoTip } from '../tooltip/InfoTip'
+import { AUTO_SUBSYSTEMS } from './autoPick'
 
 interface Props {
   data: GameData
@@ -30,6 +31,20 @@ export function BusStep({ data }: Props) {
   const chosen = SUBSYSTEMS.filter((s) => design.componentIds[s] !== undefined).length
   const issues = busIssues(design, data).filter((i) => i.code !== 'MISSING_SUBSYSTEM')
   const complete = busComplete(design)
+  // Student mode: on Cadet the background subsystems are auto-picked and tucked away (Engineer+ see all 8)
+  const cadet = design.difficulty === 'cadet'
+  const shown = cadet ? SUBSYSTEMS.filter((s) => !AUTO_SUBSYSTEMS.includes(s)) : SUBSYSTEMS
+  const autoMissing = design.busClassId !== null && AUTO_SUBSYSTEMS.some((s) => design.componentIds[s] === undefined)
+  const row = (subsystem: Subsystem) => (
+    <SubsystemRow
+      key={subsystem}
+      subsystem={subsystem}
+      parts={partOptions(subsystem, design, data)}
+      selectedId={design.componentIds[subsystem]}
+      onSelect={(id) => selectPart(subsystem, id, data)}
+      label={label}
+    />
+  )
 
   return (
     <section aria-labelledby="bus-heading" className="mx-auto max-w-6xl">
@@ -68,18 +83,17 @@ export function BusStep({ data }: Props) {
               {t('bus.progress', { done: chosen, total: SUBSYSTEMS.length })}
             </p>
           </div>
-          <div className="mt-3 space-y-6">
-            {SUBSYSTEMS.map((subsystem) => (
-              <SubsystemRow
-                key={subsystem}
-                subsystem={subsystem}
-                parts={partOptions(subsystem, design, data)}
-                selectedId={design.componentIds[subsystem]}
-                onSelect={(id) => selectPart(subsystem, id, data)}
-                label={label}
-              />
-            ))}
-          </div>
+          <div className="mt-3 space-y-6">{shown.map(row)}</div>
+          {cadet && (
+            // Opens by itself if an auto part is somehow missing, so the player is never stuck
+            <details open={autoMissing} className="pixel-panel mt-6 p-3">
+              <summary className="cursor-pointer text-[10px] text-shine focus-visible:outline-2 focus-visible:outline-shine">
+                {t('student.advanced.summary')}
+              </summary>
+              <p className="mt-2 text-[10px] text-metal-light">{t('student.advanced.help')}</p>
+              <div className="mt-3 space-y-6">{AUTO_SUBSYSTEMS.map(row)}</div>
+            </details>
+          )}
         </div>
 
         {/* Ship preview + engineering checks, kept in view while scrolling */}

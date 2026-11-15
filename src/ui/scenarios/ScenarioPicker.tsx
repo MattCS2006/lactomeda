@@ -2,6 +2,7 @@
 // Cards follow docs/ART.md: dark metal panel, light-metal border, dark outline.
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
+import { presetFor } from '../../data'
 import type { GameData } from '../../engine/types'
 import { DifficultyPicker } from '../difficulty/DifficultyPicker'
 import { useMissionStore } from '../store/missionStore'
@@ -16,6 +17,7 @@ export function ScenarioPicker({ data }: Props) {
   const design = useMissionStore((s) => s.design)
   const selectScenario = useMissionStore((s) => s.selectScenario)
   const goTo = useMissionStore((s) => s.goTo)
+  const loadPreset = useMissionStore((s) => s.loadPreset)
   const cards = useMemo(() => data.scenarios.map((s) => toScenarioCard(s, data)), [data])
   const label = (l: Label) => translateLabel(t, l)
 
@@ -42,16 +44,36 @@ export function ScenarioPicker({ data }: Props) {
       {/* FR-2.2 — difficulty, once a mission is picked */}
       <DifficultyPicker data={data} recommended={cards.find((c) => c.id === design?.scenarioId)?.difficulty} />
 
-      <div className="mt-6 flex justify-end">
-        <button
-          type="button"
-          disabled={!design}
-          onClick={() => goTo('requirements')}
-          className="border-2 border-outline bg-ok px-5 py-3 text-xs text-outline shadow-[inset_-3px_-3px_0_var(--color-teal)] hover:bg-ok-light focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-shine disabled:cursor-not-allowed disabled:bg-metal disabled:text-metal-dark disabled:shadow-none"
-        >
-          {t('scenario.start')} ▶
-        </button>
-      </div>
+      {design && presetFor(design.scenarioId) ? (
+        // Student mode: start from the scenario's working starter spacecraft, or build it part by part
+        <div className="pixel-panel mt-6 p-4">
+          <p className="text-[10px] uppercase text-shine">{t('student.preset.heading')}</p>
+          <div className="mt-3 flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              onClick={() => loadPreset(data)}
+              className="border-2 border-outline bg-ok px-6 py-4 text-sm text-outline shadow-[inset_-3px_-3px_0_var(--color-teal)] hover:bg-ok-light focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-shine"
+            >
+              🚀 {t('student.preset.button')} ▶
+            </button>
+            <button type="button" onClick={() => goTo('requirements')} className="pixel-button px-4 py-3 text-[10px]">
+              {t('student.preset.scratch')}
+            </button>
+          </div>
+          <p className="mt-3 text-[10px] text-metal-light">{t('student.preset.hint')}</p>
+        </div>
+      ) : (
+        <div className="mt-6 flex justify-end">
+          <button
+            type="button"
+            disabled={!design}
+            onClick={() => goTo('requirements')}
+            className="border-2 border-outline bg-ok px-5 py-3 text-xs text-outline shadow-[inset_-3px_-3px_0_var(--color-teal)] hover:bg-ok-light focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-shine disabled:cursor-not-allowed disabled:bg-metal disabled:text-metal-dark disabled:shadow-none"
+          >
+            {t('scenario.start')} ▶
+          </button>
+        </div>
+      )}
     </section>
   )
 }

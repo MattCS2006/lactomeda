@@ -6,8 +6,7 @@ import { evaluateObjectives } from '../engine/rules/objectives'
 import { RESOURCE_KEYS, estimateBudgets } from '../engine/rules/resources'
 import type { MissionEvent, Station, Subsystem } from '../engine/types'
 import eventsJson from './events.json'
-import { gameData } from './index'
-import { REFERENCE_DESIGNS } from './referenceDesigns'
+import { gameData, presets } from './index'
 
 const { busClasses, components, instruments, orbits, launchers, groundNetworks, scenarios } = gameData
 const SUBSYSTEMS: Subsystem[] = ['structure', 'power', 'battery', 'computer', 'attitude', 'propulsion', 'thermal', 'comms']
@@ -85,11 +84,12 @@ describe('data catalog', () => {
     }
   })
 
-  it('has a reference design for every scenario', () => {
-    expect(REFERENCE_DESIGNS.map((d) => d.scenarioId).sort()).toEqual(scenarios.map((s) => s.id).sort())
+  // The starter spacecraft (presets.json) are the reference designs: one provably winnable design per scenario.
+  it('has a reference design (starter spacecraft) for every scenario', () => {
+    expect(presets.map((d) => d.scenarioId).sort()).toEqual(scenarios.map((s) => s.id).sort())
   })
 
-  it.each(REFERENCE_DESIGNS.map((d) => [d.scenarioId, d] as const))('%s reference design has no red budget', (_id, design) => {
+  it.each(presets.map((d) => [d.scenarioId, d] as const))('%s reference design has no red budget', (_id, design) => {
     const scenario = scenarios.find((s) => s.id === design.scenarioId)!
     const orbit = orbits.find((o) => o.id === design.orbitId)!
     const launcher = launchers.find((l) => l.id === design.launcherId)!
@@ -112,7 +112,7 @@ describe('data catalog', () => {
   })
 
   // FR-4.5: every scenario objective must be reachable — the reference design reaches at least threshold on all of them.
-  it.each(REFERENCE_DESIGNS.map((d) => [d.scenarioId, d] as const))('%s reference design reaches every objective', (_id, design) => {
+  it.each(presets.map((d) => [d.scenarioId, d] as const))('%s reference design reaches every objective', (_id, design) => {
     for (const r of evaluateObjectives(design, gameData)) {
       const shown = r.value === undefined ? 'not measurable' : `${r.value.toFixed(2)} ${r.unit}`
       expect(r.levelAchieved, `${design.scenarioId}: ${r.objectiveId} = ${shown}`).not.toBeNull()

@@ -1,0 +1,74 @@
+[
+  {
+    "scenarioId": "student-cubesat",
+    "difficulty": "cadet",
+    "requirementLevels": {},
+    "busClassId": "cubesat-3u",
+    "componentIds": {
+      "structure": "str-3u",
+      "power": "pwr-deploy",
+      "battery": "bat-40",
+      "computer": "obc-cubesat",
+      "attitude": "adcs-mag",
+      "propulsion": "prop-none",
+      "thermal": "thm-passive",
+      "comms": "com-sband"
+    },
+    "redundant": [],
+    "propellantKg": 0,
+    "instrumentIds": ["inst-visible-cam", "inst-magnetometer-cubesat"],
+    "dutyCycle": {},
+    "orbitId": "sso",
+    "launcherId": "lv-cubesat",
+    "groundNetworkId": "gn-university",
+    "seed": "reference"
+  },
+  {
+    "scenarioId": "wildfire-eo",
+    "difficulty": "cadet",
+    "requirementLevels": {},
+    "busClassId": "smallsat",
+    "componentIds": {
+      "structure": "str-smallsat",
+      "power": "pwr-array-small",
+      "battery": "bat-1k",
+      "computer": "obc-radtol",
+      "attitude": "adcs-smallsat",
+      "propulsion": "prop-none",
+      "thermal": "thm-heaters",
+      "comms": "com-xband"
+    },
+    "redundant": [],
+    "propellantKg": 0,
+    "instrumentIds": ["inst-multispectral", "inst-thermal-ir"],
+    "dutyCycle": {},
+    "orbitId": "sso",
+    "launcherId": "lv-rideshare",
+    "groundNetworkId": "gn-university",
+    "seed": "reference"
+  },
+  {
+    "scenarioId": "space-telescope",
+    "difficulty": "cadet",
+    "requirementLevels": {},
+    "busClassId": "large",
+    "componentIds": {
+      "structure": "str-large",
+      "power": "pwr-array-large",
+      "battery": "bat-10k",
+      "computer": "obc-radhard",
+      "attitude": "adcs-cmg",
+      "propulsion": "prop-mono",
+      "thermal": "thm-radiators",
+      "comms": "com-hga"
+    },
+    "redundant": [],
+    "propellantKg": 90,
+    "instrumentIds": ["inst-telescope"],
+    "dutyCycle": {},
+    "orbitId": "l2",
+    "launcherId": "lv-medium",
+    "groundNetworkId": "gn-nen",
+    "seed": "reference"
+  }
+]
