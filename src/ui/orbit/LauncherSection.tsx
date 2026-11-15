@@ -5,6 +5,7 @@ import { formatNumber } from '../payload/payloadView'
 import { translateLabel, type Label } from '../scenarios/scenarioView'
 import { useMissionStore } from '../store/missionStore'
 import { launchersFor, toLauncherCard, type LauncherCard } from './launcherView'
+import { InfoTip } from '../tooltip/InfoTip'
 
 interface Props {
   data: GameData
@@ -78,7 +79,10 @@ function LauncherCardView({ card, selected, onSelect, label }: CardProps) {
       }`}
     >
       <span className="flex items-start justify-between gap-2">
-        <span className="text-xs leading-relaxed">{card.name}</span>
+        <span className="text-xs leading-relaxed">
+          {card.name}
+          <InfoTip id={card.id} />
+        </span>
         <span
           className={`shrink-0 border px-2 py-1 text-[8px] uppercase ${
             selected ? 'border-ok text-ok' : 'border-metal text-metal-light'
