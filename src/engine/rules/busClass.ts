@@ -1,6 +1,7 @@
 // Bus size class rules (FR-3.1, FR-3.5, FR-13.1). Pure and deterministic: nothing is mutated.
 // `message` text is an English fallback; the UI translates by `code` via i18next.
 import type { BusClass, GameData, MissionDesign, Subsystem, ValidationIssue } from '../types'
+import { wetMassKg } from './mass'
 
 export interface BusClassUsage {
   busClass: BusClass
@@ -20,21 +21,15 @@ export function busClassUsage(design: MissionDesign, data: GameData): BusClassUs
 
   const redundant = new Set<Subsystem>(design.redundant)
   let componentSlotsUsed = 0
-  let massKg = 0
   for (const [subsystem, id] of Object.entries(design.componentIds) as [Subsystem, string | undefined][]) {
     if (!id) continue
     const component = data.components.find((c) => c.id === id)
     if (!component) continue
     const units = redundant.has(subsystem) ? 2 : 1 // main + backup
     componentSlotsUsed += units
-    massKg += component.massKg * units
   }
-  for (const id of design.instrumentIds) {
-    massKg += data.instruments.find((i) => i.id === id)?.massKg ?? 0
-  }
-  massKg += design.propellantKg
 
-  return { busClass, instrumentsUsed: design.instrumentIds.length, componentSlotsUsed, massKg }
+  return { busClass, instrumentsUsed: design.instrumentIds.length, componentSlotsUsed, massKg: wetMassKg(design, data) }
 }
 
 export function canAddInstrument(design: MissionDesign, data: GameData): boolean {

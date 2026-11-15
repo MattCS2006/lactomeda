@@ -10,6 +10,7 @@ import {
 } from '../constants'
 import type { Budgets, Component, GameData, Instrument, MissionDesign, ResourceKey, Subsystem } from '../types'
 import { effectivePowerW, isSolar } from './components'
+import { wetMassKg } from './mass'
 
 export const RESOURCE_KEYS: readonly ResourceKey[] = ['mass', 'power', 'budget', 'data', 'comms', 'time']
 
@@ -52,10 +53,7 @@ export function estimateBudgets(design: MissionDesign, data: GameData): Budgets 
   const durationDays = scenario?.durationDays ?? 0
 
   // mass (kg)
-  const massUsed =
-    parts.reduce((a, p) => a + p.component.massKg * p.units, 0) +
-    instruments.reduce((a, i) => a + i.instrument.massKg, 0) +
-    design.propellantKg
+  const massUsed = wetMassKg(design, data)
   let massAvailable = bus?.maxMassKg ?? 0
   if (launcher && orbit) massAvailable = Math.min(massAvailable, launcher.capacityKg[orbit.regime] ?? 0)
 
