@@ -147,3 +147,49 @@ describe('wavelength rules (FR-14.8)', () => {
     for (const i of instruments) expect([...derivedObjectives(i, gameData)].sort(), i.id).toEqual([...i.objectives].sort())
   })
 })
+
+// FR-3.4: an advanced part trades risk for performance
+describe('simple vs advanced components (FR-3.4)', () => {
+  const performance = (c: (typeof components)[number]): number => {
+    switch (c.subsystem) {
+      case 'battery':
+        return (c.capacityWh ?? 0) / c.massKg
+      case 'propulsion':
+        return c.deltaVms ?? 0
+      case 'comms':
+        return c.dataRateKbps ?? 0
+      case 'computer':
+        return c.storageMb ?? 0
+      case 'power':
+        return -c.powerW / c.massKg
+      case 'structure':
+        return -c.massKg
+      default:
+        return 0
+    }
+  }
+
+  it('has at least 3 simple options per subsystem, so Cadet always has a choice', () => {
+    for (const s of SUBSYSTEMS) {
+      expect(components.filter((c) => c.subsystem === s && c.tier === 'simple').length, s).toBeGreaterThanOrEqual(3)
+    }
+  })
+
+  it('makes every advanced part higher performance, lower TRL and higher cost or risk', () => {
+    for (const a of components.filter((c) => c.tier === 'advanced')) {
+      const simple = components.filter((c) => c.subsystem === a.subsystem && c.tier === 'simple')
+      const simpleTags = new Set(simple.flatMap((c) => c.tags ?? []))
+      const newTag = (a.tags ?? []).some((t) => !simpleTags.has(t))
+      // Parts that work without sunlight (the RTG) are advanced by capability: higher cost, no lower-TRL requirement.
+      const capability = (a.tags ?? []).includes('noSunNeeded')
+
+      expect(newTag || simple.some((c) => performance(a) > performance(c)), `${a.id}: not better than any simple option`).toBe(true)
+      expect(
+        a.costM > Math.min(...simple.map((c) => c.costM)) || a.reliability < Math.max(...simple.map((c) => c.reliability)),
+        `${a.id}: not costlier or riskier`,
+      ).toBe(true)
+      if (capability) expect(a.costM, `${a.id}: a capability part should cost more`).toBeGreaterThan(Math.max(...simple.map((c) => c.costM)))
+      else expect(a.trl, `${a.id}: TRL`).toBeLessThan(Math.max(...simple.map((c) => c.trl)))
+    }
+  })
+})

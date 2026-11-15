@@ -83,7 +83,7 @@ describe('applyChange', () => {
 describe('previewOptions', () => {
   it('returns one preview per battery option', () => {
     const p = previewOptions(cubesatDesign(), 'battery', gameData)
-    const ids = componentOptions('battery', gameData).map((c) => c.id)
+    const ids = componentOptions('battery', gameData, 'cadet').map((c) => c.id)
     expect(Object.keys(p).sort()).toEqual([...ids].sort())
     expect(p['bat-40'].mass.usedDelta).toBe(0) // the current choice changes nothing
     expect(Object.keys(p['bat-1k']).sort()).toEqual([...RESOURCE_KEYS].sort())

@@ -60,14 +60,14 @@ export function previewChange(
   return preview
 }
 
-/** Preview of every option of one subsystem (componentId -> preview), for the whole option list. */
+/** Preview of every option of one subsystem available at the design's difficulty (componentId -> preview). */
 export function previewOptions(
   design: MissionDesign,
   subsystem: Subsystem,
   data: GameData,
 ): Record<string, Record<ResourceKey, ResourcePreview>> {
   const result: Record<string, Record<ResourceKey, ResourcePreview>> = {}
-  for (const option of componentOptions(subsystem, data)) {
+  for (const option of componentOptions(subsystem, data, design.difficulty)) {
     result[option.id] = previewChange(design, { kind: 'component', subsystem, componentId: option.id }, data)
   }
   return result

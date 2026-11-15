@@ -23,7 +23,7 @@ export const REFERENCE_DESIGNS: MissionDesign[] = [
   }),
   // Space Telescope: Large bus at L2, space telescope (deepSky + exoplanetSpectra), cryo thermal, deep-space antenna, NASA Near Space Network (reaches L2).
   reference({
-    scenarioId: 'space-telescope', busClassId: 'large',
+    scenarioId: 'space-telescope', difficulty: 'engineer', busClassId: 'large',
     componentIds: { structure: 'str-large', power: 'pwr-array-large', battery: 'bat-10k', computer: 'obc-radhard', attitude: 'adcs-fine', propulsion: 'prop-mono', thermal: 'thm-cryo', comms: 'com-hga' },
     instrumentIds: ['inst-telescope'],
     orbitId: 'l2', launcherId: 'lv-medium', groundNetworkId: 'gn-nen',
