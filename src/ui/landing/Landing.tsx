@@ -8,6 +8,7 @@ import { useMissionStore } from '../store/missionStore'
 import { NasaSources } from '../sources/NasaSources'
 import { roomsAvailable } from '../../net/roomClient'
 import { RoomLobby, type RoomMode } from '../rooms/RoomLobby'
+import { LanguageSelector } from './LanguageSelector'
 import { HOW_TO_PLAY_STEPS, MENU_ENTRIES, unavailableReason, type MenuEntry } from './landingView'
 
 interface Props {
@@ -40,6 +41,7 @@ export function Landing({ data }: Props) {
   return (
     <div className="relative flex min-h-[calc(100vh-3rem)] flex-col items-center justify-center overflow-hidden">
       <Starfield />
+      <LanguageSelector />
 
       <div className="relative z-10 flex w-full max-w-md flex-col items-center">
         {/* Logo */}

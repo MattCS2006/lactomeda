@@ -902,5 +902,10 @@
       "recommendedHelp": "Baseline targets make a solid mission that is not too hard — great for a first flight.",
       "customize": "Customize targets"
     }
+  },
+  "languageSelector": {
+    "label": "Language",
+    "en": "English",
+    "es": "Español"
   }
 }
