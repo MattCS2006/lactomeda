@@ -9,7 +9,7 @@
     "payload": "Phase 4 · Payload · CML 3",
     "orbit": "Phase 5 · Orbit & Launch · CML 3",
     "bus": "Phase 3 · Spacecraft Bus · CML 3",
-    "design": "Ship preview"
+    "design": "Phase 6 · Design Review · CML 4"
   },
   "scenario": {
     "heading": "Choose your mission",
@@ -685,5 +685,64 @@
         "where": "Tooltips, radar instrument card"
       }
     }
+  },
+  "review": {
+    "heading": "Design review",
+    "intro": "Like a study at NASA's Mission Design Lab, every discipline checks your design before launch. Fix the red items, or accept the risk if your difficulty allows it.",
+    "verdict": {
+      "go": "GO",
+      "concern": "CONCERN",
+      "noGo": "NO-GO"
+    },
+    "overall": {
+      "go": "Every check passed: ready to launch.",
+      "concern": "You can launch, but some margins are tight.",
+      "noGo": "Something must be fixed before launch."
+    },
+    "resourcesHeading": "Resources",
+    "margin": "Margin {{value}}%",
+    "disciplinesHeading": "Findings by discipline",
+    "discipline": {
+      "power": "Power",
+      "propulsion": "Propulsion",
+      "thermal": "Thermal",
+      "structures": "Structures",
+      "avionics": "Avionics",
+      "comms": "Comms",
+      "attitude": "Attitude control",
+      "cost": "Cost",
+      "risk": "Risk"
+    },
+    "fix": "Fix it in {{phase}}",
+    "equipmentHeading": "Equipment list ({{count}} items)",
+    "col": {
+      "item": "Item",
+      "mass": "Mass (kg)",
+      "power": "Power (W)",
+      "cost": "Cost ($M)"
+    },
+    "redundant": "(with backup)",
+    "total": "Total",
+    "acceptRisk": "I accept the risk: launch even though some items are red. The mission is more likely to fail.",
+    "decision": {
+      "clear": "Design review passed. Ready to launch.",
+      "riskAccepted": "Risk accepted. You can launch.",
+      "hardBlockers": "Something essential is missing. Fix the red items first.",
+      "riskNotAccepted": "Some items are red. Fix them, or accept the risk to launch.",
+      "cadetCannotAcceptRisk": "On Cadet you can't launch with red items. Fix them first."
+    },
+    "launch": "Launch"
+  },
+  "flightView": {
+    "heading": "Mission in flight",
+    "liftoff": "Liftoff!",
+    "liftoffHint": "Your spacecraft is riding a {{launcher}} to orbit.",
+    "day": "Mission day {{day}}",
+    "speed": "Time speed",
+    "pause": "Pause",
+    "times": "{{n}}×",
+    "abort": "Abort mission",
+    "alarmAt": "{{station}} station",
+    "secondsLeft": "{{s}} s left"
   }
 }
