@@ -51,3 +51,11 @@ export const MASS_CONTINGENCY: Record<'cadet' | 'engineer' | 'flightDirector', n
   engineer: 0.15,
   flightDirector: 0.2,
 }
+
+// ─── FR-6.4 power budget ────────────────────────────────────────────────
+
+/** Game balance: yearly loss of solar-array output (radiation, thermal cycling). ERS 7.5 term (1 - d)^years. */
+export const SOLAR_DEGRADATION_PER_YEAR = 0.03
+
+/** Game balance: yearly loss of RTG output (plutonium decay and thermocouple ageing). */
+export const RTG_DEGRADATION_PER_YEAR = 0.04

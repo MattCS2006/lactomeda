@@ -3,9 +3,9 @@
 import { makeBudget } from '../budgets'
 import { PERFECT_RELIABILITY_LIFE_FACTOR, RADIATION_FACTOR } from '../constants'
 import type { Budgets, Component, GameData, Instrument, MissionDesign, ResourceKey, Subsystem } from '../types'
-import { effectivePowerW, isSolar } from './components'
 import { linkBudget } from './link'
 import { wetMassKg } from './mass'
+import { powerBreakdown } from './power'
 
 export const RESOURCE_KEYS: readonly ResourceKey[] = ['mass', 'power', 'budget', 'data', 'comms', 'time']
 
@@ -52,16 +52,10 @@ export function estimateBudgets(design: MissionDesign, data: GameData): Budgets 
   let massAvailable = bus?.maxMassKg ?? 0
   if (launcher && orbit) massAvailable = Math.min(massAvailable, launcher.capacityKg[orbit.regime] ?? 0)
 
-  // power (W, orbit average)
-  const eclipse = orbit?.eclipseFraction ?? 0
-  const powerUsed =
-    parts.reduce((a, p) => a + Math.max(0, p.component.powerW) * p.units, 0) +
-    instruments.reduce((a, i) => a + i.instrument.powerW * i.duty, 0)
-  const powerAvailable = parts.reduce((a, p) => {
-    const generated = -effectivePowerW(p.component, orbit)
-    if (generated <= 0) return a
-    return a + (isSolar(p.component) ? generated * (1 - eclipse) : generated)
-  }, 0)
+  // power (W, orbit average): single source of truth is powerBreakdown (FR-6.4)
+  const power = powerBreakdown(design, data)
+  const powerUsed = power.loadW
+  const powerAvailable = power.orbitAverageGenerationW
 
   // budget (M USD)
   const budgetUsed =
