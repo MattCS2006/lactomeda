@@ -11,7 +11,9 @@ import {
   requiredBatteryWh,
   validateOrbit,
 } from './orbit'
+import { massBreakdown } from './mass'
 import { validatePower } from './power'
+import { propellantForDeltaV } from './propellant'
 import { estimateBudgets } from './resources'
 import { cubesatDesign } from './testDesign'
 
@@ -121,22 +123,30 @@ describe('insertion delta-v', () => {
   const needing = (dv: number) => withOrbit('leo', { insertionDeltaVms: dv })
   const withProp = (propulsion: string) =>
     cubesatDesign({ componentIds: { ...cubesatDesign().componentIds, propulsion } })
+  /** The same design with exactly enough propellant for `dv` m/s (FR-3.6: delta-v comes from the propellant). */
+  const giving = (propulsion: string, dv: number) => {
+    const design = withProp(propulsion)
+    const m = massBreakdown(design, gameData)
+    const isp = gameData.components.find((c) => c.id === propulsion)!.ispS!
+    return { ...design, propellantKg: propellantForDeltaV(m.dryMassKg + m.contingencyKg, dv, isp) }
+  }
 
-  it('reads the available delta-v from the propulsion', () => {
+  it('reads the available delta-v from the propulsion and its propellant', () => {
     expect(availableDeltaVms(withProp('prop-none'), gameData)).toBe(0)
-    expect(availableDeltaVms(withProp('prop-mono'), gameData)).toBe(200)
+    expect(availableDeltaVms(withProp('prop-mono'), gameData)).toBe(0) // no propellant loaded
+    expect(availableDeltaVms(giving('prop-mono', 200), gameData)).toBeCloseTo(200, 6)
     expect(availableDeltaVms(cubesatDesign({ componentIds: {} }), gameData)).toBe(0)
   })
 
-  it('INSUFFICIENT_DELTA_V appears when the orbit needs more than the propulsion gives, and disappears with enough', () => {
-    expect(codes(withProp('prop-mono'), needing(300))).toContain('INSUFFICIENT_DELTA_V')
-    expect(codes(withProp('prop-biprop'), needing(300))).not.toContain('INSUFFICIENT_DELTA_V')
-    expect(codes(withProp('prop-mono'), needing(200))).not.toContain('INSUFFICIENT_DELTA_V')
+  it('INSUFFICIENT_DELTA_V appears when the orbit needs more than the propellant gives, and disappears with enough', () => {
+    expect(codes(giving('prop-mono', 200), needing(300))).toContain('INSUFFICIENT_DELTA_V')
+    expect(codes(giving('prop-mono', 300.5), needing(300))).not.toContain('INSUFFICIENT_DELTA_V')
+    expect(codes(giving('prop-mono', 250), needing(200))).not.toContain('INSUFFICIENT_DELTA_V')
     expect(codes(withProp('prop-none'), gameData)).not.toContain('INSUFFICIENT_DELTA_V') // LEO needs 0
   })
 
   it('the issue is an error on propulsion that quotes both numbers', () => {
-    const issue = validateOrbit(withProp('prop-mono'), needing(300)).find((i) => i.code === 'INSUFFICIENT_DELTA_V')!
+    const issue = validateOrbit(giving('prop-mono', 200), needing(300)).find((i) => i.code === 'INSUFFICIENT_DELTA_V')!
     expect(issue.severity).toBe('error')
     expect(issue.subsystem).toBe('propulsion')
     expect(issue.message).toContain('300')

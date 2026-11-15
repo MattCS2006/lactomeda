@@ -7,6 +7,7 @@ import { costBreakdown } from './cost'
 import { linkBudget } from './link'
 import { wetMassKg } from './mass'
 import { powerBreakdown } from './power'
+import { propellantBreakdown } from './propellant'
 
 export const RESOURCE_KEYS: readonly ResourceKey[] = ['mass', 'power', 'budget', 'data', 'comms', 'time']
 
@@ -45,6 +46,19 @@ export function systemReliability(design: MissionDesign, data: GameData): number
   return reliability
 }
 
+/** Median life (days) of the constant-failure-rate system model: the reliability half of the lifetime estimate. */
+export function reliabilityLifetimeDays(design: MissionDesign, data: GameData): number {
+  const durationDays = data.scenarios.find((s) => s.id === design.scenarioId)?.durationDays ?? 0
+  const reliability = systemReliability(design, data)
+  return durationDays <= 0
+    ? 0
+    : reliability >= 1
+      ? PERFECT_RELIABILITY_LIFE_FACTOR * durationDays
+      : reliability <= 0
+        ? 0
+        : (Math.LN2 * durationDays) / -Math.log(reliability)
+}
+
 export function estimateBudgets(design: MissionDesign, data: GameData): Budgets {
   const bus = data.busClasses.find((b) => b.id === design.busClassId)
   const orbit = data.orbits.find((o) => o.id === design.orbitId) ?? null
@@ -72,16 +86,8 @@ export function estimateBudgets(design: MissionDesign, data: GameData): Budgets 
   const contactMin = link.contactMinPerDay
   const commsUsed = Number.isFinite(link.contactMinNeeded) ? link.contactMinNeeded : contactMin + 1
 
-  // time (days): median life of a constant-failure-rate system vs the required lifetime
-  const reliability = systemReliability(design, data)
-  const medianLifeDays =
-    durationDays <= 0
-      ? 0
-      : reliability >= 1
-        ? PERFECT_RELIABILITY_LIFE_FACTOR * durationDays
-        : reliability <= 0
-          ? 0
-          : (Math.LN2 * durationDays) / -Math.log(reliability)
+  // time (days): the shorter of the reliability life and the orbit life (FR-3.6); single source of truth is propellantBreakdown
+  const lifetimeDays = propellantBreakdown(design, data).lifetimeDays
 
   return {
     mass: makeBudget(massUsed, massAvailable),
@@ -89,6 +95,6 @@ export function estimateBudgets(design: MissionDesign, data: GameData): Budgets 
     budget: makeBudget(cost.totalM, cost.budgetM),
     data: makeBudget(dataUsed, dataAvailable),
     comms: makeBudget(commsUsed, contactMin),
-    time: makeBudget(durationDays, medianLifeDays),
+    time: makeBudget(durationDays, lifetimeDays),
   }
 }

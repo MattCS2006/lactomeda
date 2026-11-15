@@ -3,13 +3,13 @@
 // Log entries carry only simulation time (tick, day). Text is an English fallback.
 //
 // Tick order (draws are always consumed in this order):
-//   1. data, science and operations cost
+//   1. data, science and operations cost; FR-3.6 station-keeping burn (propellant)
 //   2. alarms whose timer ran out are resolved (an ignored failure alarm switches to the backup, or ends the mission
 //      if the subsystem is critical)
 //   3. FR-3.5 daily failure rolls: one draw per installed subsystem except structure, in Subsystem order, only for a
 //      subsystem with health > 0, no failure alarm and a failure chance above 0 (a perfect part draws nothing)
 //   4. random event rolls: one draw per applicable event, in catalog order
-//   5. end conditions
+//   5. end conditions; then FR-3.6 orbit decay (an orbit with drag, once the propellant that held it has run out)
 // A failure is never an instant game over: the subsystem goes offline (health 0) and its failure alarm rings. The
 // player can repair it, switch to the backup, enter safe mode or leave it offline. Only an ignored alarm on a critical
 // subsystem ends the mission (FR-7.9).
@@ -30,6 +30,8 @@ import { draw } from './rng'
 import { SUBSYSTEMS, selectedComponent } from './rules/components'
 import { costBreakdown } from './rules/cost'
 import { dataBudget } from './rules/data'
+import { availableDeltaVms, orbitHolding, propellantBurned } from './rules/propellant'
+import type { OrbitHolding } from './rules/propellant'
 import { availableOptions, dailyFailureProbability, designTags } from './rules/redundancy'
 import { payloadScience } from './rules/science'
 import type {
@@ -86,7 +88,7 @@ export function initSim(design: MissionDesign, data: GameData): SimState {
 
   // Development and launch are paid before liftoff; operations are added every tick.
   const cost = costBreakdown(design, data)
-  const base: SimState = {
+  let base: SimState = {
     tick: 0,
     day: 0,
     status: 'running',
@@ -104,11 +106,59 @@ export function initSim(design: MissionDesign, data: GameData): SimState {
     rng: roll.counter,
   }
 
+  // FR-3.6: the orbit insertion burn is paid at the start (the rocket equation is additive, so this matches availableDeltaVms)
+  const holding = orbitHolding(design, data)
+  let loaded = base
+  if (holding.ispS !== null && holding.insertionDeltaVms > 0) {
+    const burned = propellantBurned(holding.dryMassKg + design.propellantKg, holding.insertionDeltaVms, holding.ispS)
+    loaded = { ...base, propellantKg: Math.max(0, design.propellantKg - burned) }
+  }
+  base = flagOutOfPropellant(loaded, holding)
+
   if (!launcher || roll.value >= launcher.reliability) {
     const why = launcher ? `Launch failure: the ${launcher.name} did not reach orbit.` : 'Launch failure: no launcher was chosen.'
     return withLog({ ...base, status: 'failed', endReason: 'launchFailure' }, 'failure', why)
   }
   return withLog(base, 'info', `Launch successful on the ${launcher.name}.`)
+}
+
+// ─── Propellant and orbit decay (FR-3.6) ────────────────────────────────
+
+const OUT_OF_PROPELLANT = 'Out of propellant'
+
+const outOfPropellantEntry = (state: SimState): SimLogEntry | undefined =>
+  state.log.find((l) => l.kind === 'warning' && l.text.startsWith(OUT_OF_PROPELLANT))
+
+/** Logs, once, the moment the propellant that holds the orbit is gone. The orbit decay clock starts on that day. */
+function flagOutOfPropellant(state: SimState, holding: OrbitHolding): SimState {
+  if (holding.ispS === null || holding.stationKeepingMsPerYear <= 0) return state
+  if (state.propellantKg > 0 || outOfPropellantEntry(state)) return state
+  return withLog(state, 'warning', `${OUT_OF_PROPELLANT}: the orbit can no longer be held.`)
+}
+
+/** Burns one tick of station-keeping propellant (rocket equation at the current mass). */
+function stationKeep(state: SimState, holding: OrbitHolding): SimState {
+  if (holding.ispS === null || holding.stationKeepingMsPerYear <= 0 || state.propellantKg <= 0) return flagOutOfPropellant(state, holding)
+  const deltaV = (holding.stationKeepingMsPerYear * SIM_DAYS_PER_TICK) / 365
+  const burned = propellantBurned(holding.dryMassKg + state.propellantKg, deltaV, holding.ispS)
+  return flagOutOfPropellant({ ...state, propellantKg: Math.max(0, state.propellantKg - burned) }, holding)
+}
+
+/**
+ * An orbit with drag decays once nothing holds it: the clock starts the day the propellant ran out (day 0 if there was
+ * none), or, for a fixed-delta-v propulsion with no Isp, when its delta-v has been spent on the insertion and station-keeping.
+ * When the decay time has passed the mission ends with `lifetimeReached`.
+ */
+function orbitDecay(state: SimState, design: MissionDesign, data: GameData): SimState {
+  if (state.status !== 'running') return state
+  const holding = orbitHolding(design, data)
+  if (holding.decayLifetimeDays === null || holding.stationKeepingMsPerYear <= 0) return state
+  const holdsUntilDay =
+    holding.ispS === null
+      ? (Math.max(0, availableDeltaVms(design, data) - holding.insertionDeltaVms) / holding.stationKeepingMsPerYear) * 365
+      : outOfPropellantEntry(state)?.day
+  if (holdsUntilDay === undefined || state.day < holdsUntilDay + holding.decayLifetimeDays) return state
+  return withLog({ ...state, status: 'success', endReason: 'lifetimeReached' }, 'info', `Orbit decayed after ${state.day} days.`)
 }
 
 // ─── Failures (FR-3.5) ──────────────────────────────────────────────────
@@ -315,6 +365,9 @@ export function simulateTick(state: SimState, design: MissionDesign, data: GameD
   if (durationDays > 0) next = { ...next, science: next.science + (payloadScience(design, data) * SIM_DAYS_PER_TICK) / durationDays }
   next = { ...next, spentM: next.spentM + ((network?.costM ?? 0) * SIM_DAYS_PER_TICK) / 365 }
 
+  // FR-3.6 station-keeping: burn the propellant that holds the orbit
+  next = stationKeep(next, orbitHolding(design, data))
+
   // alarms whose timer ran out
   for (const active of next.activeEvents) {
     if (next.status !== 'running') break
@@ -350,7 +403,7 @@ export function simulateTick(state: SimState, design: MissionDesign, data: GameD
     next = startAlarm(next, event)
   }
 
-  return endCondition(next, design, data)
+  return orbitDecay(endCondition(next, design, data), design, data)
 }
 
 /** Runs a whole mission, applying scripted decisions at their tick. Used for replays and tests. */

@@ -25,7 +25,7 @@ export const REFERENCE_DESIGNS: MissionDesign[] = [
   reference({
     scenarioId: 'space-telescope', difficulty: 'engineer', busClassId: 'large',
     componentIds: { structure: 'str-large', power: 'pwr-array-large', battery: 'bat-10k', computer: 'obc-radhard', attitude: 'adcs-fine', propulsion: 'prop-mono', thermal: 'thm-cryo', comms: 'com-hga' },
-    instrumentIds: ['inst-telescope'],
+    instrumentIds: ['inst-telescope'], propellantKg: 90, // 83.6 kg pays the 60 m/s insertion and 4 m/s per year of station-keeping over 5 years, with a small reserve
     orbitId: 'l2', launcherId: 'lv-medium', groundNetworkId: 'gn-nen',
   }),
 ]
