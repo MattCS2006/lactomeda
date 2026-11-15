@@ -21,7 +21,7 @@ describe('estimateBudgets', () => {
   it('sums mass, doubles redundant parts, and caps availability by the launcher', () => {
     const base = estimateBudgets(cubesatDesign(), gameData)
     const redundant = estimateBudgets(cubesatDesign({ redundant: ['battery'] }), gameData)
-    expect(redundant.mass.used - base.mass.used).toBeCloseTo(0.3, 6)
+    expect(redundant.mass.used - base.mass.used).toBeCloseTo(0.33, 6) // 0.3 kg battery + 10% cadet contingency
     expect(base.mass.available).toBe(6) // bus 6 kg, launcher 24 kg
     const capped = estimateBudgets(cubesatDesign({ busClassId: 'cubesat-12u', launcherId: 'lv-cubesat' }), gameData)
     expect(capped.mass.available).toBe(6) // launcher 6 kg < bus 24 kg

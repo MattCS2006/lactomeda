@@ -42,3 +42,12 @@ export const BATTERY_DOD = 0.3
 
 /** Game balance: radiation scales every component's failure rate; a component's reliability r becomes r^factor. radHard parts ignore it. */
 export const RADIATION_FACTOR: Record<'low' | 'medium' | 'high', number> = { low: 1, medium: 1.5, high: 2.5 }
+
+// ─── FR-6.3 mass budget ─────────────────────────────────────────────────
+
+/** FR-6.3 (game balance, must stay within 0.10-0.20): mass growth allowance on the dry mass, by difficulty (FR-2.2). */
+export const MASS_CONTINGENCY: Record<'cadet' | 'engineer' | 'flightDirector', number> = {
+  cadet: 0.1,
+  engineer: 0.15,
+  flightDirector: 0.2,
+}

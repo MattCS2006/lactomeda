@@ -12,7 +12,7 @@ const baseMass = wetMassKg(sso(), gameData)
 describe('wetMassKg', () => {
   it('counts redundant subsystems twice and adds propellant', () => {
     const battery = gameData.components.find((c) => c.id === 'bat-40')!
-    expect(wetMassKg(sso({ redundant: ['battery'] }), gameData) - baseMass).toBeCloseTo(battery.massKg, 9)
+    expect(wetMassKg(sso({ redundant: ['battery'] }), gameData) - baseMass).toBeCloseTo(battery.massKg * 1.1, 9) // dry mass + 10% cadet contingency
     expect(wetMassKg(sso({ propellantKg: 1.5 }), gameData) - baseMass).toBeCloseTo(1.5, 9)
   })
 

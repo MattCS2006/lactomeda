@@ -59,8 +59,8 @@ describe('validateBusClass', () => {
 
   it('counts redundant mass twice and includes propellant', () => {
     const u = busClassUsage(design({ redundant: ['power'], propellantKg: 1 }), data)!
-    // 7 x 0.5 + 2 x 0.5 (power doubled) + 0.2 instrument + 1 propellant = 5.7
-    expect(u.massKg).toBeCloseTo(5.7, 6)
+    // dry 7 x 0.5 + 2 x 0.5 (power doubled) + 0.2 instrument = 4.7; +10% cadet contingency = 5.17; + 1 propellant = 6.17
+    expect(u.massKg).toBeCloseTo(6.17, 6)
   })
 
   it('returns exactly one error for a null or unknown bus id', () => {

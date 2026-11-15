@@ -21,9 +21,9 @@ describe('previewChange', () => {
     }
   })
 
-  it('bat-40 -> bat-1k adds 7.7 kg and 0.48 M USD', () => {
+  it('bat-40 -> bat-1k adds 8.47 kg (7.7 kg + 10% contingency) and 0.48 M USD', () => {
     const p = previewChange(cubesatDesign(), swap('battery', 'bat-1k'), gameData)
-    expect(p.mass.usedDelta).toBeCloseTo(7.7, 6)
+    expect(p.mass.usedDelta).toBeCloseTo(8.47, 6)
     expect(p.budget.usedDelta).toBeCloseTo(0.48, 6)
   })
 
