@@ -1,6 +1,7 @@
 // Catalog health check (SCRUM-25). Fails when the data has broken links,
 // impossible values, or a scenario that no design could win.
 import { describe, expect, it } from 'vitest'
+import { evaluateObjectives } from '../engine/rules/objectives'
 import { RESOURCE_KEYS, estimateBudgets } from '../engine/rules/resources'
 import type { MissionDesign, Subsystem } from '../engine/types'
 import { gameData } from './index'
@@ -94,12 +95,13 @@ describe('data catalog', () => {
       instrumentIds: ['inst-visible-cam', 'inst-magnetometer-cubesat'],
       orbitId: 'sso', launcherId: 'lv-cubesat', groundNetworkId: 'gn-university',
     }),
-    // Wildfire EO: SmallSat, multispectral imager (covers earthImaging, fireDetection and burnScar), LEO rideshare.
+    // Wildfire EO: SmallSat in SSO with a wide-swath thermal IR camera (VIIRS-like, finds fires ~daily)
+    // and a multispectral imager (Landsat-like, maps burn scars at ~30 m), SSO rideshare.
     reference({
       scenarioId: 'wildfire-eo', busClassId: 'smallsat',
       componentIds: { structure: 'str-smallsat', power: 'pwr-array-small', battery: 'bat-1k', computer: 'obc-radtol', attitude: 'adcs-smallsat', propulsion: 'prop-none', thermal: 'thm-heaters', comms: 'com-xband' },
-      instrumentIds: ['inst-multispectral'],
-      orbitId: 'leo', launcherId: 'lv-rideshare', groundNetworkId: 'gn-university',
+      instrumentIds: ['inst-multispectral', 'inst-thermal-ir'],
+      orbitId: 'sso', launcherId: 'lv-rideshare', groundNetworkId: 'gn-university',
     }),
     // Space Telescope: Large bus at L2, space telescope (deepSky + exoplanetSpectra), cryo thermal, deep-space antenna, NASA Near Space Network (reaches L2).
     reference({
@@ -133,6 +135,14 @@ describe('data catalog', () => {
     for (const key of RESOURCE_KEYS) {
       const b = budgets[key]
       expect(b.status, `${scenario.id}: ${key} is red (used ${b.used.toFixed(2)} / available ${b.available.toFixed(2)})`).not.toBe('red')
+    }
+  })
+
+  // FR-4.5: every scenario objective must be reachable — the reference design reaches at least threshold on all of them.
+  it.each(REFERENCE_DESIGNS.map((d) => [d.scenarioId, d] as const))('%s reference design reaches every objective', (_id, design) => {
+    for (const r of evaluateObjectives(design, gameData)) {
+      const shown = r.value === undefined ? 'not measurable' : `${r.value.toFixed(2)} ${r.unit}`
+      expect(r.levelAchieved, `${design.scenarioId}: ${r.objectiveId} = ${shown}`).not.toBeNull()
     }
   })
 })

@@ -70,6 +70,7 @@ export interface Instrument {
   ifovUrad?: number // instantaneous field of view (µrad): ground resolution = altitude × IFOV; angular resolution for telescopes
   fovDeg?: number // full field of view (deg): swath width = 2 × altitude × tan(fov / 2)
   resolutionM?: number // altitude-independent ground resolution (m), e.g. SAR
+  swathKm?: number // fixed swath width (km) for wide cross-track scanners; overrides fovDeg
   ref?: string // source note for REFERENCES.md
 }
 

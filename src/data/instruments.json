@@ -55,9 +55,9 @@
       "leo",
       "geo"
     ],
-    "ifovUrad": 142,
-    "fovDeg": 15,
-    "ref": "ERS \u00a77.4 (starter instruments); imaging geometry is an estimate based on Landsat 8/9 TIRS (100 m at 705 km) \u2014 verify (NFR-09)"
+    "ifovUrad": 452,
+    "ref": "ERS \u00a77.4 (starter instruments); imaging geometry modelled on NASA/NOAA VIIRS, the active-fire sensor on Suomi NPP / NOAA-20 (375 m I-band at 830 km \u2248 452 \u00b5rad, ~3,000 km swath) \u2014 verify (NFR-09)",
+    "swathKm": 3000
   },
   {
     "id": "inst-sar",

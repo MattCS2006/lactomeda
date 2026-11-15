@@ -65,8 +65,8 @@
         "metric": "revisit",
         "unit": "h",
         "levels": {
-          "threshold": 24,
-          "baseline": 12,
+          "threshold": 48,
+          "baseline": 24,
           "goal": 6
         }
       },

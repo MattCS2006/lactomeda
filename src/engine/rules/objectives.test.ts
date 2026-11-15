@@ -85,11 +85,19 @@ describe('geometry', () => {
     expect(b).toBe(a)
   })
 
-  it('thermal-IR at 705 km SSO revisits in ~14-16 days (Landsat-like)', () => {
-    const d = wildfire({ orbitId: 'sso', altitudeKm: 705, instrumentIds: ['inst-thermal-ir'] })
-    const hours = revisitHours(instrument('inst-thermal-ir'), d, orbit('sso'))!
+  it('multispectral at 705 km SSO revisits in ~14-16 days (Landsat-like)', () => {
+    const d = wildfire({ orbitId: 'sso', altitudeKm: 705, instrumentIds: ['inst-multispectral'] })
+    const hours = revisitHours(instrument('inst-multispectral'), d, orbit('sso'))!
     expect(hours / 24).toBeGreaterThan(14)
     expect(hours / 24).toBeLessThan(16)
+  })
+
+  it('wide-swath thermal-IR (VIIRS-like, fixed 3,000 km swath) revisits within a day from SSO', () => {
+    const ir = instrument('inst-thermal-ir')
+    expect(swathKm(ir, 705)).toBe(3000) // fixed swath, independent of altitude
+    const hours = revisitHours(ir, wildfire({ orbitId: 'sso', instrumentIds: ['inst-thermal-ir'] }), orbit('sso'))!
+    expect(hours).toBeLessThanOrEqual(24) // meets fireDetection baseline (24 h)
+    expect(hours).toBeGreaterThan(6) // goal (6 h) still needs geostationary
   })
 
   it('geostationary revisit is 0.25 h; non-Earth orbits and swath-less instruments are undefined', () => {

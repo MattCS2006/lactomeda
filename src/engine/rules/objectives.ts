@@ -46,6 +46,8 @@ export function angularResolutionArcsec(instrument: Instrument): number | undefi
 }
 
 export function swathKm(instrument: Instrument, altitudeKm: number): number | undefined {
+  // Wide scanners (e.g. VIIRS) give a fixed swath: the flat-Earth formula below breaks at very wide angles.
+  if (instrument.swathKm !== undefined) return instrument.swathKm
   if (instrument.fovDeg === undefined) return undefined
   return 2 * altitudeKm * Math.tan((instrument.fovDeg * Math.PI) / 360)
 }
