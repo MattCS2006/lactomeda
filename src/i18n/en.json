@@ -8,7 +8,8 @@
     "requirements": "Phase 2 · Requirements · CML 2",
     "payload": "Phase 4 · Payload · CML 3",
     "orbit": "Phase 5 · Orbit & Launch · CML 3",
-    "bus": "Phase 3 · Spacecraft Bus · CML 3"
+    "bus": "Phase 3 · Spacecraft Bus · CML 3",
+    "design": "Ship preview"
   },
   "scenario": {
     "heading": "Choose your mission",
@@ -423,5 +424,40 @@
     "OVER_BUS_MASS": "Too heavy for this bus: pick a bigger bus or lighter parts.",
     "UNKNOWN_BUS_CLASS": "This bus size no longer exists: pick another one.",
     "MISSING_BUS_CLASS": "Choose a bus size."
+  },
+  "landing": {
+    "subtitle": "Mission Control",
+    "tagline": "Design a NASA-style space mission, then keep it alive.",
+    "menuLabel": "Main menu",
+    "entry": {
+      "solo": "Play Solo",
+      "createRoom": "Create Team Room",
+      "joinRoom": "Join Room",
+      "sandbox": "Sandbox",
+      "howToPlay": "How to Play"
+    },
+    "hint": {
+      "solo": "Plan and fly a mission on your own.",
+      "createRoom": "Up to 4 players, each with a role.",
+      "joinRoom": "Enter a friend’s 6-letter room code.",
+      "sandbox": "All parts unlocked, no limits.",
+      "howToPlay": "The game in five steps."
+    },
+    "soon": "Soon",
+    "soonReason": "Coming soon: this mode is still being built.",
+    "continue": "Continue mission",
+    "continueHint": "{{name}} · {{phase}}",
+    "footer": "NASA Space Apps Challenge 2026",
+    "howTo": {
+      "heading": "How to play",
+      "close": "Close",
+      "design": "Design: pick a mission, set its targets, then build the spacecraft, choose instruments, orbit, rocket and ground stations.",
+      "resources": "Watch the resource bar: mass, power, budget, data, comms and time. Green is fine, amber is tight, red is over.",
+      "maturity": "Every finished phase raises your concept maturity, like NASA JPL rates real mission ideas (CML 1 to 4).",
+      "flight": "Fly: walk around your ship and answer emergencies at each station before time runs out.",
+      "debrief": "Debrief: see your score and why the mission worked or failed, then fly again with one change."
+    },
+    "menu": "Menu",
+    "logo": "LACTOMEDA"
   }
 }
