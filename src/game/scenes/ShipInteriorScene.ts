@@ -8,7 +8,8 @@ import { SHIP_REGISTRY_KEY, resolveShipDesign, type ShipSource } from '../shipSo
 import { SHIP_STATIONS, STATION_NAMES } from '../stations'
 import { TILESET_KEY, TILESET_PATH, TILE_SIZE } from '../tiles'
 import { stationStatus, type StationState } from '../stationStatus'
-import { PALETTE, PALETTE_NUM, STATUS } from '../palette'
+import { ROOM_FLASH_ALPHA, alarmConsoles, alarmStations, edgeMarker, flashingRooms, markerTriangle } from '../alarmView'
+import { PALETTE, PALETTE_NUM, STATUS, STATUS_NUM } from '../palette'
 import { FONT_SIZE, labelStyle, textStyle } from '../textStyles'
 import {
   PLAYER_SPEED,
@@ -108,6 +109,11 @@ export class ShipInteriorScene extends Phaser.Scene {
   private batteryCapacityWh = 0
   private blinkOn = false
 
+  // Alarms (FR-13.4): rooms flash red; off-screen alarms get an edge marker
+  private roomFlash = new Map<string, Phaser.GameObjects.Rectangle>()
+  private alarmSet = new Set<Station>()
+  private markers!: Phaser.GameObjects.Graphics
+
   // Status panel
   private panel!: Phaser.GameObjects.Container
   private panelFrame!: Phaser.GameObjects.Graphics
@@ -189,8 +195,10 @@ export class ShipInteriorScene extends Phaser.Scene {
     this.snapshot = null
     this.batteryCapacityWh = 0
     this.panelStation = null
+    this.alarmSet = new Set()
     this.createStationViews(solids)
     this.createPanel()
+    this.markers = this.add.graphics().setScrollFactor(0).setDepth(UI_DEPTH - 3)
 
     const offTick = bridge.on('simTick', ({ state }) => this.onSimTick(state))
     const blink = this.time.addEvent({ delay: BLINK_MS, loop: true, callback: () => this.onBlink() })
@@ -228,6 +236,7 @@ export class ShipInteriorScene extends Phaser.Scene {
     this.player.setDepth(this.player.y)
 
     this.updateProximity()
+    this.drawAlarmMarkers()
 
     const usePressed = Phaser.Input.Keyboard.JustDown(this.keys.use) || this.usePressed
     this.usePressed = false
@@ -264,6 +273,17 @@ export class ShipInteriorScene extends Phaser.Scene {
     })
     layer.calculateFacesWithin(0, 0, map.width, map.height)
 
+    // FR-13.4 — one red overlay per room, shown while one of its stations is in alarm
+    this.roomFlash.clear()
+    for (const room of layout.rooms) {
+      const flash = this.add
+        .rectangle(room.x * TILE, room.y * TILE, room.w * TILE, room.h * TILE, STATUS_NUM.alarm, ROOM_FLASH_ALPHA)
+        .setOrigin(0, 0)
+        .setDepth(1)
+        .setVisible(false)
+      this.roomFlash.set(room.id, flash)
+    }
+
     // Room names on the wall above each room's top-left corner
     for (const room of layout.rooms) {
       this.add.text(room.x * TILE + 4, (room.y - 2) * TILE + 4, room.name, ROOM_LABEL_STYLE).setDepth(1)
@@ -295,6 +315,11 @@ export class ShipInteriorScene extends Phaser.Scene {
   private onSimTick(state: SimSnapshot) {
     this.snapshot = state
     this.batteryCapacityWh = Math.max(this.batteryCapacityWh, state.batteryWh)
+    this.alarmSet = alarmStations(
+      state.activeEvents,
+      this.consoles.map((c) => c.id),
+    )
+    this.refreshRoomFlash()
     this.refreshStations()
     this.refreshPanel()
   }
@@ -325,6 +350,31 @@ export class ShipInteriorScene extends Phaser.Scene {
   private onBlink() {
     this.blinkOn = !this.blinkOn
     for (const [id, view] of this.views) if (view.state === 'alarm') this.applyConsoleTexture(id, view)
+    this.refreshRoomFlash()
+  }
+
+  // ── Alarms (FR-13.4) ─────────────────────────────────────────────────
+  /** Rooms with a station in alarm flash red with the console blink. */
+  private refreshRoomFlash() {
+    const on = new Set(flashingRooms(this.layout.rooms, this.alarmSet))
+    for (const [id, rect] of this.roomFlash) rect.setVisible(on.has(id) && this.blinkOn)
+  }
+
+  /** A red arrow on the screen edge for every alarm console outside the camera view. */
+  private drawAlarmMarkers() {
+    this.markers.clear()
+    if (this.alarmSet.size === 0) return
+    const view = this.cameras.main.worldView
+    for (const c of alarmConsoles(this.layout.consoles, this.alarmSet)) {
+      const target = { x: (c.tileX + CONSOLE_TILES / 2) * TILE, y: (c.tileY + CONSOLE_TILES / 2) * TILE }
+      const m = edgeMarker(view, target)
+      if (!m) continue
+      this.markers.fillStyle(STATUS_NUM.alarm, this.blinkOn ? 1 : 0.6)
+      this.markers.lineStyle(2, PALETTE_NUM.outline, 1)
+      const [x1, y1, x2, y2, x3, y3] = markerTriangle(m.x, m.y, m.angle)
+      this.markers.fillTriangle(x1, y1, x2, y2, x3, y3)
+      this.markers.strokeTriangle(x1, y1, x2, y2, x3, y3)
+    }
   }
 
   // ── Status panel ─────────────────────────────────────────────────────

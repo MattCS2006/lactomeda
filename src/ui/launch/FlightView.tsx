@@ -10,6 +10,7 @@ import { getMissionController, stopMission, type Speed } from '../../game/missio
 import { useFlightStore } from '../flight/flightStore'
 import { DecisionPopup } from './DecisionPopup'
 import { FlightHud } from './FlightHud'
+import { playAlarm, unlockAudio, useSoundStore } from '../sound/alarmSound'
 import { alarmsAtStation, answerStation } from './decisionView'
 import { SPEEDS, alarmSecondsLeft } from './reviewView'
 import type { GameData, Station } from '../../engine/types'
@@ -28,6 +29,8 @@ export function FlightView({ data }: { data: GameData }) {
   useEffect(() => {
     const offTick = bridge.on('simTick', ({ state: next }) => setState(next))
     const offStation = bridge.on('stationInteract', ({ station }) => setAtStation(station))
+    // FR-13.4 — every new alarm plays the alarm sound (unless muted)
+    const offAlarm = bridge.on('alarmStart', () => playAlarm())
     const offPhase = bridge.on('phaseChanged', ({ phase: next }) => {
       if (next !== 'launch') return
       setState(null)
@@ -36,9 +39,16 @@ export function FlightView({ data }: { data: GameData }) {
     return () => {
       offTick()
       offStation()
+      offAlarm()
       offPhase()
     }
   }, [])
+
+  const muted = useSoundStore((s) => s.muted)
+  const toggleSound = () => {
+    unlockAudio()
+    useSoundStore.getState().setMuted(!muted)
+  }
 
   const setSpeed = (next: Speed) => {
     getMissionController()?.setSpeed(next)
@@ -85,6 +95,14 @@ export function FlightView({ data }: { data: GameData }) {
                   </button>
                 ))}
               </div>
+              <button
+                type="button"
+                aria-pressed={!muted}
+                onClick={toggleSound}
+                className="pixel-button px-3 py-2 text-[10px]"
+              >
+                {muted ? t('flightView.soundOff') : t('flightView.soundOn')}
+              </button>
               <button type="button" onClick={abort} className="pixel-button px-3 py-2 text-[10px] text-warning!">
                 {t('flightView.abort')}
               </button>
