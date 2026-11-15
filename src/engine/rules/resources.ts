@@ -4,6 +4,7 @@ import { makeBudget } from '../budgets'
 import {
   MINUTES_PER_DAY,
   PERFECT_RELIABILITY_LIFE_FACTOR,
+  RADIATION_FACTOR,
   REF_DISTANCE_DEEP_SPACE_KM,
   REF_DISTANCE_KM,
 } from '../constants'
@@ -94,9 +95,12 @@ export function estimateBudgets(design: MissionDesign, data: GameData): Budgets 
   const commsUsed = dataUsed <= 0 ? 0 : linkMbPerMin > 0 ? dataUsed / linkMbPerMin : contactMin + 1
 
   // time (days): median life of a constant-failure-rate system vs the required lifetime
+  // radiation (FR-5.2) scales each failure rate: r_eff = r ^ factor, except for radHard parts
+  const radiationFactor = orbit ? RADIATION_FACTOR[orbit.radiation] : 1
   let reliability = 1
   for (const p of parts) {
-    const r = p.component.reliability
+    const factor = (p.component.tags ?? []).includes('radHard') ? 1 : radiationFactor
+    const r = p.component.reliability ** factor
     reliability *= p.redundant ? 1 - (1 - r) ** 2 : r
   }
   const medianLifeDays =

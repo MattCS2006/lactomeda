@@ -34,3 +34,11 @@ export const GEO_REVISIT_H = 0.25
 export const SCORE_AT_THRESHOLD = 0.5
 export const SCORE_AT_BASELINE = 0.75
 export const SCORE_AT_GOAL = 1
+
+// ─── FR-5.2 orbit properties ────────────────────────────────────────────
+
+/** ERS 7.5: depth of discharge the battery is sized for (E_battery >= P_load x t_eclipse / DoD). */
+export const BATTERY_DOD = 0.3
+
+/** Game balance: radiation scales every component's failure rate; a component's reliability r becomes r^factor. radHard parts ignore it. */
+export const RADIATION_FACTOR: Record<'low' | 'medium' | 'high', number> = { low: 1, medium: 1.5, high: 2.5 }
