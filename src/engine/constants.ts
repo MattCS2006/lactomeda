@@ -59,3 +59,12 @@ export const SOLAR_DEGRADATION_PER_YEAR = 0.03
 
 /** Game balance: yearly loss of RTG output (plutonium decay and thermocouple ageing). */
 export const RTG_DEGRADATION_PER_YEAR = 0.04
+
+// ─── FR-6.9 design review gate ──────────────────────────────────────────
+
+/**
+ * Hard blockers: the design is incomplete or physically impossible, so launch can never be allowed, not even by
+ * accepting the risk. An error issue is a hard blocker if its code starts with one of the prefixes or is listed.
+ */
+export const HARD_BLOCKER_PREFIXES: readonly string[] = ['MISSING_', 'UNKNOWN_', 'LAUNCH_']
+export const HARD_BLOCKER_CODES: readonly string[] = ['WRONG_SUBSYSTEM', 'NO_COMMS']
