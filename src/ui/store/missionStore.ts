@@ -48,8 +48,12 @@ interface MissionStore {
   selectScenario: (scenarioId: string, data: Pick<GameData, 'scenarios'>, difficulty?: Difficulty) => void
   /** FR-2.3 — set the target level of one objective. */
   setRequirementLevel: (objectiveId: string, level: RequirementLevel) => void
-  /** FR-4.1/4.2 — add or remove an instrument. Adding needs a compatible instrument and, once a bus is chosen, a free slot. Removing always works. */
+  /** FR-4.1/4.2 — add an instrument, or remove all its copies if it is already on board. */
   toggleInstrument: (instrumentId: string, data: GameData) => void
+  /** FR-4.3 — add one more copy. Needs a compatible instrument and, once a bus is chosen, a free slot (each copy uses one). */
+  addInstrument: (instrumentId: string, data: GameData) => void
+  /** Remove one copy (the last one added). Removing always works. */
+  removeInstrument: (instrumentId: string) => void
   /** FR-5.1 — choose an orbit the scenario allows. Clears any altitude override (FR-5.3) and a launcher that can't reach it. */
   selectOrbit: (orbitId: string, data: GameData) => void
   /** FR-5.4 — choose a launcher offered in this scenario that reaches the chosen orbit. */
@@ -73,17 +77,33 @@ export const useMissionStore = create<MissionStore>((set, get) => ({
   },
   toggleInstrument: (instrumentId, data) => {
     const design = get().design
-    if (!design || !data.instruments.some((i) => i.id === instrumentId)) return
-    if (design.instrumentIds.includes(instrumentId)) {
-      const dutyCycle = Object.fromEntries(Object.entries(design.dutyCycle).filter(([id]) => id !== instrumentId))
-      set({ design: { ...design, instrumentIds: design.instrumentIds.filter((id) => id !== instrumentId), dutyCycle } })
+    if (!design) return
+    if (!design.instrumentIds.includes(instrumentId)) {
+      get().addInstrument(instrumentId, data)
       return
     }
-    const instrument = data.instruments.find((i) => i.id === instrumentId)!
+    const dutyCycle = Object.fromEntries(Object.entries(design.dutyCycle).filter(([id]) => id !== instrumentId))
+    set({ design: { ...design, instrumentIds: design.instrumentIds.filter((id) => id !== instrumentId), dutyCycle } })
+  },
+  addInstrument: (instrumentId, data) => {
+    const design = get().design
+    const instrument = data.instruments.find((i) => i.id === instrumentId)
+    if (!design || !instrument) return
     const scenario = data.scenarios.find((s) => s.id === design.scenarioId)
     if (scenario && !isCompatible(instrument, scenario, design, data)) return
     if (design.busClassId && !canAddInstrument(design, data)) return
     set({ design: { ...design, instrumentIds: [...design.instrumentIds, instrumentId] } })
+  },
+  removeInstrument: (instrumentId) => {
+    const design = get().design
+    if (!design) return
+    const at = design.instrumentIds.lastIndexOf(instrumentId)
+    if (at < 0) return
+    const instrumentIds = design.instrumentIds.filter((_, i) => i !== at)
+    const dutyCycle = instrumentIds.includes(instrumentId)
+      ? design.dutyCycle
+      : Object.fromEntries(Object.entries(design.dutyCycle).filter(([id]) => id !== instrumentId))
+    set({ design: { ...design, instrumentIds, dutyCycle } })
   },
   selectOrbit: (orbitId, data) => {
     const design = get().design

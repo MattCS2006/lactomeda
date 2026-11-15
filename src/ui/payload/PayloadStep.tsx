@@ -5,7 +5,16 @@ import { useTranslation } from 'react-i18next'
 import type { GameData } from '../../engine/types'
 import { useMissionStore } from '../store/missionStore'
 import { incompatibilities } from './compatibility'
-import { formatNumber, payloadTotals, slotInfo, toInstrumentCard, type InstrumentCard } from './payloadView'
+import {
+  copiesOf,
+  formatNumber,
+  nextCopy,
+  payloadTotals,
+  slotInfo,
+  toInstrumentCard,
+  type InstrumentCard,
+  type NextCopy,
+} from './payloadView'
 
 interface Props {
   data: GameData
@@ -15,6 +24,8 @@ export function PayloadStep({ data }: Props) {
   const { t } = useTranslation()
   const design = useMissionStore((s) => s.design)
   const toggle = useMissionStore((s) => s.toggleInstrument)
+  const addCopy = useMissionStore((s) => s.addInstrument)
+  const removeCopy = useMissionStore((s) => s.removeInstrument)
   const goTo = useMissionStore((s) => s.goTo)
   const scenario = data.scenarios.find((s) => s.id === design?.scenarioId)
   if (!design || !scenario) return null
@@ -62,7 +73,13 @@ export function PayloadStep({ data }: Props) {
       <ul className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {rows.map(({ card, reasons }) => {
           const selected = design.instrumentIds.includes(card.id)
-          const disabledReasons = selected ? [] : reasons.length > 0 ? reasons : slots.full ? [t('payload.slotsFull')] : []
+          const disabledReasons = selected
+            ? []
+            : reasons.length > 0
+              ? reasons
+              : slots.full
+                ? [t('payload.slotsFull')]
+                : []
           return (
             <li key={card.id}>
               <InstrumentCardView
@@ -70,7 +87,12 @@ export function PayloadStep({ data }: Props) {
                 selected={selected}
                 disabledReasons={disabledReasons}
                 incompatibleSelected={selected && reasons.length > 0 ? reasons : []}
+                copies={copiesOf(design, card.id)}
+                next={nextCopy(design, card.id, data)}
+                addCopyBlockedReason={reasons.length > 0 ? reasons[0] : slots.full ? t('payload.slotsFull') : null}
                 onToggle={() => toggle(card.id, data)}
+                onAddCopy={() => addCopy(card.id, data)}
+                onRemoveCopy={() => removeCopy(card.id)}
               />
             </li>
           )
@@ -113,23 +135,37 @@ interface CardProps {
   disabledReasons: string[]
   /** Already selected but no longer compatible (e.g. orbit changed): warn, still removable. */
   incompatibleSelected: string[]
+  /** Copies on board (FR-4.3). */
+  copies: number
+  /** What one more copy would add. */
+  next: NextCopy
+  /** Why another copy can't be added (no free slot, incompatible); null = it can. */
+  addCopyBlockedReason: string | null
   onToggle: () => void
+  onAddCopy: () => void
+  onRemoveCopy: () => void
 }
 
-function InstrumentCardView({ card, selected, disabledReasons, incompatibleSelected, onToggle }: CardProps) {
+function InstrumentCardView({
+  card,
+  selected,
+  disabledReasons,
+  incompatibleSelected,
+  copies,
+  next,
+  addCopyBlockedReason,
+  onToggle,
+  onAddCopy,
+  onRemoveCopy,
+}: CardProps) {
   const { t } = useTranslation()
   const reasonId = `${card.id}-reason`
   const blocked = disabledReasons.length > 0
   const shownReasons = blocked ? disabledReasons : incompatibleSelected
+  const nextId = `${card.id}-next`
   return (
-    <button
-      type="button"
-      aria-pressed={selected}
-      aria-disabled={blocked}
-      aria-describedby={shownReasons.length > 0 ? reasonId : undefined}
-      title={shownReasons.length > 0 ? shownReasons.join('\n') : undefined}
-      onClick={blocked ? undefined : onToggle}
-      className={`flex h-full w-full flex-col border-2 p-4 text-left shadow-[0_0_0_2px_#1a1c2c] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#73eff7] ${
+    <div
+      className={`flex h-full w-full flex-col border-2 shadow-[0_0_0_2px_#1a1c2c] ${
         selected
           ? incompatibleSelected.length > 0
             ? 'border-[#ffcd75] bg-[#29366f]'
@@ -139,51 +175,104 @@ function InstrumentCardView({ card, selected, disabledReasons, incompatibleSelec
             : 'border-[#94b0c2] bg-[#333c57] hover:bg-[#3b4566]'
       }`}
     >
-      <span className="flex items-start justify-between gap-2">
-        <span className="text-xs leading-relaxed">{card.name}</span>
-        <span
-          className={`shrink-0 border px-2 py-1 text-[8px] uppercase ${
-            selected ? 'border-[#38b764] text-[#38b764]' : 'border-[#566c86] text-[#94b0c2]'
-          }`}
-        >
-          {selected ? `✓ ${t('payload.added')}` : blocked ? `✕ ${t('payload.incompatible.title')}` : t('payload.add')}
+      <button
+        type="button"
+        aria-pressed={selected}
+        aria-disabled={blocked}
+        aria-describedby={shownReasons.length > 0 ? reasonId : undefined}
+        title={shownReasons.length > 0 ? shownReasons.join('\n') : undefined}
+        onClick={blocked ? undefined : onToggle}
+        className={`flex flex-1 flex-col p-4 text-left focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-[#73eff7] ${
+          blocked ? 'cursor-not-allowed' : ''
+        }`}
+      >
+        <span className="flex items-start justify-between gap-2">
+          <span className="text-xs leading-relaxed">{card.name}</span>
+          <span
+            className={`shrink-0 border px-2 py-1 text-[8px] uppercase ${
+              selected ? 'border-[#38b764] text-[#38b764]' : 'border-[#566c86] text-[#94b0c2]'
+            }`}
+          >
+            {selected
+              ? `✓ ${t('payload.added')}${copies > 1 ? ` ×${copies}` : ''}`
+              : blocked
+                ? `✕ ${t('payload.incompatible.title')}`
+                : t('payload.add')}
+          </span>
         </span>
-      </span>
 
-      <dl className="mt-4 grid grid-cols-3 gap-x-2 gap-y-3 text-[10px]">
-        <Stat term={t('payload.stat.mass')} value={`${formatNumber(card.massKg)} kg`} />
-        <Stat term={t('payload.stat.power')} value={`${formatNumber(card.powerW)} W`} />
-        <Stat term={t('payload.stat.cost')} value={`$${formatNumber(card.costM)}M`} />
-        <Stat term={t('payload.stat.data')} value={`${formatNumber(card.dataMbPerDay)} Mb/d`} />
-        <div className="col-span-2">
-          <dt className="mb-1 text-[8px] uppercase text-[#94b0c2]">{t('payload.stat.science')}</dt>
-          <dd className="flex items-center gap-2">
-            <span className="text-[#f4f4f4]">{card.science}</span>
-            <span aria-hidden className="h-2 flex-1 border border-[#1a1c2c] bg-[#1a1c2c]">
-              <span className="block h-full bg-[#a7f070]" style={{ width: `${Math.min(100, card.science)}%` }} />
-            </span>
-          </dd>
+        <dl className="mt-4 grid grid-cols-3 gap-x-2 gap-y-3 text-[10px]">
+          <Stat term={t('payload.stat.mass')} value={`${formatNumber(card.massKg)} kg`} />
+          <Stat term={t('payload.stat.power')} value={`${formatNumber(card.powerW)} W`} />
+          <Stat term={t('payload.stat.cost')} value={`$${formatNumber(card.costM)}M`} />
+          <Stat term={t('payload.stat.data')} value={`${formatNumber(card.dataMbPerDay)} Mb/d`} />
+          <div className="col-span-2">
+            <dt className="mb-1 text-[8px] uppercase text-[#94b0c2]">{t('payload.stat.science')}</dt>
+            <dd className="flex items-center gap-2">
+              <span className="text-[#f4f4f4]">{card.science}</span>
+              <span aria-hidden className="h-2 flex-1 border border-[#1a1c2c] bg-[#1a1c2c]">
+                <span className="block h-full bg-[#a7f070]" style={{ width: `${Math.min(100, card.science)}%` }} />
+              </span>
+            </dd>
+          </div>
+        </dl>
+
+        <span className="mt-4 block border-t-2 border-[#1a1c2c] pt-3 text-[8px]">
+          {card.helps.length > 0 ? (
+            <span className="text-[#38b764]">✓ {t('payload.helps', { objectives: card.helps.join(' · ') })}</span>
+          ) : shownReasons.length === 0 ? (
+            <span className="text-[#94b0c2]">{t('payload.helpsNone')}</span>
+          ) : null}
+        </span>
+        {shownReasons.length > 0 && (
+          <span id={reasonId} className="block space-y-1 text-[8px] leading-relaxed text-[#ffcd75]">
+            {incompatibleSelected.length > 0 && <span className="block">▲ {t('payload.incompatible.warning')}</span>}
+            {shownReasons.map((r) => (
+              <span key={r} className="block">
+                ▲ {r}
+              </span>
+            ))}
+          </span>
+        )}
+      </button>
+
+      {/* FR-4.3 — extra copies give less science (engine marginalScience) */}
+      {selected && (
+        <div className="border-t-2 border-[#1a1c2c] px-4 pb-4 pt-3">
+          <p id={nextId} className="text-[8px] leading-relaxed text-[#73eff7]">
+            {t('payload.marginal', { count: next.have, value: formatNumber(next.value), pct: next.pct })}
+          </p>
+          <div className="mt-2 flex flex-wrap gap-2">
+            <button
+              type="button"
+              aria-describedby={nextId}
+              aria-disabled={addCopyBlockedReason !== null}
+              title={addCopyBlockedReason ?? undefined}
+              onClick={addCopyBlockedReason !== null ? undefined : onAddCopy}
+              className={`border-2 px-3 py-2 text-[8px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#73eff7] ${
+                addCopyBlockedReason !== null
+                  ? 'cursor-not-allowed border-[#566c86] text-[#94b0c2]'
+                  : 'border-[#38b764] bg-[#1a1c2c] text-[#38b764] hover:bg-[#257179]'
+              }`}
+            >
+              + {t('payload.addAnother')}
+            </button>
+            {copies > 1 && (
+              <button
+                type="button"
+                onClick={onRemoveCopy}
+                className="border-2 border-[#94b0c2] bg-[#1a1c2c] px-3 py-2 text-[8px] hover:bg-[#333c57] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#73eff7]"
+              >
+                − {t('payload.removeOne')}
+              </button>
+            )}
+          </div>
+          {addCopyBlockedReason !== null && (
+            <p className="mt-2 text-[8px] leading-relaxed text-[#ffcd75]">▲ {addCopyBlockedReason}</p>
+          )}
         </div>
-      </dl>
-
-      <span className="mt-4 block border-t-2 border-[#1a1c2c] pt-3 text-[8px]">
-        {card.helps.length > 0 ? (
-          <span className="text-[#38b764]">✓ {t('payload.helps', { objectives: card.helps.join(' · ') })}</span>
-        ) : shownReasons.length === 0 ? (
-          <span className="text-[#94b0c2]">{t('payload.helpsNone')}</span>
-        ) : null}
-      </span>
-      {shownReasons.length > 0 && (
-        <span id={reasonId} className="block space-y-1 text-[8px] leading-relaxed text-[#ffcd75]">
-          {incompatibleSelected.length > 0 && <span className="block">▲ {t('payload.incompatible.warning')}</span>}
-          {shownReasons.map((r) => (
-            <span key={r} className="block">
-              ▲ {r}
-            </span>
-          ))}
-        </span>
       )}
-    </button>
+    </div>
   )
 }
 
