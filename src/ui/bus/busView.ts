@@ -98,10 +98,11 @@ export function toPartCard(component: Component, orbit: GameData['orbits'][numbe
   }
 }
 
-/** Options per subsystem, in the engine's order (lightest first). */
+/** Options per subsystem at the design's difficulty, in the engine's order (lightest first). */
 export function partOptions(subsystem: Subsystem, design: MissionDesign, data: GameData): PartCard[] {
   const orbit = data.orbits.find((o) => o.id === design.orbitId) ?? null
-  return componentOptions(subsystem, data).map((c) => toPartCard(c, orbit))
+  // Only the parts this difficulty offers (FR-3.4: advanced parts are hidden on Cadet)
+  return componentOptions(subsystem, data, design.difficulty).map((c) => toPartCard(c, orbit))
 }
 
 /** Engine findings for this screen (bus limits + subsystem parts), as translatable labels. */
