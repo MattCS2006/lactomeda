@@ -35,7 +35,7 @@ const data: GameData = {
     { id: 'cam-vis', name: 'Visible camera', massKg: 1, powerW: 5, costM: 0.2, dataMbPerDay: 2000, science: 10, objectives: ['fire-detect'], preferredOrbits: ['sso-600'] },
   ],
   orbits: [
-    { id: 'sso-600', name: 'Sun-synchronous 600 km', regime: 'SSO', altitudeKm: 600, periodMin: 96.7, eclipseFraction: 0.35, contactMinPerDay: 40, distanceKm: 1500, sunDistanceAU: 1, radiation: 'low', source: 'analytic' },
+    { id: 'sso-600', name: 'Sun-synchronous 600 km', regime: 'SSO', altitudeKm: 600, periodMin: 96.7, eclipseFraction: 0.35, contactMinPerDay: 40, distanceKm: 1500, sunDistanceAU: 1, radiation: 'low', insertionDeltaVms: 0, source: 'analytic' },
   ],
   launchers: [{ id: 'rideshare', name: 'Rideshare', capacityKg: { SSO: 500 }, costM: 0.3, reliability: 0.97 }],
   groundNetworks: [{ id: 'uni', name: 'University station', costM: 0.1, contactMultiplier: 1, maxDistanceKm: 3000 }],

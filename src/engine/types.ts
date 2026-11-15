@@ -85,6 +85,7 @@ export interface Orbit {
   distanceKm: number // typical comms distance
   sunDistanceAU: number // 1 near Earth, ~1.52 at Mars (solar power)
   radiation: 'low' | 'medium' | 'high'
+  insertionDeltaVms: number // delta-v the spacecraft itself must provide after launcher separation (m/s)
   source: 'gmat' | 'analytic'
   ref?: string // source note for REFERENCES.md
 }

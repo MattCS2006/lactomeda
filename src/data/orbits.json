@@ -10,8 +10,9 @@
     "distanceKm": 1500,
     "sunDistanceAU": 1.0,
     "radiation": "low",
+    "insertionDeltaVms": 0,
     "source": "gmat",
-    "ref": "NASA GMAT R2025a, gmat/leo500.script (7-day run from 2027-01-01, 51.6° inclination, ground station San José CR at 10° min elevation): 3.1 passes/day, avg 5.8 min"
+    "ref": "NASA GMAT R2025a, gmat/leo500.script, values from gmat/output/leo500.json (7-day run from 2027-01-01, 51.6° inclination, ground station San José CR at 10° min elevation): 3.1 passes/day, avg 5.8 min; insertion delta-v is an estimate — verify (NFR-09)"
   },
   {
     "id": "sso",
@@ -24,8 +25,9 @@
     "distanceKm": 2000,
     "sunDistanceAU": 1.0,
     "radiation": "low",
+    "insertionDeltaVms": 0,
     "source": "analytic",
-    "ref": "ERS §7.3 + analytic estimate (circular orbit, worst-case beta=0 eclipse); replace with GMAT run"
+    "ref": "ERS §7.3 + analytic estimate (circular orbit, worst-case beta=0 eclipse); replace with GMAT run; insertion delta-v is an estimate — verify (NFR-09)"
   },
   {
     "id": "meo",
@@ -38,8 +40,9 @@
     "distanceKm": 25000,
     "sunDistanceAU": 1.0,
     "radiation": "high",
+    "insertionDeltaVms": 1500,
     "source": "analytic",
-    "ref": "ERS §7.3 + analytic estimate (circular orbit, worst-case beta=0 eclipse); replace with GMAT run"
+    "ref": "ERS §7.3 + analytic estimate (circular orbit, worst-case beta=0 eclipse); replace with GMAT run; insertion delta-v is an estimate — verify (NFR-09)"
   },
   {
     "id": "geo",
@@ -52,8 +55,9 @@
     "distanceKm": 38000,
     "sunDistanceAU": 1.0,
     "radiation": "medium",
+    "insertionDeltaVms": 1500,
     "source": "analytic",
-    "ref": "ERS §7.3 + analytic estimate (circular orbit, worst-case beta=0 eclipse); replace with GMAT run"
+    "ref": "ERS §7.3 + analytic estimate (circular orbit, worst-case beta=0 eclipse); replace with GMAT run; insertion delta-v is an estimate — verify (NFR-09)"
   },
   {
     "id": "molniya",
@@ -66,8 +70,9 @@
     "distanceKm": 40000,
     "sunDistanceAU": 1.0,
     "radiation": "high",
+    "insertionDeltaVms": 100,
     "source": "analytic",
-    "ref": "ERS §7.3; 500 x 40,000 km, 12 h; eclipse and contacts are game estimates; replace with GMAT run"
+    "ref": "ERS §7.3; 500 x 40,000 km, 12 h; eclipse and contacts are game estimates; replace with GMAT run; insertion delta-v is an estimate — verify (NFR-09)"
   },
   {
     "id": "l2",
@@ -80,8 +85,9 @@
     "distanceKm": 1500000,
     "sunDistanceAU": 1.01,
     "radiation": "medium",
+    "insertionDeltaVms": 60,
     "source": "analytic",
-    "ref": "ERS §7.3; halo period ~6 months; contact = typical daily DSN pass; game estimate"
+    "ref": "ERS §7.3; halo period ~6 months; contact = typical daily DSN pass; game estimate; insertion delta-v is an estimate — verify (NFR-09)"
   },
   {
     "id": "lunar",
@@ -94,8 +100,9 @@
     "distanceKm": 384400,
     "sunDistanceAU": 1.0,
     "radiation": "medium",
+    "insertionDeltaVms": 900,
     "source": "analytic",
-    "ref": "ERS §7.3 + analytic estimate (Moon mu=4903, R=1737 km); contacts are a game estimate"
+    "ref": "ERS §7.3 + analytic estimate (Moon mu=4903, R=1737 km); contacts are a game estimate; insertion delta-v is an estimate — verify (NFR-09)"
   },
   {
     "id": "mars",
@@ -108,7 +115,8 @@
     "distanceKm": 225000000,
     "sunDistanceAU": 1.52,
     "radiation": "medium",
+    "insertionDeltaVms": 1000,
     "source": "analytic",
-    "ref": "ERS §7.3 + analytic estimate (Mars mu=42828, R=3390 km); distance = average Earth-Mars; contacts are a game estimate"
+    "ref": "ERS §7.3 + analytic estimate (Mars mu=42828, R=3390 km); distance = average Earth-Mars; contacts are a game estimate; insertion delta-v is an estimate — verify (NFR-09)"
   }
 ]
