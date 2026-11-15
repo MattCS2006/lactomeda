@@ -38,6 +38,7 @@ export const DEFAULT_ONLY_EVENT_IDS: readonly string[] = [
 
 /** The escalation rule of an event, or null if it has none (the catalog test fails then). */
 export function escalationRule(event: MissionEvent, data: GameData): EscalationRule | null {
+  if (event.kind === 'task') return { kind: 'defaultOnly' } // a station task never escalates: skipping it costs nothing
   if (event.escalateTo !== undefined) {
     return data.events.some((e) => e.id === event.escalateTo)
       ? { kind: 'escalatesTo', eventId: event.escalateTo }

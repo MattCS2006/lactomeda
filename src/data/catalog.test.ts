@@ -423,5 +423,33 @@ describe('curated catalog (max 3 options per category)', () => {
     for (const key of RESOURCE_KEYS) expect(budgets[key].status, `${scenario.id}: ${key} is red`).not.toBe('red')
     expect(designReview(design, cur).hardBlockers, `${scenario.id}: hard blockers`).toEqual([])
     for (const r of evaluateObjectives(design, cur)) expect(r.levelAchieved, `${scenario.id}: ${r.objectiveId}`).not.toBeNull()
+
+// Station tasks: optional mini-missions that earn points (kind 'task')
+describe('station tasks (kind "task")', () => {
+  const tasks = gameData.events.filter((e) => e.kind === 'task')
+
+  it('has a task for every station, all in plain language', () => {
+    expect(new Set(tasks.map((t) => t.station)).size).toBe(7)
+    for (const t of tasks) {
+      expect(t.title.length, t.id).toBeGreaterThan(5)
+      expect(t.description.length, t.id).toBeGreaterThan(20)
+    }
+  })
+
+  it('every task is kind "task" with a station, 2 options and a no-effect default (skip)', () => {
+    for (const t of tasks) {
+      expect(t.kind, t.id).toBe('task')
+      expect(t.station, t.id).toBeTruthy()
+      expect(t.options, t.id).toHaveLength(2)
+      const def = t.options.find((o) => o.id === t.defaultOptionId)
+      expect(def, `${t.id}: default option exists`).toBeDefined()
+      expect(def!.effects, `${t.id}: skipping has no effect`).toEqual({})
+      expect(t.timerSec, t.id).toBeGreaterThanOrEqual(45)
+      expect(t.timerSec, t.id).toBeLessThanOrEqual(60)
+    }
+  })
+
+  it('no other event is a task, and every alarm keeps its kind absent or "alarm"', () => {
+    for (const e of gameData.events.filter((x) => x.kind !== 'task')) expect(e.kind ?? 'alarm', e.id).toBe('alarm')
   })
 })

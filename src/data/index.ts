@@ -27,6 +27,7 @@ import orbits from './orbits.json'
 import partFitsJson from './partFits.json'
 import presetsJson from './presets.json'
 import scenarios from './scenarios.json'
+import stationTasks from './stationTasks.json'
 import wavelengthRules from './wavelengthRules.json'
 
 /** The complete catalog: every part, orbit, launcher and instrument. Tests that need any id use this. */
@@ -38,8 +39,8 @@ export const fullGameData: GameData = {
   launchers: launchers as Launcher[],
   groundNetworks: groundNetworks as GroundNetwork[],
   scenarios: scenarios as Scenario[],
-  // FR-7.4 random events, FR-3.5 failure alarms, then the FR-13.4 events that only appear when an alarm is ignored
-  events: [...(events as MissionEvent[]), ...(failureEvents as MissionEvent[]), ...(escalationEvents as MissionEvent[])],
+  // FR-7.4 random events, FR-3.5 failure alarms, then the FR-13.4 events that only appear when an alarm is ignored, then the optional station tasks (kind 'task')
+  events: [...(events as MissionEvent[]), ...(failureEvents as MissionEvent[]), ...(escalationEvents as MissionEvent[]), ...(stationTasks as MissionEvent[])],
   wavelengthRules: wavelengthRules as WavelengthRule[],
   launchFailures: launchFailures as LaunchFailureMode[],
 }

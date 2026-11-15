@@ -14,9 +14,20 @@ export function alarmStation(alarm: ActiveEvent, shipStations: readonly Station[
   return shipStations.includes(alarm.event.station) ? alarm.event.station : 'bridge'
 }
 
-/** Stations with at least one active alarm on this ship. */
+/** Stations with at least one active alarm on this ship (optional tasks are not alarms). */
 export function alarmStations(active: ActiveEvent[], shipStations: readonly Station[]): Set<Station> {
-  return new Set(active.map((a) => alarmStation(a, shipStations)))
+  return new Set(active.filter((a) => a.event.kind !== 'task').map((a) => alarmStation(a, shipStations)))
+}
+
+/** Stations that offer an optional task on this ship and have no alarm: they get the calm yellow "!" marker, not the red flash. */
+export function taskStations(active: ActiveEvent[], shipStations: readonly Station[]): Set<Station> {
+  const alarms = alarmStations(active, shipStations)
+  return new Set(
+    active
+      .filter((a) => a.event.kind === 'task')
+      .map((a) => alarmStation(a, shipStations))
+      .filter((s) => !alarms.has(s)),
+  )
 }
 
 /** Ids of the rooms that hold a station in alarm. */

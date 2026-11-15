@@ -1,6 +1,6 @@
 // Design Review + launch (FR-6.9, FR-14.4 UI; step 6, CML 4). The verdicts come from the engine's designReview /
 // launchDecision; this file only decides how they look and where the player goes to fix them. Pure, unit-tested.
-import { SECONDS_PER_TICK } from '../../engine/constants'
+import { MISSION_TICK_MS, SECONDS_PER_TICK } from '../../engine/constants'
 import type { DesignReview, Discipline, Finding, LaunchDecision, Verdict } from '../../engine/rules/review'
 import type { DesignStep } from '../store/missionStore'
 import type { Label } from '../scenarios/scenarioView'
@@ -88,8 +88,10 @@ export function equipmentTotals(review: DesignReview): { massKg: number; powerW:
 }
 
 /** Seconds of mission time left on an alarm (the engine counts in ticks of SECONDS_PER_TICK). */
-export function alarmSecondsLeft(alarm: Pick<ActiveEvent, 'deadlineTick'>, tick: number): number {
-  return Math.max(0, (alarm.deadlineTick - tick) * SECONDS_PER_TICK)
+export function alarmSecondsLeft(alarm: Pick<ActiveEvent, 'deadlineTick'> & { event?: Pick<ActiveEvent['event'], 'kind'> }, tick: number): number {
+  // A task does not slow the clock: its ticks are normal ones (MISSION_TICK_MS), not slow alarm ticks
+  const secondsPerTick = alarm.event?.kind === 'task' ? MISSION_TICK_MS / 1000 : SECONDS_PER_TICK
+  return Math.max(0, Math.ceil((alarm.deadlineTick - tick) * secondsPerTick))
 }
 
 /** Round for display: one decimal under 10, whole numbers above. */

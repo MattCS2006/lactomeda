@@ -8,7 +8,7 @@ import { SHIP_REGISTRY_KEY, resolveShipDesign, type ShipSource } from '../shipSo
 import { SHIP_STATIONS, STATION_NAMES } from '../stations'
 import { TILESET_KEY, TILESET_PATH, TILE_SIZE } from '../tiles'
 import { stationStatus, type StationState } from '../stationStatus'
-import { ROOM_FLASH_ALPHA, alarmConsoles, alarmStations, edgeMarker, flashingRooms, markerTriangle } from '../alarmView'
+import { ROOM_FLASH_ALPHA, alarmConsoles, alarmStations, edgeMarker, flashingRooms, markerTriangle, taskStations } from '../alarmView'
 import { PALETTE, PALETTE_NUM, STATUS, STATUS_NUM } from '../palette'
 import { FONT_SIZE, labelStyle, textStyle } from '../textStyles'
 import {
@@ -112,6 +112,9 @@ export class ShipInteriorScene extends Phaser.Scene {
   // Alarms (FR-13.4): rooms flash red; off-screen alarms get an edge marker
   private roomFlash = new Map<string, Phaser.GameObjects.Rectangle>()
   private alarmSet = new Set<Station>()
+  // Optional station tasks: a calm yellow "!" above the console, no flashing and no sound
+  private taskSet = new Set<Station>()
+  private taskMarks = new Map<Station, Phaser.GameObjects.Text>()
   private markers!: Phaser.GameObjects.Graphics
 
   // Status panel
@@ -196,6 +199,8 @@ export class ShipInteriorScene extends Phaser.Scene {
     this.batteryCapacityWh = 0
     this.panelStation = null
     this.alarmSet = new Set()
+    this.taskSet = new Set()
+    this.taskMarks.clear()
     this.createStationViews(solids)
     this.createPanel()
     this.markers = this.add.graphics().setScrollFactor(0).setDepth(UI_DEPTH - 3)
@@ -237,6 +242,12 @@ export class ShipInteriorScene extends Phaser.Scene {
 
     this.updateProximity()
     this.drawAlarmMarkers()
+    // a slow, calm bob (about 1 px) so the task marker is noticed without flashing
+    const bob = Math.round(Math.sin(this.time.now / 500))
+    for (const [id, mark] of this.taskMarks) {
+      const c = this.views.get(id)
+      if (c && mark.visible) mark.setY(c.sprite.y - STATION_H / 2 - 4 + bob)
+    }
 
     const usePressed = Phaser.Input.Keyboard.JustDown(this.keys.use) || this.usePressed
     this.usePressed = false
@@ -308,6 +319,12 @@ export class ShipInteriorScene extends Phaser.Scene {
         .setOrigin(0.5, 0)
         .setDepth(UI_DEPTH - 2)
       this.views.set(s.id, { sprite, label, state: 'ok' })
+      const mark = this.add
+        .text(s.x, s.y - STATION_H / 2 - 4, '!', labelStyle(PALETTE.outline, PALETTE.warning))
+        .setOrigin(0.5, 1)
+        .setDepth(UI_DEPTH - 2)
+        .setVisible(false)
+      this.taskMarks.set(s.id, mark)
     }
     this.refreshStations()
   }
@@ -319,6 +336,11 @@ export class ShipInteriorScene extends Phaser.Scene {
       state.activeEvents,
       this.consoles.map((c) => c.id),
     )
+    this.taskSet = taskStations(
+      state.activeEvents,
+      this.consoles.map((c) => c.id),
+    )
+    for (const [id, mark] of this.taskMarks) mark.setVisible(this.taskSet.has(id))
     this.refreshRoomFlash()
     this.refreshStations()
     this.refreshPanel()

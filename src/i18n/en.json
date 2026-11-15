@@ -931,6 +931,10 @@
       "launchHeading": "Why the launch failed",
       "cause": "What happened:",
       "lesson": "What engineers learn:"
+    },
+    "task": {
+      "label": "Optional task",
+      "hint": "Do it to earn the reward below, or skip it: nothing is lost."
     }
   }
 }
