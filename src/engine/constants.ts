@@ -190,3 +190,8 @@ export const LAUNCH_LESSON_MARGIN_BELOW = 0.1
 
 /** FR-7.4: event chances are written for a mission of this many days; a scenario of another length scales them by REFERENCE_MISSION_DAYS / durationDays so every mission gets a similar number of alarms. */
 export const REFERENCE_MISSION_DAYS = 365
+
+/** Demo fixes: station tasks (optional mini-missions) write these log prefixes (as 'info' entries, so they never count as alarms or decisions); explain() counts them. */
+export const TASK_LOG_STARTED = 'Task at the '
+export const TASK_LOG_DONE = 'Task done: '
+export const TASK_LOG_SKIPPED = 'Task skipped: '

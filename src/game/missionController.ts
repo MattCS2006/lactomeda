@@ -3,9 +3,10 @@
 // Determinism (FR-7.8): the engine is seeded and the clock only decides WHEN a tick runs, never what it computes.
 // No UI text here: the log text stays in the engine.
 import { ALARM_TICK_MS, LAUNCH_PHASE_MS, MISSION_TICK_MS } from '../engine/constants'
+import { explain } from '../engine/rules/explain'
 import { score } from '../engine/rules/score'
 import { initSim, resolveEvent, simulateTick } from '../engine/sim'
-import type { Explanation, GameData, MissionDesign, SimState } from '../engine/types'
+import type { GameData, MissionDesign, SimState } from '../engine/types'
 import { bridge, type Bridge, type SimSnapshot } from './bridge'
 
 /** 0 = paused */
@@ -48,9 +49,6 @@ function snapshot(state: SimState): SimSnapshot {
   const { log: _log, ...rest } = state
   return rest
 }
-
-// TODO(SCRUM-100): replace with explain(state, design, data) once the engine has it.
-const emptyExplanation = (): Explanation => ({ summary: '', points: [] })
 
 export function createMissionController(options: MissionControllerOptions = {}): MissionController {
   const bus = options.bus ?? bridge
@@ -134,7 +132,7 @@ export function createMissionController(options: MissionControllerOptions = {}):
     bus.emit('missionEnded', {
       status: state.status === 'success' ? 'success' : 'failed',
       score: score(state, design, data),
-      explanation: emptyExplanation(),
+      explanation: explain(design, state, data),
     })
     bus.emit('phaseChanged', { phase: 'debrief' })
   }
