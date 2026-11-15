@@ -19,6 +19,7 @@ import { ChangesSinceFlight } from './ui/flight/ChangesSinceFlight'
 import { MissionOver } from './ui/flight/MissionOver'
 import { useFlightStore } from './ui/flight/flightStore'
 import { useFlightRecorder } from './ui/flight/useFlightRecorder'
+import { NasaSources } from './ui/sources/NasaSources'
 
 export default function App() {
   const { t } = useTranslation()
@@ -29,6 +30,7 @@ export default function App() {
   const openLanding = useMissionStore((s) => s.openLanding)
   const scenario = gameData.scenarios.find((s) => s.id === design?.scenarioId)
   const phase = useFlightStore((s) => s.phase)
+  const [sources, setSources] = useState(false)
   // FR-10.6 — keeps a copy of each design that flies, for "Fly again"
   useFlightRecorder()
 
@@ -50,6 +52,14 @@ export default function App() {
           className="pixel-button absolute left-0 top-0 px-3 py-2 text-[10px]"
         >
           ◀ {t('landing.menu')}
+        </button>
+        {/* FR-14.1 — NASA Sources, reachable from every design screen */}
+        <button
+          type="button"
+          onClick={() => setSources(true)}
+          className="pixel-button absolute right-0 top-0 px-3 py-2 text-[10px]"
+        >
+          {t('sources.button')}
         </button>
         <h1 className="text-lg sm:text-xl">{t('app.title')}</h1>
         <p className="mt-2 text-[10px] text-metal-light">{t('app.tagline')}</p>
@@ -88,6 +98,7 @@ export default function App() {
           <ShipPlaceholder />
         </>
       )}
+      {sources && <NasaSources onClose={() => setSources(false)} />}
     </main>
   )
 }
