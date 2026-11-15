@@ -354,7 +354,9 @@ describe('curated catalog (max 3 options per category)', () => {
 
   it('has exactly 3 bus sizes, launchers and ground networks', () => {
     expect(cur.busClasses).toHaveLength(3)
-    expect(cur.launchers).toHaveLength(3)
+    // Scenario-only launchers (NASA CubeSat Launch Initiative) are extra: 3 general rockets for everyone.
+    expect(cur.launchers.filter((l) => !l.onlyScenarioIds)).toHaveLength(3)
+    expect(cur.launchers.map((l) => l.id)).toContain('lv-csli') // NASA resource (CubeSat 101) stays visible
     expect(cur.groundNetworks).toHaveLength(3)
   })
 

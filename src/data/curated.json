@@ -1,18 +1,68 @@
 {
-  "busClasses": ["cubesat-3u", "smallsat", "large"],
+  "busClasses": [
+    "cubesat-3u",
+    "smallsat",
+    "large"
+  ],
   "components": {
-    "structure": ["str-3u", "str-smallsat", "str-large"],
-    "power": ["pwr-deploy", "pwr-array-small", "pwr-array-large"],
-    "battery": ["bat-40", "bat-1k", "bat-10k"],
-    "computer": ["obc-cubesat", "obc-radtol", "obc-radhard"],
-    "attitude": ["adcs-mag", "adcs-smallsat", "adcs-fine"],
-    "propulsion": ["prop-none", "prop-coldgas", "prop-mono"],
-    "thermal": ["thm-passive", "thm-heaters", "thm-cryo"],
-    "comms": ["com-sband", "com-xband", "com-hga"]
+    "structure": [
+      "str-3u",
+      "str-smallsat",
+      "str-large"
+    ],
+    "power": [
+      "pwr-deploy",
+      "pwr-array-small",
+      "pwr-array-large"
+    ],
+    "battery": [
+      "bat-40",
+      "bat-1k",
+      "bat-10k"
+    ],
+    "computer": [
+      "obc-cubesat",
+      "obc-radtol",
+      "obc-radhard"
+    ],
+    "attitude": [
+      "adcs-mag",
+      "adcs-smallsat",
+      "adcs-fine"
+    ],
+    "propulsion": [
+      "prop-none",
+      "prop-coldgas",
+      "prop-mono"
+    ],
+    "thermal": [
+      "thm-passive",
+      "thm-heaters",
+      "thm-cryo"
+    ],
+    "comms": [
+      "com-sband",
+      "com-xband",
+      "com-hga"
+    ]
   },
-  "launchers": ["lv-cubesat", "lv-rideshare", "lv-medium"],
-  "groundNetworks": ["gn-university", "gn-commercial", "gn-nen"],
-  "orbits": ["leo", "sso", "geo", "l2"],
+  "launchers": [
+    "lv-csli",
+    "lv-cubesat",
+    "lv-rideshare",
+    "lv-medium"
+  ],
+  "groundNetworks": [
+    "gn-university",
+    "gn-commercial",
+    "gn-nen"
+  ],
+  "orbits": [
+    "leo",
+    "sso",
+    "geo",
+    "l2"
+  ],
   "instruments": [
     "inst-visible-cam",
     "inst-magnetometer-cubesat",
