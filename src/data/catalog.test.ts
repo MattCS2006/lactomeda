@@ -4,7 +4,8 @@ import { describe, expect, it } from 'vitest'
 import { derivedObjectives } from '../engine/rules/compatibility'
 import { evaluateObjectives } from '../engine/rules/objectives'
 import { RESOURCE_KEYS, estimateBudgets } from '../engine/rules/resources'
-import type { Subsystem } from '../engine/types'
+import type { MissionEvent, Station, Subsystem } from '../engine/types'
+import eventsJson from './events.json'
 import { gameData } from './index'
 import { REFERENCE_DESIGNS } from './referenceDesigns'
 
@@ -213,7 +214,7 @@ describe('failure events (FR-3.5)', () => {
   })
 
   it('only gates options with the redundant:<subsystem> tag', () => {
-    for (const event of gameData.events) {
+    for (const event of gameData.events.filter((x) => x.id.startsWith('failure-'))) {
       for (const o of event.options) {
         if (o.requiresTag !== undefined) expect(o.requiresTag, `${event.id}/${o.id}`).toBe(`redundant:${event.trigger.requiresSubsystem}`)
       }
@@ -222,6 +223,69 @@ describe('failure events (FR-3.5)', () => {
 
   it('never rolls a failure event at random (chancePerDay 0)', () => {
     for (const e of gameData.events.filter((x) => x.id.startsWith('failure-'))) expect(e.trigger.chancePerDay, e.id).toBe(0)
+  })
+})
+
+// FR-7.4 event deck
+describe('event deck (FR-7.4)', () => {
+  const deck = eventsJson as unknown as MissionEvent[]
+  const STATIONS: Station[] = ['bridge', 'comms', 'power', 'science', 'navigation', 'engine', 'computer']
+  const KEYS = ['budget', 'science', 'risk', 'health', 'propellant', 'battery', 'data']
+
+  it('has at least 15 events, each with a station, a timer of 30-60 s, 2-3 options, a valid default and a chance above 0', () => {
+    expect(deck.length).toBeGreaterThanOrEqual(15)
+    expect(new Set(deck.map((e) => e.id)).size).toBe(deck.length)
+    for (const e of deck) {
+      expect(STATIONS, `${e.id} station`).toContain(e.station)
+      expect(e.title.length, `${e.id} title`).toBeGreaterThan(0)
+      expect(e.description.length, `${e.id} description`).toBeGreaterThan(0)
+      expect(e.timerSec, `${e.id} timerSec`).toBeGreaterThanOrEqual(30)
+      expect(e.timerSec, `${e.id} timerSec`).toBeLessThanOrEqual(60)
+      expect(e.options.length, `${e.id} options`).toBeGreaterThanOrEqual(2)
+      expect(e.options.length, `${e.id} options`).toBeLessThanOrEqual(3)
+      for (const o of e.options) {
+        expect(o.label.length, `${e.id}/${o.id} label`).toBeGreaterThan(0)
+        expect(o.why.length, `${e.id}/${o.id} why`).toBeGreaterThan(0)
+        expect(o.effects, `${e.id}/${o.id} effects`).toBeDefined()
+      }
+      expect(new Set(e.options.map((o) => o.id)).size, `${e.id} option ids`).toBe(e.options.length)
+      expect(e.options.map((o) => o.id), `${e.id} default`).toContain(e.defaultOptionId)
+      expect(e.trigger.chancePerDay, `${e.id} chancePerDay`).toBeGreaterThan(0)
+    }
+  })
+
+  it('gives every ship station at least one event', () => {
+    for (const station of STATIONS) expect(deck.some((e) => e.station === station), station).toBe(true)
+  })
+
+  it('only uses the effect keys of the conventions, with sensible sizes for the fractions', () => {
+    for (const e of deck) {
+      for (const o of e.options) {
+        for (const [key, value] of Object.entries(o.effects)) {
+          expect(KEYS, `${e.id}/${o.id} ${key}`).toContain(key)
+          if (key === 'propellant' || key === 'battery' || key === 'data') expect(Math.abs(value), `${e.id}/${o.id} ${key}`).toBeLessThanOrEqual(1)
+        }
+      }
+    }
+  })
+
+  it('leaves at least one option that needs no tag, so any design can answer', () => {
+    for (const e of deck) expect(e.options.some((o) => o.requiresTag === undefined), e.id).toBe(true)
+  })
+
+  it('only gates options by the thruster tag or a redundant:<subsystem> tag of the event subsystem', () => {
+    for (const e of deck) {
+      for (const o of e.options) {
+        if (o.requiresTag === undefined) continue
+        expect(['thruster', `redundant:${e.trigger.requiresSubsystem}`], `${e.id}/${o.id}`).toContain(o.requiresTag)
+      }
+    }
+  })
+
+  it('puts the random events first in the catalog, then the failure alarms, with no repeated id', () => {
+    expect(gameData.events.slice(0, deck.length).map((e) => e.id)).toEqual(deck.map((e) => e.id))
+    expect(new Set(gameData.events.map((e) => e.id)).size).toBe(gameData.events.length)
+    expect(gameData.events.filter((e) => e.id.startsWith('failure-')).length).toBeGreaterThan(0)
   })
 })
 
@@ -254,4 +318,11 @@ describe('propellant data (FR-3.6)', () => {
       expect(m.ref, `${m.id} ref`).toBeTruthy()
     }
   })
+
+  it('tags every real propulsion component "thruster", and prop-none does not have it (FR-7.4)', () => {
+    for (const c of components.filter((x) => x.subsystem === 'propulsion')) {
+      expect((c.tags ?? []).includes('thruster'), c.id).toBe(c.id !== 'prop-none')
+    }
+  })
+
 })

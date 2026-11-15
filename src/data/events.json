@@ -1,0 +1,494 @@
+[
+  {
+    "id": "ground-station-outage",
+    "station": "comms",
+    "title": "Ground station offline",
+    "description": "The ground station we use to talk to the ship has gone offline, so the data can't be sent down.",
+    "timerSec": 45,
+    "options": [
+      {
+        "id": "rent-commercial",
+        "label": "Rent a commercial station",
+        "why": "Costs $1M, but the data still gets home on time.",
+        "effects": {
+          "budget": -1
+        }
+      },
+      {
+        "id": "store-data",
+        "label": "Store the data on board",
+        "why": "Free, but 30% of the stored data is lost while the memory overflows.",
+        "effects": {
+          "data": -0.3
+        }
+      }
+    ],
+    "defaultOptionId": "store-data",
+    "trigger": {
+      "chancePerDay": 0.002411,
+      "requiresSubsystem": "comms"
+    }
+  },
+  {
+    "id": "antenna-misaligned",
+    "station": "comms",
+    "title": "Antenna out of line",
+    "description": "The antenna has drifted away from Earth and the signal is getting weak.",
+    "timerSec": 40,
+    "options": [
+      {
+        "id": "align-dish",
+        "label": "Point the antenna again",
+        "why": "A repair brings the full signal back and adds 1% to the mission risk.",
+        "effects": {
+          "risk": 0.01
+        },
+        "minigame": "alignDish"
+      },
+      {
+        "id": "lower-rate",
+        "label": "Send data more slowly",
+        "why": "The weak signal still works at a lower rate, but 15% of the stored data is lost.",
+        "effects": {
+          "data": -0.15
+        }
+      }
+    ],
+    "defaultOptionId": "lower-rate",
+    "trigger": {
+      "chancePerDay": 0.001808,
+      "requiresSubsystem": "comms"
+    }
+  },
+  {
+    "id": "battery-cell-failing",
+    "station": "power",
+    "title": "Battery cell failing",
+    "description": "One cell in the battery is getting hot and losing charge.",
+    "timerSec": 45,
+    "options": [
+      {
+        "id": "repair",
+        "label": "Repair the cell",
+        "why": "Costs $2M, but the battery keeps its full capacity.",
+        "effects": {
+          "budget": -2
+        },
+        "minigame": "rewire"
+      },
+      {
+        "id": "isolate-cell",
+        "label": "Cut the cell out",
+        "why": "Free, but the battery loses 25% of its charge.",
+        "effects": {
+          "battery": -0.25
+        }
+      }
+    ],
+    "defaultOptionId": "isolate-cell",
+    "trigger": {
+      "chancePerDay": 0.001808,
+      "requiresSubsystem": "battery",
+      "mitigatedByTags": [
+        "redundant:battery"
+      ]
+    }
+  },
+  {
+    "id": "solar-array-degraded",
+    "station": "power",
+    "title": "Solar panels wearing out",
+    "description": "Space dust and radiation have dimmed the solar panels, so they make less power.",
+    "timerSec": 50,
+    "options": [
+      {
+        "id": "reorient-arrays",
+        "label": "Turn the panels toward the Sun",
+        "why": "A small thruster burn (2% of the propellant) points the panels back at the Sun.",
+        "effects": {
+          "propellant": -0.02
+        },
+        "requiresTag": "thruster"
+      },
+      {
+        "id": "accept-loss",
+        "label": "Live with less power",
+        "why": "Free, but the battery loses 10% of its charge and 3 science points are lost.",
+        "effects": {
+          "battery": -0.1,
+          "science": -3
+        }
+      },
+      {
+        "id": "reduce-load",
+        "label": "Switch off extra equipment",
+        "why": "Free, but 5 science points are lost while some equipment stays off.",
+        "effects": {
+          "science": -5
+        }
+      }
+    ],
+    "defaultOptionId": "accept-loss",
+    "trigger": {
+      "chancePerDay": 0.001507,
+      "requiresSubsystem": "power"
+    }
+  },
+  {
+    "id": "instrument-overheating",
+    "station": "science",
+    "title": "Instrument overheating",
+    "description": "The science instrument is getting too hot and could be damaged.",
+    "timerSec": 40,
+    "options": [
+      {
+        "id": "cut-duty-cycle",
+        "label": "Switch it off for a while",
+        "why": "The instrument cools down safely, but 8 science points are lost.",
+        "effects": {
+          "science": -8
+        }
+      },
+      {
+        "id": "keep-running",
+        "label": "Keep it running",
+        "why": "No pause in the work, but the heat costs 20 science points and adds 10% to the mission risk.",
+        "effects": {
+          "science": -20,
+          "risk": 0.1
+        }
+      }
+    ],
+    "defaultOptionId": "keep-running",
+    "trigger": {
+      "chancePerDay": 0.00211,
+      "requiresSubsystem": "thermal",
+      "mitigatedByTags": [
+        "cryogenic"
+      ]
+    }
+  },
+  {
+    "id": "data-storage-full",
+    "station": "science",
+    "title": "Data storage almost full",
+    "description": "The on-board memory is nearly full, and new measurements would be lost.",
+    "timerSec": 35,
+    "options": [
+      {
+        "id": "delete-low-priority",
+        "label": "Delete the least useful data",
+        "why": "Free, but half of the stored data is erased.",
+        "effects": {
+          "data": -0.5
+        }
+      },
+      {
+        "id": "emergency-downlink",
+        "label": "Send it all down now",
+        "why": "Costs $0.5M for an extra downlink, and no data is lost.",
+        "effects": {
+          "budget": -0.5
+        }
+      }
+    ],
+    "defaultOptionId": "delete-low-priority",
+    "trigger": {
+      "chancePerDay": 0.00211,
+      "requiresSubsystem": "computer"
+    }
+  },
+  {
+    "id": "discovery-opportunity",
+    "station": "science",
+    "title": "Something interesting spotted!",
+    "description": "The instruments have picked up something unusual that scientists would love to study.",
+    "timerSec": 45,
+    "options": [
+      {
+        "id": "retarget",
+        "label": "Point the instruments at it",
+        "why": "Uses 3% of the propellant to turn the ship, but earns 20 science points.",
+        "effects": {
+          "science": 20,
+          "propellant": -0.03
+        }
+      },
+      {
+        "id": "stay-on-plan",
+        "label": "Stay on plan",
+        "why": "Nothing is spent and nothing is gained.",
+        "effects": {}
+      }
+    ],
+    "defaultOptionId": "stay-on-plan",
+    "trigger": {
+      "chancePerDay": 0.001808
+    }
+  },
+  {
+    "id": "reaction-wheel-failure",
+    "station": "navigation",
+    "title": "Reaction wheel failing",
+    "description": "A reaction wheel is wobbling, and the ship is starting to lose its pointing.",
+    "timerSec": 50,
+    "options": [
+      {
+        "id": "switch-to-backup",
+        "label": "Switch to the backup wheels",
+        "why": "The spare wheels take over at no cost (only if you bought a backup).",
+        "effects": {},
+        "requiresTag": "redundant:attitude"
+      },
+      {
+        "id": "balance-wheels",
+        "label": "Rebalance the wheels",
+        "why": "Costs $1M, and the wheels spin smoothly again.",
+        "effects": {
+          "budget": -1
+        },
+        "minigame": "balanceWheels"
+      },
+      {
+        "id": "magnetorquer-mode",
+        "label": "Steer with magnetic coils",
+        "why": "Free, but the pointing is much worse and 15 science points are lost.",
+        "effects": {
+          "science": -15
+        }
+      }
+    ],
+    "defaultOptionId": "magnetorquer-mode",
+    "trigger": {
+      "chancePerDay": 0.001507,
+      "requiresSubsystem": "attitude",
+      "mitigatedByTags": [
+        "redundant:attitude"
+      ]
+    }
+  },
+  {
+    "id": "star-tracker-blinded",
+    "station": "navigation",
+    "title": "Star tracker blinded",
+    "description": "A bright flash has blinded the camera that finds the stars, so the ship doesn't know where it points.",
+    "timerSec": 40,
+    "options": [
+      {
+        "id": "wait-it-out",
+        "label": "Wait for it to recover",
+        "why": "Free, but 5 science points are lost while the ship waits.",
+        "effects": {
+          "science": -5
+        }
+      },
+      {
+        "id": "reboot-tracker",
+        "label": "Restart the star tracker",
+        "why": "A restart fixes it and adds 2% to the mission risk.",
+        "effects": {
+          "risk": 0.02
+        },
+        "minigame": "reboot"
+      }
+    ],
+    "defaultOptionId": "wait-it-out",
+    "trigger": {
+      "chancePerDay": 0.001808,
+      "requiresSubsystem": "attitude"
+    }
+  },
+  {
+    "id": "debris-collision",
+    "station": "engine",
+    "title": "Space debris ahead",
+    "description": "A piece of old space junk is heading toward the ship.",
+    "timerSec": 45,
+    "options": [
+      {
+        "id": "dodge-burn",
+        "label": "Dodge with a burn",
+        "why": "Uses 8% of the propellant to steer out of the way (you need a thruster).",
+        "effects": {
+          "propellant": -0.08
+        },
+        "requiresTag": "thruster"
+      },
+      {
+        "id": "accept-risk",
+        "label": "Take the chance",
+        "why": "Costs nothing, but adds 2% to the mission risk.",
+        "effects": {
+          "risk": 0.02
+        }
+      },
+      {
+        "id": "turn-sturdy-side",
+        "label": "Turn the sturdiest side toward it",
+        "why": "Free, but 3 science points are lost while the ship points away, and it adds 1% to the mission risk.",
+        "effects": {
+          "science": -3,
+          "risk": 0.01
+        }
+      }
+    ],
+    "defaultOptionId": "accept-risk",
+    "trigger": {
+      "chancePerDay": 0.00211,
+      "requiresSubsystem": "propulsion"
+    }
+  },
+  {
+    "id": "thruster-leak",
+    "station": "engine",
+    "title": "Thruster leaking",
+    "description": "A valve in the thruster line is leaking propellant into space.",
+    "timerSec": 40,
+    "options": [
+      {
+        "id": "close-valve",
+        "label": "Close the valve",
+        "why": "Stops the leak, but 10% of the propellant is already gone.",
+        "effects": {
+          "propellant": -0.1
+        }
+      },
+      {
+        "id": "repair-line",
+        "label": "Fix the line",
+        "why": "Costs $0.5M, and the repair stops the leak before any propellant is lost.",
+        "effects": {
+          "budget": -0.5
+        },
+        "minigame": "rewire"
+      }
+    ],
+    "defaultOptionId": "close-valve",
+    "trigger": {
+      "chancePerDay": 0.001205,
+      "requiresSubsystem": "propulsion"
+    }
+  },
+  {
+    "id": "solar-storm-bitflip",
+    "station": "computer",
+    "title": "Solar storm hits the computer",
+    "description": "Energetic particles from the Sun are flipping bits in the computer's memory.",
+    "timerSec": 35,
+    "options": [
+      {
+        "id": "safe-mode",
+        "label": "Go into safe mode",
+        "why": "The computer waits out the storm, and 5 science points are lost.",
+        "effects": {
+          "science": -5
+        }
+      },
+      {
+        "id": "patch-live",
+        "label": "Fix the memory live",
+        "why": "Keeps working, but the repair adds 5% to the mission risk.",
+        "effects": {
+          "risk": 0.05
+        },
+        "minigame": "reboot"
+      }
+    ],
+    "defaultOptionId": "safe-mode",
+    "trigger": {
+      "chancePerDay": 0.002411,
+      "requiresSubsystem": "computer",
+      "mitigatedByTags": [
+        "radHard"
+      ]
+    }
+  },
+  {
+    "id": "software-bug",
+    "station": "computer",
+    "title": "Software bug",
+    "description": "A bug in the flight software is making the computer act strangely.",
+    "timerSec": 40,
+    "options": [
+      {
+        "id": "reboot-computer",
+        "label": "Restart the computer",
+        "why": "A restart clears the bug and adds 1% to the mission risk.",
+        "effects": {
+          "risk": 0.01
+        },
+        "minigame": "reboot"
+      },
+      {
+        "id": "upload-patch",
+        "label": "Upload a patch",
+        "why": "Costs $0.3M of engineers' time, and it fixes the bug for good.",
+        "effects": {
+          "budget": -0.3
+        }
+      }
+    ],
+    "defaultOptionId": "upload-patch",
+    "trigger": {
+      "chancePerDay": 0.00211,
+      "requiresSubsystem": "computer"
+    }
+  },
+  {
+    "id": "budget-cut",
+    "station": "bridge",
+    "title": "Budget cut",
+    "description": "The agency has cut the money for the mission and asks you to save.",
+    "timerSec": 50,
+    "options": [
+      {
+        "id": "cut-operations",
+        "label": "Cut some operations",
+        "why": "Saves the money, but 10 science points are lost.",
+        "effects": {
+          "science": -10
+        }
+      },
+      {
+        "id": "find-savings",
+        "label": "Find the savings yourself",
+        "why": "Costs $2M of the budget to keep everything running.",
+        "effects": {
+          "budget": -2
+        }
+      }
+    ],
+    "defaultOptionId": "find-savings",
+    "trigger": {
+      "chancePerDay": 0.000904
+    }
+  },
+  {
+    "id": "extended-mission-offer",
+    "station": "bridge",
+    "title": "Extended mission offered",
+    "description": "The agency would like the mission to keep going after its planned end date.",
+    "timerSec": 60,
+    "options": [
+      {
+        "id": "accept-extension",
+        "label": "Accept the extension",
+        "why": "Earns 15 science points, and costs $2M to keep the team working.",
+        "effects": {
+          "science": 15,
+          "budget": -2
+        }
+      },
+      {
+        "id": "decline",
+        "label": "Decline",
+        "why": "Nothing changes.",
+        "effects": {}
+      }
+    ],
+    "defaultOptionId": "decline",
+    "trigger": {
+      "chancePerDay": 0.000904
+    }
+  }
+]

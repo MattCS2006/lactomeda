@@ -329,6 +329,9 @@
     "reliability": 0.96,
     "deltaVms": 30,
     "ispS": 65,
+    "tags": [
+      "thruster"
+    ],
     "ref": "Estimate from NASA 'State-of-the-Art of Small Spacecraft Technology' (Propulsion); verify (NFR-09); ispS is an estimate \u2014 verify (NFR-09)"
   },
   {
@@ -343,6 +346,9 @@
     "reliability": 0.98,
     "deltaVms": 200,
     "ispS": 220,
+    "tags": [
+      "thruster"
+    ],
     "ref": "Estimate from Wertz & Larson, SMAD (Propulsion); verify (NFR-09); ispS is an estimate \u2014 verify (NFR-09)"
   },
   {
@@ -357,6 +363,9 @@
     "reliability": 0.98,
     "deltaVms": 1500,
     "ispS": 315,
+    "tags": [
+      "thruster"
+    ],
     "ref": "Estimate from Wertz & Larson, SMAD (Propulsion); verify (NFR-09); ispS is an estimate \u2014 verify (NFR-09)"
   },
   {
@@ -371,6 +380,9 @@
     "reliability": 0.95,
     "deltaVms": 3000,
     "ispS": 1600,
+    "tags": [
+      "thruster"
+    ],
     "ref": "Estimate from NASA 'State-of-the-Art of Small Spacecraft Technology' (Propulsion); verify (NFR-09); ispS is an estimate \u2014 verify (NFR-09)"
   },
   {
