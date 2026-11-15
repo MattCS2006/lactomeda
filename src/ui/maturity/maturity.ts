@@ -2,6 +2,7 @@
 // the current concept has matured. Pure, unit-tested. CML names follow JPL's CML scale.
 import { designReview, launchDecision } from '../../engine/rules/review'
 import type { GameData, MissionDesign } from '../../engine/types'
+import { busComplete } from '../bus/busView'
 import type { Label } from '../scenarios/scenarioView'
 import { DESIGN_STEPS, type DesignStep } from '../store/missionStore'
 
@@ -12,9 +13,10 @@ export const CML_LEVELS: CmlLevel[] = [1, 2, 3, 4]
 export const STEP_CML: Record<DesignStep, CmlLevel> = {
   brief: 1,
   requirements: 2,
+  bus: 3,
   payload: 3,
   orbit: 3,
-  design: 3, // ship / bus placeholder until the bus screen lands
+  design: 3, // ship preview placeholder until the review screen lands
 }
 
 /** What has to be done to complete a CML. CML 3 has several parts, shown as a checklist. */
@@ -38,7 +40,7 @@ export function itemDone(item: MaturityItem, design: MissionDesign, furthest: De
     case 'requirements':
       return passed('requirements', furthest)
     case 'bus':
-      return design.busClassId !== null
+      return busComplete(design)
     case 'payload':
       return design.instrumentIds.length > 0
     case 'orbitLaunch':

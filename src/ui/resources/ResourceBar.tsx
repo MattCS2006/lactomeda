@@ -56,7 +56,7 @@ function ResourceCellView({ cell }: { cell: ResourceCell }) {
         {/* FR-6.2 — state as icon + text, colour only reinforces it */}
         <span className={`shrink-0 border px-2 py-1 text-[8px] uppercase ${look.badge}`}>{state}</span>
       </span>
-      <span className="whitespace-nowrap">
+      <span className="break-words">
         {used}
         <span className="text-metal-light"> / </span>
         {pending ? <span className="text-metal-light">—</span> : available}
