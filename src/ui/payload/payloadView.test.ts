@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { gameData } from '../../data'
+import { fullGameData as gameData } from '../../data'
 import { createDesign } from '../store/missionStore'
 import { formatNumber, payloadTotals, slotInfo, toInstrumentCard } from './payloadView'
 

@@ -886,6 +886,23 @@
       "anomaly": "Anomalía en el lanzamiento"
     }
   },
+  "student": {
+    "preset": {
+      "heading": "¿Nuevo en el diseño de misiones?",
+      "button": "Empezar con una nave que funciona",
+      "scratch": "Construir desde cero",
+      "hint": "Cambia cualquier pieza y mira las barras: ¡intenta mantenerlas en verde!"
+    },
+    "advanced": {
+      "summary": "Piezas avanzadas (elegidas por nosotros)",
+      "help": "Elegimos piezas que encajan con tu plataforma. Abre esto para cambiarlas tú."
+    },
+    "targets": {
+      "recommended": "Usar las metas recomendadas",
+      "recommendedHelp": "Las metas base forman una misión sólida que no es demasiado difícil: ideal para un primer vuelo.",
+      "customize": "Personalizar las metas"
+    }
+  },
   "languageSelector": {
     "label": "Idioma",
     "en": "English",

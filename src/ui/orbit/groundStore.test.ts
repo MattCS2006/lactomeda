@@ -1,6 +1,6 @@
 // Store actions for the ground station choice (FR-5.6). Kept in its own file to avoid merge conflicts.
 import { beforeEach, describe, expect, it } from 'vitest'
-import { gameData } from '../../data'
+import { fullGameData as gameData } from '../../data'
 import { useMissionStore } from '../store/missionStore'
 
 const state = () => useMissionStore.getState()

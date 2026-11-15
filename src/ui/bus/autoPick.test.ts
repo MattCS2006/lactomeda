@@ -1,15 +1,15 @@
 import { describe, expect, it } from 'vitest'
-import { gameData, presets } from '../../data'
+import { fullGameData, gameData, presets } from '../../data'
 import type { Component } from '../../engine/types'
 import { AUTO_SUBSYSTEMS, autoPart, fitsBus, withAutoParts } from './autoPick'
 
 describe('Cadet auto-pick', () => {
   it('picks the cheapest Cadet part that fits the bus', () => {
-    expect(autoPart('structure', 'cubesat-3u', 'cadet', gameData)?.id).toBe('str-3u')
-    expect(autoPart('structure', 'cubesat-12u', 'cadet', gameData)?.id).toBe('str-12u')
-    expect(autoPart('attitude', 'large', 'cadet', gameData)?.id).toBe('adcs-cmg')
+    expect(autoPart('structure', 'cubesat-3u', 'cadet', fullGameData)?.id).toBe('str-3u')
+    expect(autoPart('structure', 'cubesat-12u', 'cadet', fullGameData)?.id).toBe('str-12u')
+    expect(autoPart('attitude', 'large', 'cadet', fullGameData)?.id).toBe('adcs-cmg')
     // never an advanced part on Cadet
-    expect(autoPart('thermal', 'large', 'cadet', gameData)?.id).toBe('thm-radiators')
+    expect(autoPart('thermal', 'large', 'cadet', fullGameData)?.id).toBe('thm-radiators')
   })
 
   it('a part missing from partFits fits every bus', () => {

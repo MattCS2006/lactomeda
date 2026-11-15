@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest'
-import { gameData } from '../../data'
+import { fullGameData as gameData } from '../../data'
 import { DIFFICULTY_EVENT_FACTOR, MASS_CONTINGENCY } from '../../engine/constants'
 import en from '../../i18n/en.json'
 import { partOptions } from '../bus/busView'
