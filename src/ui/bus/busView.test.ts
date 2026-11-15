@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest'
-import { gameData } from '../../data'
+import { fullGameData as gameData } from '../../data'
 import { componentOptions } from '../../engine/rules/components'
 import type { MissionDesign } from '../../engine/types'
 import en from '../../i18n/en.json'

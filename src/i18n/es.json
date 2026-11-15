@@ -1,0 +1,911 @@
+{
+  "app": {
+    "title": "Lactomeda — Control de Misión",
+    "tagline": "Diseña una misión espacial y mantenla con vida."
+  },
+  "phase": {
+    "brief": "Fase 1 · Resumen de la misión · CML 1",
+    "requirements": "Fase 2 · Requisitos · CML 2",
+    "payload": "Fase 4 · Carga útil · CML 3",
+    "orbit": "Fase 5 · Órbita y lanzamiento · CML 3",
+    "bus": "Fase 3 · Plataforma de la nave · CML 3",
+    "design": "Fase 6 · Revisión del diseño · CML 4"
+  },
+  "scenario": {
+    "heading": "Elige tu misión",
+    "intro": "Cada misión tiene su propia meta, presupuesto y fecha límite. No hay una única respuesta correcta. Elige una para empezar.",
+    "objectives": "Lo que debes lograr",
+    "destination": "Destino",
+    "budget": "Presupuesto",
+    "deadline": "Fecha límite de construcción",
+    "duration": "Duración de la misión",
+    "difficulty": "Dificultad recomendada",
+    "orbits": "Órbitas que puedes usar",
+    "select": "Elegir",
+    "selected": "Elegida",
+    "start": "Definir requisitos",
+    "change": "Cambiar de misión",
+    "current": "Misión: {{name}}"
+  },
+  "destination": {
+    "earth": "Órbita terrestre",
+    "l2": "Punto L2 Sol–Tierra",
+    "moon": "La Luna",
+    "mars": "Marte"
+  },
+  "difficulty": {
+    "cadet": "Cadete",
+    "engineer": "Ingeniero",
+    "flightDirector": "Director de vuelo"
+  },
+  "units": {
+    "moneyM": "${{value}} M",
+    "moneyB": "${{value}} mil M",
+    "days": "{{count}} días",
+    "months": "{{count}} meses",
+    "years": "{{count}} años",
+    "kg": "{{value}} kg",
+    "watts": "{{value}} W",
+    "mbPerDay": "{{value}} Mb/día",
+    "mbPerDayShort": "{{value}} Mb/d",
+    "minPerDay": "{{value}} min/día",
+    "km": "{{value}} km",
+    "kmMillion": "{{value}} millones de km",
+    "kmBillion": "{{value}} mil millones de km",
+    "litres": "{{value}} L",
+    "kbps": "{{value}} kbps",
+    "mbps": "{{value}} Mbps",
+    "gbps": "{{value}} Gbps",
+    "mb": "{{value}} MB",
+    "gb": "{{value}} GB",
+    "tb": "{{value}} TB"
+  },
+  "placeholder": {
+    "hint": "Muévete con WASD y pulsa E en una estación.",
+    "station": "Usaste: {{station}}",
+    "noStation": "Aún no usas ninguna estación"
+  },
+  "common": {
+    "back": "Atrás"
+  },
+  "requirements": {
+    "heading": "Fija tus metas",
+    "intro": "Convierte los objetivos de {{name}} en números con los que te calificarán. Las metas más difíciles dan más puntos, pero son más difíciles de construir.",
+    "confirm": "Confirmar requisitos",
+    "level": {
+      "threshold": "Mínimo",
+      "baseline": "Base",
+      "goal": "Meta"
+    },
+    "levelHelp": {
+      "threshold": "Lo mínimo que puedes aceptar. Si no lo logras, el objetivo falla.",
+      "baseline": "Lo que promete la misión. Una opción equilibrada.",
+      "goal": "La meta más ambiciosa. La mejor ciencia, la más difícil de construir."
+    },
+    "atMost": "máx. {{value}} {{unit}}",
+    "atLeast": "mín. {{value}} {{unit}}",
+    "scoreMultiplier": "×{{value}} de puntaje",
+    "potential": "Potencial de puntaje",
+    "potentialHelp": "El promedio de tus niveles. Sube la parte de objetivos de tu puntaje final.",
+    "vsBaseline": {
+      "stricter": "{{factor}}× más difícil que la base",
+      "easier": "{{factor}}× más fácil que la base",
+      "same": "Igual que la base"
+    },
+    "pushesOn": "Presiona sobre",
+    "pressure": "Más difícil de lograr",
+    "pressureNone": "Nada por encima de la base: un comienzo fácil y equilibrado."
+  },
+  "metric": {
+    "resolution": "Nitidez de la imagen",
+    "revisit": "Tiempo de revisita",
+    "dataPerDay": "Datos por día",
+    "lifetime": "Vida de la misión"
+  },
+  "resource": {
+    "mass": "Masa",
+    "power": "Energía",
+    "budget": "Presupuesto",
+    "data": "Datos",
+    "comms": "Radio",
+    "time": "Tiempo"
+  },
+  "payload": {
+    "heading": "Elige tus instrumentos",
+    "intro": "Los instrumentos recogen la ciencia. Cada uno añade peso, consumo de energía, costo y datos que la nave debe manejar.",
+    "selectedCount": "{{count}} elegidos",
+    "slots": "Espacios {{used}}/{{max}}",
+    "noBus": "Aún no has elegido el tamaño de la nave. Los límites de espacios se aplicarán cuando lo hagas.",
+    "slotsFull": "No queda espacio libre en esta plataforma. Quita un instrumento o elige una más grande.",
+    "add": "Añadir",
+    "added": "Añadido",
+    "helps": "Ayuda con: {{objectives}}",
+    "helpsNone": "No se necesita para los objetivos de esta misión",
+    "confirm": "Confirmar carga útil",
+    "stat": {
+      "mass": "Masa",
+      "power": "Energía",
+      "cost": "Costo",
+      "data": "Datos",
+      "science": "Ciencia"
+    },
+    "incompatible": {
+      "objective": "No mide nada que esta misión necesite. La misión necesita: {{needs}}.",
+      "orbit": "Solo funciona desde {{orbits}}, y esta misión no puede volar allí.",
+      "chosenOrbit": "No funciona desde la órbita que elegiste ({{orbit}}).",
+      "title": "No disponible",
+      "warning": "No encaja: quítalo"
+    },
+    "compatibleCount": "{{count}} de {{total}} instrumentos sirven para esta misión",
+    "addAnother": "Añadir otro",
+    "removeOne": "Quitar uno",
+    "marginal_one": "+{{value}} de ciencia (la mitad, porque ya tienes uno)",
+    "marginal_other": "+{{value}} de ciencia ({{pct}}%, porque ya tienes {{count}})"
+  },
+  "orbit": {
+    "heading": "Elige tu órbita",
+    "intro": "Tu órbita decide qué tan nítidas son tus imágenes, cuánto tiempo pasas en sombra, cada cuánto puedes hablar con tierra y cuánta radiación recibes.",
+    "confirm": "Continuar",
+    "goodFor": "Buena para",
+    "tradeoff": "A cambio de",
+    "notAllowed": "Esta misión no puede volar aquí. La misión no permite esta órbita.",
+    "instrumentsLost": "Instrumentos que no funcionarán aquí: {{names}}",
+    "gmat": "Calculado con GMAT de la NASA",
+    "stat": {
+      "altitude": "Altitud",
+      "period": "Una vuelta",
+      "eclipse": "Sombra",
+      "contact": "Tiempo para enviar datos a casa",
+      "radiation": "Radiación",
+      "source": "Fuente"
+    },
+    "radiation": {
+      "low": "Baja",
+      "medium": "Media",
+      "high": "Alta"
+    },
+    "units": {
+      "min": "{{value}} min",
+      "hours": "{{value}} h",
+      "days": "{{value}} días",
+      "above": {
+        "earth": "{{value}} km sobre la Tierra",
+        "moon": "{{value}} km sobre la Luna",
+        "mars": "{{value}} km sobre Marte"
+      },
+      "fromEarth": "{{value}} km de la Tierra",
+      "shadow": "{{value}}% de cada vuelta",
+      "alwaysSun": "Siempre bajo el Sol",
+      "contact": "{{value}} min/día",
+      "alwaysContact": "Todo el día"
+    },
+    "catalog": {
+      "leo": {
+        "goodFor": "Imágenes nítidas de la Tierra y misiones baratas cerca de casa.",
+        "tradeoff": "Pocas oportunidades de hablar con tierra. El aire muy fino baja la nave poco a poco."
+      },
+      "sso": {
+        "goodFor": "Observar la Tierra con la misma luz todos los días.",
+        "tradeoff": "Necesita un lanzamiento más potente que una órbita baja normal."
+      },
+      "meo": {
+        "goodFor": "Satélites de navegación, como el GPS.",
+        "tradeoff": "Mucha radiación de los cinturones de Van Allen."
+      },
+      "geo": {
+        "goodFor": "El clima y la vigilancia constante de una sola región.",
+        "tradeoff": "Imágenes menos detalladas, un lanzamiento caro y un camino largo para enviar datos."
+      },
+      "molniya": {
+        "goodFor": "Vistas largas del lejano norte.",
+        "tradeoff": "Cruza los cinturones de radiación dos veces al día."
+      },
+      "l2": {
+        "goodFor": "Telescopios: estable, frío y con el Sol siempre detrás.",
+        "tradeoff": "Necesita la Red del Espacio Profundo de la NASA, y los datos llegan despacio."
+      },
+      "lunar": {
+        "goodFor": "Mapear la Luna.",
+        "tradeoff": "Llegar cuesta mucho combustible, y la Tierra queda lejos."
+      },
+      "mars": {
+        "goodFor": "Ciencia de Marte y retransmitir los datos de los róvers.",
+        "tradeoff": "La luz solar es solo el 43% de la que hay en la Tierra, y el viaje dura meses."
+      }
+    },
+    "confirmNeeds": "Elige una órbita, un cohete y estaciones en tierra para continuar."
+  },
+  "launcher": {
+    "heading": "Elige tu cohete",
+    "intro": "El cohete debe llevar tu nave hasta tu órbita. Los cohetes más grandes levantan más y llegan más lejos, pero cuestan más. Los viajes baratos pueden ser más arriesgados.",
+    "pickOrbitFirst": "Elige una órbita arriba para ver qué cohetes pueden llegar.",
+    "capacity": "Puede levantar hasta",
+    "cost": "Costo",
+    "reliability": "Probabilidad de que funcione",
+    "reliabilityValue": "{{value}}% ({{fail}}% de probabilidad de fallo)",
+    "free": "Gratis",
+    "cantReach": "No llega a {{orbit}}.",
+    "yourOrbit": "tu órbita",
+    "regime": {
+      "LEO": "Órbita baja",
+      "SSO": "Heliosíncrona",
+      "GTO": "Órbita terrestre alta",
+      "TLI": "Luna / L2",
+      "ESCAPE": "Espacio profundo"
+    }
+  },
+  "ground": {
+    "heading": "Elige tus estaciones en tierra",
+    "intro": "Tu nave solo puede enviar datos a casa cuando una estación en tierra puede verla. Más estaciones y más grandes dan más minutos por día, pero cuestan más cada año.",
+    "contact": "Tiempo para enviar datos a casa cada día",
+    "contactValue": "{{value}} min/día",
+    "allDay": "Todo el día",
+    "times": "×{{value}} comparado con una estación ({{base}} min)",
+    "pickOrbit": "Elige una órbita para ver los minutos",
+    "costYear": "Costo por año",
+    "costMission": "Para esta misión",
+    "costMissionValue": "{{cost}} ({{years}} años)",
+    "reach": "Alcanza",
+    "reachValue": "hasta {{value}}",
+    "tooFar": "Muy lejos: alcanza hasta {{reach}}, tu órbita está a {{distance}}.",
+    "catalog": {
+      "gn-university": "Una antena pequeña en el campus. Barata, pero solo te ve unas pocas veces al día.",
+      "gn-commercial": "Una red alquilada de estaciones en todo el mundo: muchas más oportunidades por día.",
+      "gn-nen": "La red de la NASA para naves cerca de la Tierra, hasta la Luna y L2.",
+      "gn-dsn": "Las antenas gigantes de la NASA en California, España y Australia. La única forma de llegar al espacio profundo."
+    }
+  },
+  "resources": {
+    "heading": "Recursos de la misión",
+    "margin": "Margen de sobra",
+    "needs": "Necesita",
+    "need": {
+      "bus": "plataforma",
+      "power": "pieza de energía",
+      "comms": "pieza de radio",
+      "orbit": "órbita",
+      "ground": "estaciones en tierra",
+      "parts": "piezas"
+    },
+    "aria": "{{name}}: {{used}} usados de {{available}}, margen {{margin}}%, {{state}}",
+    "ariaPending": "{{name}}: {{used}} usados, aún necesita {{needs}}",
+    "status": {
+      "green": "OK",
+      "amber": "Justo",
+      "red": "Excedido",
+      "pending": "Pendiente"
+    }
+  },
+  "cml": {
+    "heading": "Progreso de la misión",
+    "reached": "Alcanzado: CML {{level}} · {{name}}",
+    "reachedNone": "Alcanzado: nada todavía",
+    "level": "CML {{level}}",
+    "name": {
+      "1": "Idea general",
+      "2": "Viabilidad inicial",
+      "3": "Espacio de opciones",
+      "4": "Diseño puntual"
+    },
+    "state": {
+      "done": "Hecho",
+      "now": "Estás aquí",
+      "next": "Siguiente"
+    },
+    "progress": "{{done}} de {{total}} hechos",
+    "item": {
+      "scenario": "Misión elegida",
+      "requirements": "Requisitos fijados",
+      "bus": "Plataforma y subsistemas",
+      "payload": "Carga útil",
+      "orbitLaunch": "Órbita, cohete y estaciones en tierra",
+      "review": "Revisión del diseño aprobada"
+    },
+    "debrief": "Tu concepto llegó a CML {{level}}: {{name}}.",
+    "debriefNone": "Tu concepto aún no llega a CML 1.",
+    "help": "(Nivel de Madurez del Concepto de NASA/JPL) El Laboratorio de Propulsión a Chorro de la NASA mide qué tan desarrollada está una idea de misión, de CML 1 a 4. Cada fase del juego sube tu idea un nivel."
+  },
+  "segments": {
+    "heading": "Las 4 partes de toda misión",
+    "help": "La NASA divide toda misión científica en cuatro partes: lanzamiento, espacio, tierra y usuarios.",
+    "name": {
+      "launch": "Lanzamiento",
+      "space": "Espacio",
+      "ground": "Tierra",
+      "user": "Usuarios"
+    },
+    "tabDone": "hecho",
+    "tabTodo": "pendiente",
+    "summary": "Resumen de la misión por parte",
+    "summaryIntro": "Tu diseño hasta ahora, ordenado como la NASA planea una misión científica.",
+    "notChosen": "Aún sin elegir",
+    "raw": "{{text}}",
+    "percent": "{{value}}%",
+    "objectiveValue": "{{objective}} — {{level}}",
+    "line": {
+      "launcher": "Cohete",
+      "launchCost": "Costo del lanzamiento",
+      "reliability": "Fiabilidad del lanzamiento",
+      "capacity": "Capacidad hasta tu órbita",
+      "bus": "Plataforma",
+      "instruments": "Instrumentos",
+      "orbit": "Órbita",
+      "mass": "Masa de la nave",
+      "network": "Estaciones en tierra",
+      "contact": "Tiempo para enviar datos a casa cada día",
+      "dataPerDay": "Datos científicos por día",
+      "users": "Quién usa los datos",
+      "objective": "Objetivo"
+    },
+    "users": {
+      "student-cubesat": "Tu equipo universitario, investigadores del clima espacial y radioaficionados que escuchan tu CubeSat.",
+      "wildfire-eo": "Bomberos y agencias de emergencia, que usan mapas recientes de incendios para decidir adónde enviar equipos.",
+      "space-telescope": "Astrónomos de todo el mundo, que piden tiempo de observación y descargan los datos de archivos públicos."
+    }
+  },
+  "bus": {
+    "heading": "Construye tu nave",
+    "intro": "La plataforma es la nave que rodea tus instrumentos: su estructura, energía, computadora y radio. Las plataformas más grandes cargan más, pero cuestan más y necesitan cohetes más grandes.",
+    "sizeHeading": "1. Elige el tamaño de la plataforma",
+    "partsHeading": "2. Elige una pieza para cada subsistema",
+    "stat": {
+      "maxMass": "Masa máx.",
+      "volume": "Volumen",
+      "cost": "Costo",
+      "instrumentSlots": "Instrumentos",
+      "componentSlots": "Piezas",
+      "mass": "Masa",
+      "power": "Energía",
+      "reliability": "Probabilidad de que funcione",
+      "trl": "Qué tan probada"
+    },
+    "power": {
+      "generates": "Produce {{value}} W",
+      "uses": "Usa {{value}} W",
+      "none": "Sin energía"
+    },
+    "special": {
+      "battery": "Guarda {{value}} Wh",
+      "radio": "Envía {{value}}",
+      "deltaV": "Combustible para cambiar de órbita: {{value}} m/s",
+      "storage": "Guarda {{value}}"
+    },
+    "advanced": "Avanzada",
+    "trlHelp": "TRL (Nivel de Madurez Tecnológica) indica qué tan probada está una pieza. 9 = ha volado muchas veces. Menos = más nueva y más arriesgada.",
+    "reliabilityValue": "{{value}}%",
+    "progress": "{{done}} de {{total}} subsistemas elegidos",
+    "preview": "Tu nave",
+    "issuesHeading": "Revisiones de ingeniería",
+    "noIssues": "No se han encontrado problemas hasta ahora.",
+    "confirm": "Confirmar nave",
+    "confirmNeeds": "Elige un tamaño de plataforma y una pieza para cada subsistema para continuar."
+  },
+  "subsystem": {
+    "structure": {
+      "name": "Estructura",
+      "what": "El armazón que mantiene todo unido."
+    },
+    "power": {
+      "name": "Energía",
+      "what": "Produce electricidad: paneles solares, o un RTG lejos del Sol."
+    },
+    "battery": {
+      "name": "Batería",
+      "what": "Mantiene todo funcionando mientras la nave está en sombra."
+    },
+    "computer": {
+      "name": "Computadora",
+      "what": "Maneja la nave y guarda los datos hasta que se puedan enviar a casa."
+    },
+    "attitude": {
+      "name": "Apuntado",
+      "what": "El control de actitud mantiene la nave orientada: cámaras hacia el objetivo, antenas hacia la Tierra."
+    },
+    "propulsion": {
+      "name": "Propulsión",
+      "what": "Propulsores para cambiar de órbita, esquivar basura y durar más tiempo."
+    },
+    "thermal": {
+      "name": "Térmico",
+      "what": "Evita que las piezas se pongan demasiado calientes o demasiado frías."
+    },
+    "comms": {
+      "name": "Radio",
+      "what": "La radio que envía tus datos a las estaciones en tierra."
+    }
+  },
+  "issues": {
+    "MISSING_SUBSYSTEM": "Elige una pieza para {{subsystem}}.",
+    "UNKNOWN_COMPONENT": "Una pieza de {{subsystem}} ya no existe: elige otra.",
+    "WRONG_SUBSYSTEM": "Esa pieza no pertenece a {{subsystem}}: elige otra.",
+    "LOW_SOLAR_POWER": "Lejos del Sol, los paneles solares producen mucha menos energía. Piensa en un RTG.",
+    "TOO_MANY_INSTRUMENTS": "Demasiados instrumentos para esta plataforma: quita uno o elige una más grande.",
+    "TOO_MANY_COMPONENTS": "Demasiadas piezas para esta plataforma (los respaldos cuentan doble). Elige una más grande.",
+    "OVER_BUS_MASS": "Pesa demasiado para esta plataforma: elige una más grande o piezas más ligeras.",
+    "UNKNOWN_BUS_CLASS": "Este tamaño de plataforma ya no existe: elige otro.",
+    "MISSING_BUS_CLASS": "Elige un tamaño de plataforma."
+  },
+  "landing": {
+    "subtitle": "Control de Misión",
+    "tagline": "Diseña una misión espacial al estilo NASA y mantenla con vida.",
+    "menuLabel": "Menú principal",
+    "entry": {
+      "solo": "Jugar solo",
+      "createRoom": "Crear sala de equipo",
+      "joinRoom": "Unirse a una sala",
+      "sandbox": "Modo libre",
+      "howToPlay": "Cómo jugar"
+    },
+    "hint": {
+      "solo": "Planea y vuela una misión por tu cuenta.",
+      "createRoom": "Hasta 4 jugadores, cada uno con un rol.",
+      "joinRoom": "Escribe el código de 6 letras de la sala de un amigo.",
+      "sandbox": "Todas las piezas, sin límites.",
+      "howToPlay": "El juego en cinco pasos."
+    },
+    "soon": "Pronto",
+    "soonReason": "Próximamente: este modo aún se está construyendo.",
+    "continue": "Continuar misión",
+    "continueHint": "{{name}} · {{phase}}",
+    "footer": "NASA Space Apps Challenge 2026",
+    "howTo": {
+      "heading": "Cómo jugar",
+      "close": "Cerrar",
+      "design": "Diseña: elige una misión y fija sus metas. Luego construye la nave y elige instrumentos, órbita, cohete y estaciones en tierra.",
+      "resources": "Mira la barra de recursos: peso, energía, presupuesto, datos, radio y tiempo. Verde está bien, ámbar es justo, rojo es excedido.",
+      "maturity": "Cada fase terminada sube el progreso de tu misión, como la NASA JPL califica ideas de misiones reales (CML 1 a 4).",
+      "flight": "Vuela: camina por tu nave y resuelve las emergencias en cada estación antes de que se acabe el tiempo.",
+      "debrief": "Informe final: mira tu puntaje y por qué la misión funcionó o falló. Luego vuela de nuevo cambiando una sola cosa."
+    },
+    "menu": "Menú",
+    "logo": "LACTOMEDA",
+    "sources": "Fuentes NASA",
+    "sourcesHint": "Los recursos de la NASA detrás de este juego.",
+    "offline": "Sin conexión",
+    "offlineReason": "No se puede llegar al servidor de equipos ahora mismo. Jugar solo sigue funcionando."
+  },
+  "tooltip": {
+    "label": "¿Qué es esto?",
+    "close": "Cerrar",
+    "items": {
+      "mass": "Todo lo que pesa la nave: piezas, instrumentos y combustible. Debe caber en el límite de la plataforma y en lo que el cohete puede levantar hasta tu órbita.",
+      "power": "La electricidad que usa la nave, comparada con la que producen sus paneles solares o su RTG. En la sombra no hay luz del Sol, así que no hay energía solar.",
+      "budget": "Dinero para toda la misión: construir la nave, el lanzamiento y pagar las estaciones en tierra cada año hasta que termine la misión.",
+      "data": "Los datos científicos que reúnen tus instrumentos cada día, comparados con lo que puedes enviar a la Tierra. Los datos que no puedes enviar se pierden.",
+      "comms": "Los minutos por día que necesitas para hablar con la Tierra, comparados con los minutos en que las estaciones en tierra realmente pueden ver tu nave.",
+      "time": "Cuánto debe durar la misión, comparado con cuánto probablemente sobrevivirá la nave. La radiación y las piezas débiles acortan su vida.",
+      "cubesat-1u": "Un cubo de 10 cm, de cerca de 1 kg. El satélite estándar más pequeño: espacio para un instrumento diminuto. Genial para aprender y muy barato.",
+      "cubesat-2u": "Dos cubos 1U apilados: 20 cm de largo. Un poco más de espacio para baterías o un instrumento algo más grande.",
+      "cubesat-3u": "Tres cubos, del tamaño de un pan de molde. El CubeSat más popular: espacio suficiente para dos instrumentos pequeños.",
+      "cubesat-6u": "Dos CubeSat 3U lado a lado. Espacio para paneles solares más grandes, mejor apuntado y pequeños propulsores.",
+      "cubesat-12u": "El CubeSat común más grande, como una maleta pequeña. Puede llevar tres instrumentos y bastante energía.",
+      "smallsat": "Un satélite de hasta unos 180 kg que viaja en el anillo ESPA bajo una carga más grande. Aquí caben misiones científicas reales.",
+      "medium": "Una nave de hasta 1,5 toneladas, como muchos satélites del clima y de ciencias de la Tierra. Necesita su propio cohete mediano.",
+      "large": "Una nave insignia de hasta 6,5 toneladas, como los grandes observatorios de la NASA. Lleva muchos instrumentos y cuesta cientos de millones.",
+      "str-3u": "Un armazón de aluminio hecho al estándar CubeSat, para que quepa en cualquier desplegador de CubeSat.",
+      "str-12u": "Un armazón de CubeSat más grande con rieles que se deslizan en un desplegador 12U.",
+      "str-smallsat": "Una caja de metal hecha al estándar ESPA, el anillo que lleva satélites pequeños en cohetes grandes.",
+      "str-large": "Una estructura de aluminio fuerte para una nave grande. Pesada, pero probada en muchas misiones.",
+      "str-composite": "Paneles de fibra de carbono: mucho más ligeros que el aluminio con la misma resistencia, pero más nuevos y más caros.",
+      "pwr-body": "Celdas solares pegadas por fuera de la nave. Simples y fiables, pero pequeñas, así que producen poca energía.",
+      "pwr-deploy": "Paneles solares que se abren como alas después del lanzamiento. Mucha más energía para un CubeSat, con un pequeño riesgo de que no se abran.",
+      "pwr-array-small": "Alas solares plegables para un SmallSat, que producen cientos de vatios con luz del Sol.",
+      "pwr-array-large": "Alas solares enormes para naves grandes, que producen miles de vatios. Pesadas y caras.",
+      "pwr-rtg": "Produce electricidad con el calor del plutonio al desintegrarse, como el róver Curiosity. Funciona lejos del Sol y en la oscuridad. Muy caro.",
+      "bat-40": "Un paquete pequeño de iones de litio, como unas cuantas baterías de celular. Mantiene vivo un CubeSat mientras pasa por la sombra de la Tierra.",
+      "bat-1k": "Una batería de iones de litio de 1 kWh para SmallSats: suficiente para mantener los instrumentos en cada paso por la sombra.",
+      "bat-10k": "Un gran banco de baterías para naves grandes que usan mucha energía en la sombra.",
+      "bat-adv": "Una batería nueva de alta densidad: guarda más energía por su peso, pero ha volado menos veces.",
+      "obc-cubesat": "Una computadora pequeña y barata hecha con electrónica normal. Funciona bien en órbita baja, pero la radiación puede causarle fallos.",
+      "obc-radtol": "Una computadora diseñada para tolerar la radiación: menos fallos durante tormentas solares y en órbitas más altas.",
+      "obc-radhard": "Una computadora endurecida contra la radiación, como la RAD750 de los róvers de Marte. Muy fiable, lenta y cara.",
+      "obc-edge": "Una computadora potente que procesa imágenes a bordo y envía solo las partes útiles. Tecnología nueva, menos probada.",
+      "adcs-mag": "Bobinas que empujan contra el campo magnético de la Tierra para girar la nave. Ligeras y baratas, pero no muy precisas.",
+      "adcs-cubesat": "Pequeñas ruedas giratorias más una cámara de estrellas: apuntan un CubeSat con la precisión suficiente para tomar imágenes.",
+      "adcs-smallsat": "Ruedas de reacción y rastreadores de estrellas: apuntado preciso para cámaras y antenas de SmallSat.",
+      "adcs-cmg": "Giroscopios de momento de control: grandes ruedas giratorias que giran rápido naves grandes, como las que usa la ISS.",
+      "adcs-fine": "Un sistema de apuntado extra preciso que mantiene un telescopio fijo en una estrella, como Hubble o JWST.",
+      "prop-none": "Sin motor. Más ligera y barata, pero la nave no puede cambiar de órbita ni esquivar basura.",
+      "prop-coldgas": "Pequeños soplos de gas comprimido. Suaves y seguros, suficientes para pequeñas correcciones en un CubeSat.",
+      "prop-mono": "Propulsores de hidracina, usados en la mayoría de los satélites para mantenerse en órbita y esquivar basura durante años.",
+      "prop-biprop": "Un motor principal que quema dos propelentes: lo bastante potente para llegar a la Luna o a la órbita de Marte. Muy pesado.",
+      "prop-hall": "Un propulsor eléctrico que empuja gas cargado con imanes. Empuje diminuto pero muy eficiente; necesita mucha energía.",
+      "thm-passive": "Pintura especial y mantas doradas (MLI) que mantienen la nave a una temperatura segura sin gastar energía.",
+      "thm-heaters": "Mantas aislantes y pequeños calentadores eléctricos que se encienden cuando las piezas se enfrían demasiado.",
+      "thm-radiators": "Bombas que llevan el calor a paneles radiadores que lo sueltan al espacio. Necesarios para instrumentos potentes y calientes.",
+      "thm-cryo": "Un parasol y un enfriador criogénico que mantienen un telescopio extremadamente frío, como JWST, para que vea luz infrarroja.",
+      "com-uhf": "Una radio simple que las estaciones de aficionados pueden oír. Muy lenta: unos pocos kilobits por segundo (kbps).",
+      "com-sband": "Una radio de satélite común con antena plana. Unas 100 veces más rápida que la UHF.",
+      "com-xband": "Una radio rápida usada por satélites de observación de la Tierra para enviar imágenes enormes durante pasos cortos.",
+      "com-hga": "Una gran antena parabólica que puede hablar a través de millones de kilómetros con la Red del Espacio Profundo de la NASA.",
+      "com-optical": "Envía datos con un láser en lugar de radio: rapidísimo, pero debe apuntar con mucha precisión. Tecnología más nueva.",
+      "inst-visible-cam": "Una cámara pequeña que toma fotos a color de la Tierra, como la cámara de un celular con un teleobjetivo.",
+      "inst-multispectral": "Toma fotos en muchos colores de luz, incluidos algunos que no podemos ver. Muestra plantas, agua, cicatrices de quemaduras y humo.",
+      "inst-thermal-ir": "Ve el calor en lugar de la luz. Detecta incendios activos, incluso a través del humo y de noche.",
+      "inst-sar": "Un radar que crea sus propias imágenes rebotando ondas de radio en el suelo. Ve a través de las nubes, de día y de noche.",
+      "inst-spectrometer": "Separa la luz en un arcoíris para saber de qué está hecha una cosa, como los gases en la atmósfera de un planeta.",
+      "inst-magnetometer": "Mide campos magnéticos, para estudiar el magnetismo de la Tierra y el clima espacial.",
+      "inst-telescope": "Un espejo grande que recoge luz débil de galaxias y planetas lejanos. Pesado, preciso y muy caro.",
+      "inst-laser-alt": "Dispara pulsos láser al suelo y mide cuánto tardan en volver para mapear alturas, como la forma de la superficie de la Luna.",
+      "inst-particle": "Cuenta las partículas cargadas del Sol y del espacio, para medir la radiación y el clima espacial.",
+      "inst-radiometer": "Mide las microondas que vienen de la Tierra para saber de la lluvia, la humedad y la temperatura del aire.",
+      "inst-magnetometer-cubesat": "Un magnetómetro diminuto en un brazo corto, lo bastante pequeño para un CubeSat estudiantil.",
+      "leo": "Órbita terrestre baja, a 500 km de altura: una vuelta cada 95 minutos. Cerca para imágenes nítidas, pero el contacto con tierra es corto y el aire la va bajando poco a poco.",
+      "sso": "Una órbita polar medida para que la nave pase sobre cada lugar a la misma hora local todos los días: la misma luz en cada foto.",
+      "meo": "A unos 20 000 km de altura, donde vuelan los satélites GPS. Una vuelta cada 12 horas, dentro de fuertes cinturones de radiación.",
+      "geo": "A 36 000 km sobre el ecuador: una vuelta por día, así que el satélite parece quieto sobre una región. Se usa para el clima.",
+      "molniya": "Una órbita larga y estirada que se queda muy alta sobre el lejano norte durante horas y luego baja en picada. Se usa para cubrir los polos.",
+      "l2": "Un punto de equilibrio a 1,5 millones de km de la Tierra, siempre en el lado de la noche. El Sol, la Tierra y la Luna quedan detrás del telescopio.",
+      "lunar": "Una órbita baja a 100 km sobre la Luna, para mapear su superficie. Llegar cuesta mucho combustible.",
+      "mars": "Una órbita baja alrededor de Marte, a meses de viaje. Allí la luz del Sol es más débil y los mensajes tardan minutos en llegar.",
+      "lv-csli": "La Iniciativa de Lanzamiento de CubeSats de la NASA da viajes gratis a CubeSats estudiantiles y educativos seleccionados.",
+      "lv-cubesat": "Tu CubeSat viaja en una caja con resorte y es empujado fuera desde la ISS u otro cohete. Barato, pero solo a órbita baja.",
+      "lv-rideshare": "Comparte un cohete grande con decenas de otros satélites, como los vuelos Transporter de SpaceX. Barato, pero vas adonde van ellos.",
+      "lv-small": "Un cohete pequeño dedicado, como el Electron de Rocket Lab: tu satélite elige la órbita y la fecha de lanzamiento.",
+      "lv-medium": "Un cohete mediano reutilizable como el Falcon 9. Puede llegar a órbitas altas, a la Luna y más allá con naves medianas.",
+      "lv-heavy": "Un cohete pesado como el Falcon Heavy o el Ariane 6 para naves grandes o misiones al espacio profundo.",
+      "lv-superheavy": "De la clase del Sistema de Lanzamiento Espacial (SLS) de la NASA: el cohete más potente, para las misiones más pesadas a la Luna y más allá.",
+      "gn-university": "Una antena pequeña en el techo de una universidad. Solo ve tu satélite durante unos pocos pasos cortos al día.",
+      "gn-commercial": "Alquila tiempo en antenas de todo el mundo, para que tu satélite tenga contacto muchas más veces por día.",
+      "gn-nen": "La Red del Espacio Cercano de la NASA: antenas y satélites de retransmisión para misiones cerca de la Tierra, hasta la Luna.",
+      "gn-dsn": "La Red del Espacio Profundo de la NASA: antenas gigantes de 34 a 70 m en California, España y Australia que hablan con naves por todo el sistema solar."
+    }
+  },
+  "difficultyPicker": {
+    "heading": "Elige una dificultad",
+    "intro": "Los niveles más difíciles desbloquean piezas avanzadas, pero traen más emergencias y menos margen de sobra.",
+    "recommended": "Recomendada para esta misión",
+    "who": {
+      "cadet": "¿Tu primera misión? Empieza aquí.",
+      "engineer": "Ya conoces los pros y contras.",
+      "flightDirector": "Poco margen de sobra, muchos problemas."
+    },
+    "partsSimple": "Solo piezas simples y probadas",
+    "partsAll": "Todas las piezas, incluso las avanzadas",
+    "events": "Emergencias en vuelo: ×{{value}}",
+    "massMargin": "Deja {{value}}% de peso de sobra",
+    "riskNo": "Todo lo rojo debe arreglarse antes del lanzamiento",
+    "riskYes": "Puedes lanzar aceptando el riesgo",
+    "hintsOn": "Con pistas",
+    "hintsOff": "Sin pistas"
+  },
+  "altitude": {
+    "heading": "Ajusta la altitud",
+    "intro": "Más bajo da imágenes más nítidas, pero el aire fino frena la nave antes. Más alto dura más, pero se ven menos detalles.",
+    "label": "Altitud",
+    "value": "{{value}} km",
+    "reset": "Volver a {{value}} km",
+    "period": "Una vuelta",
+    "resolution": "Detalle de la imagen",
+    "resolutionValue": "{{name}}: {{value}} m por píxel",
+    "noImager": "Añade una cámara en la pantalla de Carga útil para ver aquí el detalle de su imagen.",
+    "decay": "Cae de vuelta a la Tierra (sin propulsores)",
+    "lifetime": "Vida estimada de la misión",
+    "limitedBy": {
+      "reliability": "termina cuando las piezas se desgastan",
+      "propellant": "termina cuando se acaba el combustible para mantenerse en órbita",
+      "orbitDecay": "termina cuando la órbita baja demasiado"
+    },
+    "sharper": "▲ más nítido que a {{value}} km",
+    "blurrier": "▼ menos detalle que a {{value}} km",
+    "sooner": "▼ antes que a {{value}} km",
+    "later": "▲ después que a {{value}} km",
+    "days": "{{value}} días",
+    "months": "{{value}} meses",
+    "years": "{{value}} años",
+    "forever": "Nunca (sin frenado del aire)"
+  },
+  "flight": {
+    "missionOver": "Misión terminada",
+    "result": "{{total}} / 1000 · {{stars}} de 3 estrellas · {{outcome}}",
+    "outcome": {
+      "fullSuccess": "Éxito total",
+      "partialSuccess": "Éxito parcial",
+      "failure": "Fracaso"
+    },
+    "flyAgain": "Volar de nuevo",
+    "flyAgainNew": "Volar de nuevo con eventos nuevos",
+    "flyAgainHelp": "Tu diseño se conserva. Cambia una sola cosa, vuela de nuevo y compara.",
+    "sameEvents": "El mismo lanzamiento y las mismas emergencias que la última vez, así que solo importan tus cambios.",
+    "newEvents": "El mismo diseño, pero el lanzamiento y las emergencias se sortean otra vez.",
+    "sinceHeading": "Desde tu último vuelo",
+    "noChanges": "Aún no has cambiado nada. Cambia una cosa y vuela de nuevo para ver su efecto.",
+    "changeCount_one": "{{count}} cambio:",
+    "changeCount_other": "{{count}} cambios:",
+    "none": "ninguno",
+    "what": {
+      "difficulty": "Dificultad",
+      "bus": "Plataforma",
+      "propellant": "Propelente",
+      "orbit": "Órbita",
+      "altitude": "Altitud",
+      "launcher": "Cohete",
+      "ground": "Estaciones en tierra"
+    },
+    "change": {
+      "swap": "{{what}}: {{from}} → {{to}}",
+      "added": "Añadido {{name}} ×{{count}}",
+      "removed": "Quitado {{name}} ×{{count}}",
+      "events": "Eventos aleatorios nuevos",
+      "scenario": "Otra misión"
+    }
+  },
+  "sources": {
+    "button": "Fuentes NASA",
+    "heading": "Fuentes NASA",
+    "intro": "Este juego usa los {{count}} recursos del reto NASA Space Apps. Cada uno tiene una tarea en el juego. Aquí ves qué hace y dónde lo ves.",
+    "use": "En el juego",
+    "where": "Dónde lo ves",
+    "open": "Abrir el original",
+    "newTab": "(se abre en una pestaña nueva)",
+    "close": "Cerrar",
+    "alsoFromNasa": "También de la NASA: las misiones reales de la comparación del informe final (Landsat 9, GOES-R, JWST, LRO, MRO) vienen de las páginas de misiones de la NASA. Las imágenes de la NASA se acreditan donde se usan.",
+    "items": {
+      "scienceMissions": {
+        "name": "Design and Develop Science Missions",
+        "use": "Las cuatro partes de la misión (lanzamiento, espacio, tierra y usuarios) organizan las pestañas de diseño y el informe. La parte de usuarios muestra quién usa tus datos, como las agencias de incendios en la misión de incendios forestales.",
+        "where": "Pestañas de partes, informe de la misión, informe final"
+      },
+      "gmat": {
+        "name": "GMAT (General Mission Analysis Tool)",
+        "use": "Calculamos nuestras órbitas con scripts de GMAT de la NASA: tiempo de órbita, tiempo en la sombra de la Tierra y minutos de contacto con tierra por día. Los presupuestos de energía y radio usan esos números.",
+        "where": "Tarjetas de órbita (\"Calculado con GMAT de la NASA\"), presupuestos de energía y radio"
+      },
+      "cml": {
+        "name": "Concept Maturity Levels (JPL)",
+        "use": "Las fases del diseño siguen los niveles de madurez de JPL, CML 1 a 4. El medidor de progreso sube a medida que crece tu concepto, y el informe final muestra el nivel que alcanzaste.",
+        "where": "Títulos de las fases, medidor de progreso, informe final"
+      },
+      "mdl": {
+        "name": "Mission Design Lab (NASA Goddard)",
+        "use": "La revisión del diseño funciona como un estudio del Mission Design Lab: un hallazgo por tema, más una lista de equipo y el costo. Esos temas son también las salas de tu nave.",
+        "where": "Revisión del diseño, salas de la nave, informe de la misión"
+      },
+      "missionViz": {
+        "name": "NASA Mission Viz",
+        "use": "El informe final abre una misión real parecida a la tuya, y sus vistas de trayectoria inspiran nuestra animación de lanzamiento y órbita.",
+        "where": "Informe final (\"Mira una misión real como la tuya\")"
+      },
+      "telescopeGame": {
+        "name": "A Learning Game About Telescopes",
+        "use": "Tu objetivo decide qué tipo de luz observas, y eso decide qué instrumentos encajan. Las piezas que no encajan aparecen en gris, con el motivo.",
+        "where": "Pantalla de carga útil, misión del telescopio espacial, informe final"
+      },
+      "cubesat101": {
+        "name": "CubeSat 101 (NASA CubeSat Launch Initiative)",
+        "use": "La misión del CubeSat estudiantil lo sigue: tamaños de unidad, cómo consigue un CubeSat un lanzamiento, licencias y valores típicos de las piezas.",
+        "where": "Misión del CubeSat estudiantil, tutorial, ayudas"
+      },
+      "vrChallenge": {
+        "name": "Visualize a Space Mission Using VR (Space Apps 2023)",
+        "use": "Su estructura de concepto → trayectoria → línea de tiempo da forma a la línea de tiempo del panel de vuelo.",
+        "where": "Panel de vuelo"
+      },
+      "csaGames": {
+        "name": "Digital games and activities (Canadian Space Agency)",
+        "use": "Nuestro modelo para explicaciones simples y amigables. Los satélites de radar RADARSAT de Canadá inspiran el instrumento de radar.",
+        "where": "Ayudas, tarjeta del instrumento de radar"
+      }
+    }
+  },
+  "review": {
+    "heading": "Revisión del diseño",
+    "intro": "Como en un estudio del Mission Design Lab de la NASA, cada tema revisa tu diseño antes del lanzamiento. Arregla lo que está en rojo, o acepta el riesgo si tu dificultad lo permite.",
+    "verdict": {
+      "go": "LISTO",
+      "concern": "ATENCIÓN",
+      "noGo": "NO LISTO"
+    },
+    "overall": {
+      "go": "Todo aprobado: listo para lanzar.",
+      "concern": "Puedes lanzar, pero algunos márgenes están justos.",
+      "noGo": "Hay que arreglar algo antes del lanzamiento."
+    },
+    "resourcesHeading": "Recursos",
+    "margin": "Margen de sobra: {{value}}%",
+    "disciplinesHeading": "Hallazgos por tema",
+    "discipline": {
+      "power": "Energía",
+      "propulsion": "Propulsión",
+      "thermal": "Térmico",
+      "structures": "Estructuras",
+      "avionics": "Aviónica",
+      "comms": "Radio",
+      "attitude": "Apuntado",
+      "cost": "Costo",
+      "risk": "Riesgo"
+    },
+    "fix": "Arréglalo en {{phase}}",
+    "equipmentHeading": "Lista de equipo ({{count}} elementos)",
+    "col": {
+      "item": "Elemento",
+      "mass": "Peso (kg)",
+      "power": "Energía (W)",
+      "cost": "Costo ($M)"
+    },
+    "redundant": "(con respaldo)",
+    "total": "Total",
+    "acceptRisk": "Acepto el riesgo: lanzar aunque haya elementos en rojo. Es más probable que la misión falle.",
+    "decision": {
+      "clear": "Revisión del diseño aprobada. Listo para lanzar.",
+      "riskAccepted": "Riesgo aceptado. Puedes lanzar.",
+      "hardBlockers": "Falta algo esencial. Arregla primero lo que está en rojo.",
+      "riskNotAccepted": "Hay elementos en rojo. Arréglalos o acepta el riesgo para lanzar.",
+      "cadetCannotAcceptRisk": "En Cadete no puedes lanzar con elementos en rojo. Arréglalos primero."
+    },
+    "launch": "Lanzar"
+  },
+  "flightView": {
+    "heading": "Misión en vuelo",
+    "speed": "Velocidad del tiempo",
+    "pause": "Pausa",
+    "times": "{{n}}×",
+    "abort": "Abortar misión",
+    "secondsLeft": "Quedan {{s}} s",
+    "goTo": "Ve a la estación {{station}} y pulsa E",
+    "soundOff": "Sonido: apagado",
+    "soundOn": "Sonido: encendido"
+  },
+  "rooms": {
+    "heading": {
+      "create": "Crear una sala de equipo",
+      "join": "Unirse a una sala de equipo"
+    },
+    "lobbyHeading": "Sala de equipo",
+    "codeLabel": "Código de la sala",
+    "codeHint": "Las {{n}} letras y números que compartió tu anfitrión.",
+    "nameLabel": "Tu nombre",
+    "defaultName": "Astronauta {{tag}}",
+    "submit": {
+      "create": "Crear sala",
+      "join": "Unirse"
+    },
+    "cancel": "Cancelar",
+    "shareCode": "Comparte este código con tu equipo",
+    "copy": "Copiar código",
+    "copied": "¡Copiado!",
+    "players": "Jugadores {{n}} de {{max}}",
+    "host": "Anfitrión",
+    "you": "Tú",
+    "waiting": "Pueden unirse hasta 4 jugadores.",
+    "leave": "Salir de la sala",
+    "status": {
+      "connecting": "Conectando con el servidor de equipos…",
+      "full": "Esta sala está llena (4 de 4 jugadores). Pide a tu anfitrión que cree otra sala.",
+      "notFound": "No hay ninguna sala con este código. Revisa las letras e inténtalo de nuevo.",
+      "error": "No se pudo llegar al servidor de equipos. Inténtalo de nuevo en un momento.",
+      "offline": "El servidor de equipos no está disponible. Jugar solo sigue funcionando."
+    },
+    "rolesHeading": "Roles",
+    "merged": "Con {{n}} jugadores se juntan algunos roles, para que cada rol siga teniendo dueño.",
+    "role": {
+      "director": {
+        "name": "Director de la misión",
+        "owns": "Objetivos, requisitos, presupuesto y el voto final de lanzamiento."
+      },
+      "engineer": {
+        "name": "Ingeniero de la nave",
+        "owns": "La plataforma: estructura, energía, apuntado, propulsores y control del calor."
+      },
+      "scientist": {
+        "name": "Científico de la carga útil",
+        "owns": "Los instrumentos y los datos que producen."
+      },
+      "flightOps": {
+        "name": "Operaciones de vuelo y radio",
+        "owns": "La órbita, el cohete, las estaciones en tierra y el enlace de radio."
+      }
+    },
+    "pick": "Tomar este rol",
+    "pickHint": "Todos reciben un rol automáticamente. Toma uno libre para cambiar; si dos jugadores lo piden a la vez, se lo queda quien entró primero.",
+    "notReady": "Esperando jugadores: cada rol necesita un dueño.",
+    "readyHost": "Cada rol tiene dueño. Empieza cuando tu equipo esté listo.",
+    "waitHost": "Cada rol tiene dueño. Esperando a que el anfitrión empiece.",
+    "start": "Empezar el diseño",
+    "teamHeading": "Sala de equipo",
+    "teamCount_one": "{{count}} jugador",
+    "teamCount_other": "{{count}} jugadores",
+    "yourRoles": "Tu rol:"
+  },
+  "station": {
+    "bridge": "Puente",
+    "comms": "Radio",
+    "power": "Energía",
+    "science": "Laboratorio",
+    "navigation": "Navegación",
+    "engine": "Sala de motores",
+    "computer": "Núcleo de cómputo"
+  },
+  "decision": {
+    "station": "Estación {{station}}",
+    "timeLeft": "{{s}} s para decidir",
+    "noEffect": "Sin cambios por ahora",
+    "default": "Pasa si nadie decide a tiempo.",
+    "later": "Decidir después",
+    "effect": {
+      "health": "Salud de piezas {{value}}",
+      "battery": "Batería {{value}}",
+      "science": "Ciencia {{value}}",
+      "data": "Datos {{value}} Mb",
+      "propellant": "Combustible {{value}} kg",
+      "budget": "Presupuesto {{value}} $M",
+      "risk": "Riesgo {{value}}",
+      "mass": "Masa {{value}}",
+      "power": "Energía {{value}}",
+      "comms": "Radio {{value}}",
+      "time": "Tiempo {{value}}"
+    }
+  },
+  "hud": {
+    "heading": "Panel de vuelo",
+    "waiting": "Esperando los primeros datos en vivo…",
+    "day": "Día {{day}} de {{total}}",
+    "missionProgress": "Progreso de la misión",
+    "label": {
+      "battery": "Batería",
+      "data": "Datos",
+      "propellant": "Combustible",
+      "health": "Salud",
+      "science": "Ciencia",
+      "budget": "Presupuesto"
+    },
+    "level": {
+      "ok": "OK",
+      "warning": "Aviso",
+      "alarm": "Crítico"
+    },
+    "value": {
+      "battery": "{{pct}}% · {{wh}} Wh",
+      "data": "{{stored}} a bordo · {{sent}} enviados a casa",
+      "propellant": "Quedan {{kg}} kg",
+      "noPropellant": "Sin propulsores",
+      "health": "{{ok}} de {{total}} piezas OK",
+      "science": "{{points}} puntos",
+      "budget": "${{spent}} M de ${{total}} M"
+    },
+    "unit": {
+      "mb": "{{value}} Mb",
+      "gb": "{{value}} Gb",
+      "tb": "{{value}} Tb"
+    }
+  },
+  "launchAnim": {
+    "heading": "Lanzamiento · {{launcher}}",
+    "skip": "Saltar",
+    "countdown": "T−{{n}}",
+    "lesson": "Lección: {{lesson}}",
+    "segment": {
+      "countdown": "¡Despegue!",
+      "liftoff": "¡Despegue!",
+      "maxQ": "Max Q: el momento en que el aire empuja más fuerte",
+      "stageSeparation": "Separación de etapas",
+      "fairingSeparation": "Separación de la cofia",
+      "upperStage": "Encendido de la etapa superior",
+      "payloadSeparation": "Separación de la nave",
+      "orbitInsertion": "Inserción en órbita: ¡llegaste al espacio!",
+      "anomaly": "Anomalía en el lanzamiento"
+    }
+  },
+  "student": {
+    "preset": {
+      "heading": "¿Nuevo en el diseño de misiones?",
+      "button": "Empezar con una nave que funciona",
+      "scratch": "Construir desde cero",
+      "hint": "Cambia cualquier pieza y mira las barras: ¡intenta mantenerlas en verde!"
+    },
+    "advanced": {
+      "summary": "Piezas avanzadas (elegidas por nosotros)",
+      "help": "Elegimos piezas que encajan con tu plataforma. Abre esto para cambiarlas tú."
+    },
+    "targets": {
+      "recommended": "Usar las metas recomendadas",
+      "recommendedHelp": "Las metas base forman una misión sólida que no es demasiado difícil: ideal para un primer vuelo.",
+      "customize": "Personalizar las metas"
+    }
+  },
+  "languageSelector": {
+    "label": "Idioma",
+    "en": "English",
+    "es": "Español"
+  }
+}

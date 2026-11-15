@@ -5,7 +5,7 @@ import { isComponentAvailable } from '../engine/rules/components'
 import { evaluateObjectives } from '../engine/rules/objectives'
 import { RESOURCE_KEYS, estimateBudgets } from '../engine/rules/resources'
 import { validate } from '../engine/validate'
-import { gameData, partFits, presetFor, presets } from './index'
+import { fullGameData, gameData, partFits, presetFor, presets } from './index'
 
 describe('starter spacecraft (presets.json)', () => {
   it('has exactly one preset per scenario, all on Cadet', () => {
@@ -40,11 +40,12 @@ describe('starter spacecraft (presets.json)', () => {
 })
 
 describe('part fits (partFits.json)', () => {
-  const busIds = new Set(gameData.busClasses.map((b) => b.id))
+  // partFits describes the whole catalog; the curated gameData only shows some of these parts.
+  const busIds = new Set(fullGameData.busClasses.map((b) => b.id))
 
   it('only names parts and bus classes that exist', () => {
     for (const [partId, buses] of Object.entries(partFits)) {
-      expect(gameData.components.some((c) => c.id === partId), partId).toBe(true)
+      expect(fullGameData.components.some((c) => c.id === partId), partId).toBe(true)
       for (const b of buses) expect(busIds.has(b), `${partId} -> ${b}`).toBe(true)
     }
   })

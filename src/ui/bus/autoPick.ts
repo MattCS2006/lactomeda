@@ -13,7 +13,11 @@ export function fitsBus(component: Component, busClassId: string, fits: Readonly
   return buses === undefined || buses.includes(busClassId)
 }
 
-/** The cheapest part at this difficulty that fits the bus (ties: lighter, then id), or undefined if none does. */
+/**
+ * The cheapest part at this difficulty that fits the bus (ties: lighter, then id). When the shown catalog has no
+ * fitting part (the curated 3-per-subsystem list can leave a gap), the cheapest available part is used instead,
+ * so a bus never ends up without a part (the most capable one, i.e. the costliest, since gaps only show up on big buses). undefined only if the difficulty offers no part at all.
+ */
 export function autoPart(
   subsystem: Subsystem,
   busClassId: string,
@@ -21,9 +25,9 @@ export function autoPart(
   data: GameData,
   fits: Readonly<Record<string, readonly string[]>> = partFits,
 ): Component | undefined {
-  return data.components
-    .filter((c) => c.subsystem === subsystem && isComponentAvailable(c, difficulty) && fitsBus(c, busClassId, fits))
-    .sort((a, b) => a.costM - b.costM || a.massKg - b.massKg || a.id.localeCompare(b.id))[0]
+  const cheapest = (a: Component, b: Component) => a.costM - b.costM || a.massKg - b.massKg || a.id.localeCompare(b.id)
+  const available = data.components.filter((c) => c.subsystem === subsystem && isComponentAvailable(c, difficulty))
+  return available.filter((c) => fitsBus(c, busClassId, fits)).sort(cheapest)[0] ?? available.sort((a, b) => cheapest(b, a))[0]
 }
 
 /**

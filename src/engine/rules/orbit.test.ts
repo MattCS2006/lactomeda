@@ -1,7 +1,7 @@
 // FR-5.2: orbit properties are used by the engine, not only displayed. Each test changes ONE property
 // on a copy of the orbit and checks that an engine output changes.
 import { describe, expect, it } from 'vitest'
-import { gameData } from '../../data'
+import { fullGameData as gameData } from '../../data'
 import type { GameData, MissionDesign, Orbit } from '../types'
 import { evaluateObjectives } from './objectives'
 import {

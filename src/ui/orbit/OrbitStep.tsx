@@ -69,7 +69,7 @@ export function OrbitStep({ data }: Props) {
           type="button"
           disabled={!design.orbitId || !design.launcherId || !design.groundNetworkId}
           onClick={() => goTo('design')}
-          className="border-2 border-outline bg-ok px-5 py-3 text-xs text-outline shadow-[inset_-3px_-3px_0_var(--color-teal)] hover:bg-ok-light focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-shine disabled:cursor-not-allowed disabled:bg-metal disabled:text-metal-dark disabled:shadow-none"
+          className="font-pixel border-2 border-outline bg-ok px-5 py-3 text-xs text-outline shadow-[inset_-3px_-3px_0_var(--color-teal)] hover:bg-ok-light focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-shine disabled:cursor-not-allowed disabled:bg-metal disabled:text-metal-dark disabled:shadow-none"
         >
           {t('orbit.confirm')} ▶
         </button>
@@ -126,7 +126,7 @@ function OrbitCardView({ card, selected, lost, onSelect, label }: CardProps) {
           <InfoTip id={card.id} />
         </span>
         <span
-          className={`shrink-0 border px-2 py-1 text-[8px] uppercase ${
+          className={`shrink-0 border px-2 py-1 text-[10px] uppercase ${
             selected ? 'border-ok text-ok' : 'border-metal text-metal-light'
           }`}
         >

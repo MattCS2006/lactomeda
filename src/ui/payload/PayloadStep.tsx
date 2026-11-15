@@ -110,7 +110,7 @@ export function PayloadStep({ data }: Props) {
         <button
           type="button"
           onClick={() => goTo('orbit')}
-          className="border-2 border-outline bg-ok px-5 py-3 text-xs text-outline shadow-[inset_-3px_-3px_0_var(--color-teal)] hover:bg-ok-light focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-shine"
+          className="font-pixel border-2 border-outline bg-ok px-5 py-3 text-xs text-outline shadow-[inset_-3px_-3px_0_var(--color-teal)] hover:bg-ok-light focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-shine"
         >
           {t('payload.confirm')} ▶
         </button>
@@ -192,7 +192,7 @@ function InstrumentCardView({
             <InfoTip id={card.id} />
           </span>
           <span
-            className={`shrink-0 border px-2 py-1 text-[8px] uppercase ${
+            className={`shrink-0 border px-2 py-1 text-[10px] uppercase ${
               selected ? 'border-ok text-ok' : 'border-metal text-metal-light'
             }`}
           >

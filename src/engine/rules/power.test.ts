@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { gameData } from '../../data'
+import { fullGameData as gameData } from '../../data'
 import { REFERENCE_DESIGNS } from '../../data/referenceDesigns'
 import { BATTERY_DOD, RTG_DEGRADATION_PER_YEAR, SOLAR_DEGRADATION_PER_YEAR } from '../constants'
 import type { GameData, MissionDesign, Subsystem } from '../types'

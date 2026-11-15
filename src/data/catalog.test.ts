@@ -6,7 +6,17 @@ import { evaluateObjectives } from '../engine/rules/objectives'
 import { RESOURCE_KEYS, estimateBudgets } from '../engine/rules/resources'
 import type { MissionEvent, Station, Subsystem } from '../engine/types'
 import eventsJson from './events.json'
-import { gameData, presets } from './index'
+import curated from './curated.json'
+import { fullGameData as gameData, gameData as curatedData, presets } from './index'
+import busClassesJson from './busClasses.json'
+import componentsJson from './components.json'
+import instrumentsJson from './instruments.json'
+import launchersJson from './launchers.json'
+import groundJson from './groundNetworks.json'
+import orbitsJson from './orbits.json'
+import scenariosJson from './scenarios.json'
+import { designReview } from '../engine/rules/review'
+import { REFERENCE_DESIGNS } from './referenceDesigns'
 
 const { busClasses, components, instruments, orbits, launchers, groundNetworks, scenarios } = gameData
 const SUBSYSTEMS: Subsystem[] = ['structure', 'power', 'battery', 'computer', 'attitude', 'propulsion', 'thermal', 'comms']
@@ -325,4 +335,93 @@ describe('propellant data (FR-3.6)', () => {
     }
   })
 
+})
+
+// Students make fewer, clearer choices: gameData (what the app shows) is the catalog filtered by curated.json.
+describe('curated catalog (max 3 options per category)', () => {
+  const cur = curatedData
+  const ids = (list: { id: string }[]) => list.map((x) => x.id)
+
+  it('keeps the full catalog complete', () => {
+    expect(ids(gameData.busClasses)).toEqual(ids(busClassesJson))
+    expect(ids(gameData.components)).toEqual(ids(componentsJson))
+    expect(ids(gameData.instruments)).toEqual(ids(instrumentsJson))
+    expect(ids(gameData.launchers)).toEqual(ids(launchersJson))
+    expect(ids(gameData.groundNetworks)).toEqual(ids(groundJson))
+    expect(ids(gameData.orbits)).toEqual(ids(orbitsJson))
+    expect(gameData.scenarios).toEqual(scenariosJson)
+  })
+
+  it('has exactly 3 bus sizes, launchers and ground networks', () => {
+    expect(cur.busClasses).toHaveLength(3)
+    // Scenario-only launchers (NASA CubeSat Launch Initiative) are extra: 3 general rockets for everyone.
+    expect(cur.launchers.filter((l) => !l.onlyScenarioIds)).toHaveLength(3)
+    expect(cur.launchers.map((l) => l.id)).toContain('lv-csli') // NASA resource (CubeSat 101) stays visible
+    expect(cur.groundNetworks).toHaveLength(3)
+  })
+
+  it('has exactly 3 parts per subsystem, at most one of them advanced', () => {
+    for (const s of SUBSYSTEMS) {
+      const parts = cur.components.filter((c) => c.subsystem === s)
+      expect(parts, s).toHaveLength(3)
+      expect(parts.filter((c) => c.tier === 'advanced').length, `${s} advanced`).toBeLessThanOrEqual(1)
+      expect(parts.filter((c) => c.tier === 'simple').length, `${s} simple (Cadet)`).toBeGreaterThanOrEqual(2)
+    }
+    expect(cur.components).toHaveLength(24)
+  })
+
+  it('lists only ids that exist in the catalog', () => {
+    const has = (list: { id: string }[], want: string[]) => want.filter((id) => !list.some((x) => x.id === id))
+    expect(has(gameData.busClasses, curated.busClasses)).toEqual([])
+    expect(has(gameData.components, Object.values(curated.components).flat())).toEqual([])
+    expect(has(gameData.launchers, curated.launchers)).toEqual([])
+    expect(has(gameData.groundNetworks, curated.groundNetworks)).toEqual([])
+    expect(has(gameData.orbits, curated.orbits)).toEqual([])
+    expect(has(gameData.instruments, curated.instruments)).toEqual([])
+    expect(Object.keys(curated.components).sort()).toEqual([...SUBSYSTEMS].sort())
+  })
+
+  it('allows at most 3 orbits and 3 compatible instruments per scenario', () => {
+    for (const s of cur.scenarios) {
+      expect(s.allowedOrbitIds.length, `${s.id} orbits`).toBeGreaterThan(0)
+      expect(s.allowedOrbitIds.length, `${s.id} orbits`).toBeLessThanOrEqual(3)
+      for (const o of s.allowedOrbitIds) expect(cur.orbits.some((x) => x.id === o), `${s.id} -> ${o}`).toBe(true)
+      const wanted = new Set(s.objectives.map((o) => o.id))
+      const useful = cur.instruments.filter((i) => i.objectives.some((o) => wanted.has(o)))
+      expect(useful.length, `${s.id} instruments`).toBeGreaterThan(0)
+      expect(useful.length, `${s.id} instruments`).toBeLessThanOrEqual(3)
+    }
+  })
+
+  it('has no unused orbits or instruments', () => {
+    const usedOrbits = new Set(cur.scenarios.flatMap((s) => s.allowedOrbitIds))
+    expect(ids(cur.orbits).sort()).toEqual([...usedOrbits].sort())
+    const wanted = new Set(cur.scenarios.flatMap((s) => s.objectives.map((o) => o.id)))
+    for (const i of cur.instruments) expect(i.objectives.some((o) => wanted.has(o)), i.id).toBe(true)
+  })
+
+  it('keeps events, rules and failure modes unchanged', () => {
+    expect(cur.events).toBe(gameData.events)
+    expect(cur.wavelengthRules).toBe(gameData.wavelengthRules)
+    expect(cur.launchFailures).toBe(gameData.launchFailures)
+  })
+
+  it.each(REFERENCE_DESIGNS.map((d) => [d.scenarioId, d] as const))('%s reference design only uses curated ids', (_id, d) => {
+    const has = (list: { id: string }[], id: string) => list.some((x) => x.id === id)
+    expect(has(cur.busClasses, String(d.busClassId)), String(d.busClassId)).toBe(true)
+    for (const id of Object.values(d.componentIds)) expect(has(cur.components, String(id)), String(id)).toBe(true)
+    for (const id of d.instrumentIds) expect(has(cur.instruments, id), id).toBe(true)
+    expect(has(cur.orbits, String(d.orbitId)), String(d.orbitId)).toBe(true)
+    expect(has(cur.launchers, String(d.launcherId)), String(d.launcherId)).toBe(true)
+    expect(has(cur.groundNetworks, String(d.groundNetworkId)), String(d.groundNetworkId)).toBe(true)
+  })
+
+  it.each(REFERENCE_DESIGNS.map((d) => [d.scenarioId, d] as const))('%s reference design still wins with the curated catalog', (_id, design) => {
+    const scenario = cur.scenarios.find((s) => s.id === design.scenarioId)!
+    expect(scenario.allowedOrbitIds, `${scenario.id}: orbit not allowed`).toContain(design.orbitId)
+    const budgets = estimateBudgets(design, cur)
+    for (const key of RESOURCE_KEYS) expect(budgets[key].status, `${scenario.id}: ${key} is red`).not.toBe('red')
+    expect(designReview(design, cur).hardBlockers, `${scenario.id}: hard blockers`).toEqual([])
+    for (const r of evaluateObjectives(design, cur)) expect(r.levelAchieved, `${scenario.id}: ${r.objectiveId}`).not.toBeNull()
+  })
 })

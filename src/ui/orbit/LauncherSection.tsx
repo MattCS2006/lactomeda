@@ -84,7 +84,7 @@ function LauncherCardView({ card, selected, onSelect, label }: CardProps) {
           <InfoTip id={card.id} />
         </span>
         <span
-          className={`shrink-0 border px-2 py-1 text-[8px] uppercase ${
+          className={`shrink-0 border px-2 py-1 text-[10px] uppercase ${
             selected ? 'border-ok text-ok' : 'border-metal text-metal-light'
           }`}
         >

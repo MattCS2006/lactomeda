@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { gameData } from '../../data'
+import { fullGameData as gameData } from '../../data'
 import { REFERENCE_DESIGNS } from '../../data/referenceDesigns'
 import { RADIATION_FACTOR } from '../constants'
 import type { Component, MissionDesign } from '../types'

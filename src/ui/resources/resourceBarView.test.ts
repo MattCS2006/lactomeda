@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { gameData } from '../../data'
+import { fullGameData as gameData } from '../../data'
 import { RESOURCE_KEYS, estimateBudgets } from '../../engine/rules/resources'
 import type { MissionDesign } from '../../engine/types'
 import en from '../../i18n/en.json'

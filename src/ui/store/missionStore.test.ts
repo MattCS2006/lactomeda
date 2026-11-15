@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest'
-import { gameData, presetFor } from '../../data'
+import { fullGameData as gameData, presetFor } from '../../data'
 import { createDesign, useMissionStore } from './missionStore'
 
 describe('mission store — scenario selection', () => {

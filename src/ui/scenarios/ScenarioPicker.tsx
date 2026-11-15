@@ -52,7 +52,7 @@ export function ScenarioPicker({ data }: Props) {
             <button
               type="button"
               onClick={() => loadPreset(data)}
-              className="border-2 border-outline bg-ok px-6 py-4 text-sm text-outline shadow-[inset_-3px_-3px_0_var(--color-teal)] hover:bg-ok-light focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-shine"
+              className="font-pixel border-2 border-outline bg-ok px-6 py-4 text-sm text-outline shadow-[inset_-3px_-3px_0_var(--color-teal)] hover:bg-ok-light focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-shine"
             >
               🚀 {t('student.preset.button')} ▶
             </button>
@@ -68,7 +68,7 @@ export function ScenarioPicker({ data }: Props) {
             type="button"
             disabled={!design}
             onClick={() => goTo('requirements')}
-            className="border-2 border-outline bg-ok px-5 py-3 text-xs text-outline shadow-[inset_-3px_-3px_0_var(--color-teal)] hover:bg-ok-light focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-shine disabled:cursor-not-allowed disabled:bg-metal disabled:text-metal-dark disabled:shadow-none"
+            className="font-pixel border-2 border-outline bg-ok px-5 py-3 text-xs text-outline shadow-[inset_-3px_-3px_0_var(--color-teal)] hover:bg-ok-light focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-shine disabled:cursor-not-allowed disabled:bg-metal disabled:text-metal-dark disabled:shadow-none"
           >
             {t('scenario.start')} ▶
           </button>
@@ -101,7 +101,7 @@ function ScenarioCardView({ card, selected, onSelect, label }: CardProps) {
         <h3 className="text-xs leading-relaxed text-white">{card.name}</h3>
         {/* Selection shown with text + icon, not colour alone (NFR-05) */}
         <span
-          className={`shrink-0 border px-2 py-1 text-[8px] uppercase ${
+          className={`shrink-0 border px-2 py-1 text-[10px] uppercase ${
             selected ? 'border-ok text-ok' : 'border-metal text-metal-light'
           }`}
         >

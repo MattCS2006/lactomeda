@@ -1,7 +1,7 @@
 import { readdirSync, readFileSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { gameData } from '../data'
+import { fullGameData as gameData } from '../data'
 import { REFERENCE_DESIGNS } from '../data/referenceDesigns'
 import { REFERENCE_MISSION_DAYS, SECONDS_PER_TICK } from './constants'
 import { draw } from './rng'

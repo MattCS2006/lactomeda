@@ -57,9 +57,9 @@
       "power": "pwr-array-large",
       "battery": "bat-10k",
       "computer": "obc-radhard",
-      "attitude": "adcs-cmg",
+      "attitude": "adcs-smallsat",
       "propulsion": "prop-mono",
-      "thermal": "thm-radiators",
+      "thermal": "thm-heaters",
       "comms": "com-hga"
     },
     "redundant": [],

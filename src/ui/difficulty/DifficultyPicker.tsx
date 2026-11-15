@@ -40,7 +40,7 @@ export function DifficultyPicker({ data, recommended }: Props) {
               <span className="flex items-start justify-between gap-2">
                 <span className="text-xs">{t(`difficulty.${d}`)}</span>
                 <span
-                  className={`shrink-0 border px-2 py-1 text-[8px] uppercase ${
+                  className={`shrink-0 border px-2 py-1 text-[10px] uppercase ${
                     selected ? 'border-ok text-ok' : 'border-metal text-metal-light'
                   }`}
                 >

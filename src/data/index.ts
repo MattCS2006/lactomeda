@@ -13,6 +13,7 @@ import type {
   Scenario,
   WavelengthRule,
 } from '../engine/types'
+import curated from './curated.json'
 import busClasses from './busClasses.json'
 import components from './components.json'
 import escalationEvents from './escalationEvents.json'
@@ -28,7 +29,8 @@ import presetsJson from './presets.json'
 import scenarios from './scenarios.json'
 import wavelengthRules from './wavelengthRules.json'
 
-export const gameData: GameData = {
+/** The complete catalog: every part, orbit, launcher and instrument. Tests that need any id use this. */
+export const fullGameData: GameData = {
   busClasses: busClasses as BusClass[],
   components: components as Component[],
   instruments: instruments as Instrument[],
@@ -55,3 +57,23 @@ export function presetFor(scenarioId: string): MissionDesign | undefined {
 
 /** Which bus classes each structure / thermal / computer / attitude part is sized for (Cadet auto-pick). */
 export const partFits: Readonly<Record<string, readonly string[]>> = partFitsJson
+
+const keep = <T extends { id: string }>(list: T[], ids: string[]): T[] => list.filter((x) => ids.includes(x.id))
+
+/**
+ * What the app shows players: at most 3 choices per category (curated.json). Same data, filtered; events,
+ * rules and failure modes are unchanged. Scenarios lose only the orbits that are not curated.
+ */
+export const gameData: GameData = {
+  ...fullGameData,
+  busClasses: keep(fullGameData.busClasses, curated.busClasses),
+  components: keep(fullGameData.components, Object.values(curated.components).flat()),
+  instruments: keep(fullGameData.instruments, curated.instruments),
+  orbits: keep(fullGameData.orbits, curated.orbits),
+  launchers: keep(fullGameData.launchers, curated.launchers),
+  groundNetworks: keep(fullGameData.groundNetworks, curated.groundNetworks),
+  scenarios: fullGameData.scenarios.map((s) => ({
+    ...s,
+    allowedOrbitIds: s.allowedOrbitIds.filter((id) => curated.orbits.includes(id)),
+  })),
+}

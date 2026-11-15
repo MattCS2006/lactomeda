@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { gameData } from '../../data'
+import { fullGameData as gameData } from '../../data'
 import en from '../../i18n/en.json'
 import { createDesign } from '../store/missionStore'
 import { altitudeLabel, contactLabel, eclipseLabel, instrumentsLostAt, periodLabel, toOrbitCard } from './orbitView'
