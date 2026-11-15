@@ -12,7 +12,7 @@ game looks like one piece.
 | Tile size | **32 × 32 px** — everything snaps to this grid |
 | Character size | 32 × 32 px per frame |
 | Game resolution | 640 × 360 px (20 × 11 tiles), scaled up to the window |
-| Scaling | Integer only (2×, 3×…), never blurry: Phaser `pixelArt: true`, CSS `image-rendering: pixelated` |
+| Scaling | Integer only (2×, 3×…), never blurry: Phaser `pixelArt: true`, CSS `image-rendering: pixelated`. `integerZoom()` in `src/game/scaling.ts` picks the zoom from the parent box |
 | Perspective | Top-down with a slight front view (we see the front of consoles and characters) |
 
 ## 2. Palette — Sweetie 16
@@ -131,6 +131,25 @@ The scene scales by a whole number to fit and bobs 1 px every 0.7 s.
 - Font: **Press Start 2P** (SIL Open Font License) for titles and HUD; body text may use a
   readable pixel font at 16 px.
 - UI panels: dark metal (`D`) background, 2 px `G` border, `K` outer outline — same look as the consoles.
+
+### UI rules
+
+- **Palette tokens, never raw hex.** In code: `PALETTE` / `PALETTE_NUM` / `STATUS` from `src/game/palette.ts`.
+  In the React UI: the Tailwind tokens `bg-metal-dark`, `text-ok`, `border-alarm`… (defined in `src/index.css`,
+  same names as `palette.ts`, kebab-case). The page background is `outline`.
+- **Text:** font `font-pixel` (Press Start 2P). Minimum 10 px; use 12–16 px for paragraphs and 8 px only for tiny
+  badges. Inside Phaser, sizes are multiples of 8 (8 small label, 16 normal, 24 title) — see `src/game/textStyles.ts`.
+- **Panels and buttons:** use `.pixel-panel` and `.pixel-button` (dark metal fill, 2 px light border, 2 px outline).
+- **Status = colour + icon or text** (green ok, amber warning, red alarm). Never colour alone.
+
+## Checking the style
+
+These run with `npm test` and fail the build of your PR if you break the style:
+
+- `src/game/palette.test.ts` — scans `src/game/**` for hex colours (`'#rrggbb'`, `0xrrggbb`) that are not in the palette.
+- `src/game/spritePalette.test.ts` — every PNG in `public/assets/sprites/` (incl. `exterior/`) uses only palette colours
+  (the third-party tileset is exempt). If one fails, fix `tools/sprites/make-sprites.mjs`, not the test.
+- `src/game/scaling.test.ts` — the integer-zoom maths.
 
 ## 8. Making or changing sprites (no drawing needed)
 

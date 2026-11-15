@@ -8,6 +8,8 @@ import { SHIP_REGISTRY_KEY, resolveShipDesign, type ShipSource } from '../shipSo
 import { SHIP_STATIONS, STATION_NAMES } from '../stations'
 import { TILESET_KEY, TILESET_PATH, TILE_SIZE } from '../tiles'
 import { stationStatus, type StationState } from '../stationStatus'
+import { PALETTE, PALETTE_NUM, STATUS } from '../palette'
+import { FONT_SIZE, labelStyle, textStyle } from '../textStyles'
 import {
   PLAYER_SPEED,
   axesToVelocity,
@@ -39,13 +41,7 @@ interface ConsoleSpot {
   y: number
 }
 
-const ROOM_LABEL_STYLE = {
-  fontFamily: 'monospace',
-  fontSize: '10px',
-  color: '#94b0c2',
-  backgroundColor: '#1a1c2c',
-  padding: { x: 3, y: 1 },
-} as const
+const ROOM_LABEL_STYLE = labelStyle(PALETTE.metalLight, PALETTE.outline)
 
 const consoleKey = (id: Station) => `console_${id}`
 const CONSOLE_ALARM = 'console_alarm'
@@ -53,19 +49,18 @@ const CONSOLE_OFF = 'console_off'
 
 // Label look per state (Sweetie 16, see docs/ART.md). Text prefix keeps it readable without colour.
 const LABEL_STYLE: Record<StationState, { color: string; bg: string; prefix: string }> = {
-  ok: { color: '#f4f4f4', bg: '#1a1c2c', prefix: '' },
-  warning: { color: '#ffcd75', bg: '#1a1c2c', prefix: '* ' },
-  alarm: { color: '#f4f4f4', bg: '#b13e53', prefix: '! ' },
-  off: { color: '#94b0c2', bg: '#1a1c2c', prefix: 'x ' },
+  ok: { color: PALETTE.white, bg: PALETTE.outline, prefix: '' },
+  warning: { color: STATUS.warning, bg: PALETTE.outline, prefix: '* ' },
+  alarm: { color: PALETTE.white, bg: STATUS.alarm, prefix: '! ' },
+  off: { color: STATUS.off, bg: PALETTE.outline, prefix: 'x ' },
 }
 
 // Status panel (camera-fixed). docs/ART.md §7: dark metal fill, 2 px light border, dark outline.
-const PANEL_W = 250
+const PANEL_W = 400
 const PANEL_PAD = 8
 const PANEL_TOP = 12
-const PANEL_ROW_H = 14
-const PANEL_HEADER_H = 26
-const PANEL_FONT = { fontFamily: 'monospace', fontSize: '11px' } as const
+const PANEL_ROW_H = 24 // 16 px text + 8 px gap
+const PANEL_HEADER_H = 32
 
 interface StationView {
   sprite: Phaser.Physics.Arcade.Sprite
@@ -117,6 +112,7 @@ export class ShipInteriorScene extends Phaser.Scene {
   private panel!: Phaser.GameObjects.Container
   private panelFrame!: Phaser.GameObjects.Graphics
   private panelTitle!: Phaser.GameObjects.Text
+  private panelState!: Phaser.GameObjects.Text
   private panelLabels!: Phaser.GameObjects.Text
   private panelValues!: Phaser.GameObjects.Text
   private panelStation: Station | null = null
@@ -162,13 +158,7 @@ export class ShipInteriorScene extends Phaser.Scene {
     this.physics.add.collider(this.player, solids)
 
     this.pressLabel = this.add
-      .text(0, 0, TEXT.pressE, {
-        fontFamily: 'monospace',
-        fontSize: '10px',
-        color: '#f4f4f4',
-        backgroundColor: '#1a1c2c',
-        padding: { x: 3, y: 1 },
-      })
+      .text(0, 0, TEXT.pressE, labelStyle(PALETTE.white, PALETTE.outline))
       .setOrigin(0.5, 1)
       .setDepth(UI_DEPTH - 1)
       .setVisible(false)
@@ -294,11 +284,7 @@ export class ShipInteriorScene extends Phaser.Scene {
       const sprite = solids.create(s.x, s.y, consoleKey(s.id)) as Phaser.Physics.Arcade.Sprite
       sprite.setScale(CONSOLE_SCALE).setDepth(s.y).refreshBody()
       const label = this.add
-        .text(s.x, s.y + STATION_H / 2 + 2, STATION_NAMES[s.id], {
-          fontFamily: 'monospace',
-          fontSize: '10px',
-          padding: { x: 3, y: 1 },
-        })
+        .text(s.x, s.y + STATION_H / 2 + 2, STATION_NAMES[s.id], labelStyle())
         .setOrigin(0.5, 0)
         .setDepth(UI_DEPTH - 2)
       this.views.set(s.id, { sprite, label, state: 'ok' })
@@ -344,22 +330,32 @@ export class ShipInteriorScene extends Phaser.Scene {
   // ── Status panel ─────────────────────────────────────────────────────
   private createPanel() {
     this.panelFrame = this.add.graphics()
-    this.panelTitle = this.add.text(PANEL_PAD, PANEL_PAD, '', { ...PANEL_FONT, fontSize: '12px', color: '#ffcd75' })
-    this.panelLabels = this.add.text(PANEL_PAD, PANEL_HEADER_H, '', {
-      ...PANEL_FONT,
-      color: '#94b0c2',
-      lineSpacing: PANEL_ROW_H - 11,
-    })
+    this.panelTitle = this.add.text(PANEL_PAD, PANEL_PAD, '', textStyle(FONT_SIZE.normal, STATUS.warning))
+    this.panelState = this.add
+      .text(PANEL_W - PANEL_PAD, PANEL_PAD + 8, '', textStyle(FONT_SIZE.small, STATUS.warning))
+      .setOrigin(1, 0)
+    this.panelLabels = this.add.text(
+      PANEL_PAD,
+      PANEL_HEADER_H,
+      '',
+      textStyle(FONT_SIZE.normal, PALETTE.metalLight, { lineSpacing: PANEL_ROW_H - FONT_SIZE.normal }),
+    )
     this.panelValues = this.add
-      .text(PANEL_W - PANEL_PAD, PANEL_HEADER_H, '', {
-        ...PANEL_FONT,
-        color: '#f4f4f4',
-        align: 'right',
-        lineSpacing: PANEL_ROW_H - 11,
-      })
+      .text(
+        PANEL_W - PANEL_PAD,
+        PANEL_HEADER_H,
+        '',
+        textStyle(FONT_SIZE.normal, PALETTE.white, { align: 'right', lineSpacing: PANEL_ROW_H - FONT_SIZE.normal }),
+      )
       .setOrigin(1, 0)
     this.panel = this.add
-      .container((GAME_WIDTH - PANEL_W) / 2, PANEL_TOP, [this.panelFrame, this.panelTitle, this.panelLabels, this.panelValues])
+      .container((GAME_WIDTH - PANEL_W) / 2, PANEL_TOP, [
+        this.panelFrame,
+        this.panelTitle,
+        this.panelState,
+        this.panelLabels,
+        this.panelValues,
+      ])
       .setScrollFactor(0)
       .setDepth(UI_DEPTH + 1)
       .setVisible(false)
@@ -381,16 +377,19 @@ export class ShipInteriorScene extends Phaser.Scene {
     if (!id) return
     const status = this.statusFor(id)
     const style = LABEL_STYLE[status.state]
-    this.panelTitle.setText(`${STATION_NAMES[id]}  [${status.state.toUpperCase()}]`).setColor(style.color === '#f4f4f4' ? '#ffcd75' : style.color)
+    // Title keeps the warm accent when OK; non-OK states recolour it (and the state tag spells it out)
+    const accent = style.color === PALETTE.white ? STATUS.warning : style.color
+    this.panelTitle.setText(STATION_NAMES[id]).setColor(accent)
+    this.panelState.setText(`[${status.state.toUpperCase()}]`).setColor(accent)
     this.panelLabels.setText(status.lines.map((l) => l.label).join('\n'))
     this.panelValues.setText(status.lines.map((l) => l.value).join('\n'))
 
     const h = PANEL_HEADER_H + status.lines.length * PANEL_ROW_H + PANEL_PAD
     const g = this.panelFrame
     g.clear()
-    g.fillStyle(0x1a1c2c).fillRect(-1, -1, PANEL_W + 2, h + 2) // outer outline (K)
-    g.fillStyle(0x94b0c2).fillRect(0, 0, PANEL_W, h) // 2 px border (G)
-    g.fillStyle(0x333c57).fillRect(2, 2, PANEL_W - 4, h - 4) // dark metal (D)
+    g.fillStyle(PALETTE_NUM.outline).fillRect(-2, -2, PANEL_W + 4, h + 4) // 2 px outer outline
+    g.fillStyle(PALETTE_NUM.metalLight).fillRect(0, 0, PANEL_W, h) // 2 px border
+    g.fillStyle(PALETTE_NUM.metalDark).fillRect(2, 2, PANEL_W - 4, h - 4) // dark metal
   }
 
   // ── Animations ───────────────────────────────────────────────────────
@@ -452,13 +451,13 @@ export class ShipInteriorScene extends Phaser.Scene {
     const fixed = <T extends Phaser.GameObjects.GameObject & Phaser.GameObjects.Components.ScrollFactor & Phaser.GameObjects.Components.Depth>(o: T) =>
       o.setScrollFactor(0).setDepth(UI_DEPTH)
 
-    fixed(this.add.circle(JOY_X, JOY_Y, JOY_RADIUS, 0x1a1c2c, 0.5).setStrokeStyle(2, 0x94b0c2))
-    this.joyThumb = fixed(this.add.circle(JOY_X, JOY_Y, JOY_RADIUS / 2, 0x94b0c2, 0.8))
+    fixed(this.add.circle(JOY_X, JOY_Y, JOY_RADIUS, PALETTE_NUM.outline, 0.5).setStrokeStyle(2, PALETTE_NUM.metalLight))
+    this.joyThumb = fixed(this.add.circle(JOY_X, JOY_Y, JOY_RADIUS / 2, PALETTE_NUM.metalLight, 0.8))
 
-    fixed(this.add.circle(USE_BTN_X, USE_BTN_Y, USE_BTN_RADIUS, 0x1a1c2c, 0.5).setStrokeStyle(2, 0x94b0c2))
+    fixed(this.add.circle(USE_BTN_X, USE_BTN_Y, USE_BTN_RADIUS, PALETTE_NUM.outline, 0.5).setStrokeStyle(2, PALETTE_NUM.metalLight))
     fixed(
       this.add
-        .text(USE_BTN_X, USE_BTN_Y, 'E', { fontFamily: 'monospace', fontSize: '16px', color: '#f4f4f4' })
+        .text(USE_BTN_X, USE_BTN_Y, 'E', textStyle(FONT_SIZE.normal, PALETTE.white))
         .setOrigin(0.5),
     )
 

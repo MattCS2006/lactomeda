@@ -5,6 +5,9 @@ import { SHIP_REGISTRY_KEY, resolveShipDesign, type ShipSource } from './shipSou
 import { supabase, testRealtime } from '../net/supabase'
 import { gameData } from '../data'
 import { useMissionStore } from '../ui/store/missionStore'
+import { PALETTE } from './palette'
+import { integerZoom } from './scaling'
+import { loadPixelFont } from './textStyles'
 
 export function PhaserGame() {
   const host = useRef<HTMLDivElement>(null)
@@ -26,24 +29,42 @@ export function PhaserGame() {
   }, [ship])
 
   useEffect(() => {
-    const g = new Phaser.Game({
-      type: Phaser.AUTO,
-      parent: host.current!,
-      width: GAME_WIDTH,
-      height: GAME_HEIGHT,
-      pixelArt: true,
-      roundPixels: true,
-      backgroundColor: '#0b0f1a',
-      scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH },
-      physics: { default: 'arcade', arcade: { debug: false } },
-      // Set before any scene starts, so the first build already uses the design
-      callbacks: { preBoot: (booting) => booting.registry.set(SHIP_REGISTRY_KEY, shipRef.current) },
-      scene: [ShipInteriorScene],
+    const parent = host.current!
+    const zoomFor = () => integerZoom(parent.clientWidth, parent.clientHeight, GAME_WIDTH, GAME_HEIGHT)
+    let cancelled = false
+    let observer: ResizeObserver | null = null
+
+    // Wait for the pixel font so the first Text objects are drawn with it (falls back after a timeout).
+    void loadPixelFont().then(() => {
+      if (cancelled) return
+      const g = new Phaser.Game({
+        type: Phaser.AUTO,
+        parent,
+        width: GAME_WIDTH,
+        height: GAME_HEIGHT,
+        pixelArt: true,
+        roundPixels: true,
+        backgroundColor: PALETTE.outline,
+        // Fixed 640x360 art resolution shown at a whole-number zoom (never blurry, docs/ART.md §1)
+        scale: { mode: Phaser.Scale.NONE, zoom: zoomFor(), autoCenter: Phaser.Scale.CENTER_BOTH },
+        physics: { default: 'arcade', arcade: { debug: false } },
+        // Set before any scene starts, so the first build already uses the design
+        callbacks: { preBoot: (booting) => booting.registry.set(SHIP_REGISTRY_KEY, shipRef.current) },
+        scene: [ShipInteriorScene],
+      })
+      game.current = g
+      observer = new ResizeObserver(() => {
+        const zoom = zoomFor()
+        if (g.scale.zoom !== zoom) g.scale.setZoom(zoom)
+      })
+      observer.observe(parent)
     })
-    game.current = g
+
     return () => {
+      cancelled = true
+      observer?.disconnect()
+      game.current?.destroy(true)
       game.current = null
-      g.destroy(true)
     }
   }, [])
 
@@ -54,7 +75,7 @@ export function PhaserGame() {
 
   return (
     <div>
-      {/* Scale.FIT needs a sized parent: 16:9 box that grows up to 2x the game size */}
+      {/* Integer zoom is computed from this box: 16:9, grows up to 2x the game size */}
       <div ref={host} className="mx-auto aspect-video w-full max-w-[1280px] border-4 border-slate-600" />
       <p className="mt-2 text-center text-xs text-slate-400">
         Multiplayer server:{' '}

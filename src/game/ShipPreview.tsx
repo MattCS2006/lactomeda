@@ -15,6 +15,12 @@ import { gameData } from '../data'
 import { useMissionStore } from '../ui/store/missionStore'
 import { EXTERIOR_REGISTRY_KEY, resolveExteriorDesign, type ExteriorSource } from './exteriorSource'
 import { ShipBuildScene } from './scenes/ShipBuildScene'
+import { PALETTE } from './palette'
+import { integerZoom } from './scaling'
+
+// Art resolution of the preview; bigger boxes show it at a whole-number zoom (same pixel size as the game).
+const BASE_W = 320
+const BASE_H = 200
 
 interface ShipPreviewProps {
   width?: number
@@ -39,15 +45,17 @@ export function ShipPreview({ width = 320, height = 200 }: ShipPreviewProps) {
   }, [source])
 
   useEffect(() => {
+    // Whole-number zoom for the box; the game itself is drawn at (box size / zoom) so art pixels stay square.
+    const zoom = integerZoom(width, height, BASE_W, BASE_H)
     const g = new Phaser.Game({
       type: Phaser.AUTO,
       parent: host.current!,
-      width,
-      height,
+      width: Math.floor(width / zoom),
+      height: Math.floor(height / zoom),
       pixelArt: true,
       roundPixels: true,
-      backgroundColor: '#0b0f1a',
-      scale: { mode: Phaser.Scale.NONE },
+      backgroundColor: PALETTE.outline,
+      scale: { mode: Phaser.Scale.NONE, zoom, autoCenter: Phaser.Scale.CENTER_BOTH },
       // Set before the scene starts so its first draw already has the design
       callbacks: { preBoot: (booting) => booting.registry.set(EXTERIOR_REGISTRY_KEY, sourceRef.current) },
       scene: [ShipBuildScene],
