@@ -15,6 +15,9 @@ import type { Difficulty, GameData, MissionDesign, RequirementLevel, Subsystem }
 export const DESIGN_STEPS = ['brief', 'requirements', 'bus', 'payload', 'orbit', 'design'] as const
 export type DesignStep = (typeof DESIGN_STEPS)[number]
 
+/** Top-level screen: the landing menu (FR-1.1) or the mission design flow. */
+export type Screen = 'landing' | 'design'
+
 export function newSeed(): string {
   // Only picks the seed; the engine itself never uses Math.random.
   return Math.random().toString(36).slice(2, 10)
@@ -47,6 +50,7 @@ export function createDesign(
 }
 
 interface MissionStore {
+  screen: Screen
   step: DesignStep
   /** Furthest step the player has moved on to with this design (drives the CML meter, FR-14.3). */
   furthest: DesignStep
@@ -71,6 +75,10 @@ interface MissionStore {
   selectLauncher: (launcherId: string, data: GameData) => void
   /** FR-5.6 — choose a ground station network that can reach the chosen orbit. */
   selectGroundNetwork: (networkId: string, data: GameData) => void
+  /** FR-1.1 — leave the landing menu for the design flow (Play Solo / Continue). */
+  openDesign: () => void
+  /** Back to the landing menu; the design is kept. */
+  openLanding: () => void
   /** Move to a step. Every step after 'brief' needs a chosen scenario. */
   goTo: (step: DesignStep) => void
 }
@@ -79,6 +87,7 @@ interface MissionStore {
 export const useMissionStore = create<MissionStore>()(
   persist(
     (set, get) => ({
+      screen: 'landing',
       step: 'brief',
       furthest: 'brief',
       design: null,
@@ -175,6 +184,8 @@ export const useMissionStore = create<MissionStore>()(
         if (groundReasons(network, orbit).length > 0) return
         set({ design: { ...design, groundNetworkId: networkId } })
       },
+      openDesign: () => set({ screen: 'design' }),
+      openLanding: () => set({ screen: 'landing' }),
       goTo: (step) => {
         if (step !== 'brief' && !get().design) return
         const { furthest } = get()
@@ -185,15 +196,21 @@ export const useMissionStore = create<MissionStore>()(
       name: SAVE_KEY,
       version: SAVE_VERSION,
       storage: createJSONStorage(() => safeStorage),
-      partialize: (state) => ({ step: state.step, furthest: state.furthest, design: state.design }),
+      partialize: (state) => ({
+        screen: state.screen,
+        step: state.step,
+        furthest: state.furthest,
+        design: state.design,
+      }),
       // Check what was saved against today's catalog before using it
       merge: (persisted, current) => {
-        const saved = (persisted ?? {}) as Partial<Pick<MissionStore, 'step' | 'furthest' | 'design'>>
+        const saved = (persisted ?? {}) as Partial<Pick<MissionStore, 'screen' | 'step' | 'furthest' | 'design'>>
         const design = sanitizeDesign(saved.design, gameData)
         const valid = (s: unknown): s is DesignStep => DESIGN_STEPS.includes(s as DesignStep)
         const step = design && valid(saved.step) ? saved.step : 'brief'
         const furthest = design && valid(saved.furthest) ? saved.furthest : step
-        return { ...current, design, step, furthest }
+        const screen: Screen = saved.screen === 'design' ? 'design' : 'landing'
+        return { ...current, screen, design, step, furthest }
       },
     },
   ),

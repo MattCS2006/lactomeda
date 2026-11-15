@@ -7,6 +7,7 @@ import { bridge } from './game/bridge'
 import './i18n'
 import { OrbitStep } from './ui/orbit/OrbitStep'
 import { BusStep } from './ui/bus/BusStep'
+import { Landing } from './ui/landing/Landing'
 import { MaturityMeter } from './ui/maturity/MaturityMeter'
 import { SegmentTabs } from './ui/segments/SegmentTabs'
 import { PayloadStep } from './ui/payload/PayloadStep'
@@ -20,11 +21,29 @@ export default function App() {
   const step = useMissionStore((s) => s.step)
   const design = useMissionStore((s) => s.design)
   const goTo = useMissionStore((s) => s.goTo)
+  const screen = useMissionStore((s) => s.screen)
+  const openLanding = useMissionStore((s) => s.openLanding)
   const scenario = gameData.scenarios.find((s) => s.id === design?.scenarioId)
+
+  // FR-1.1 — the game opens on the landing menu
+  if (screen === 'landing') {
+    return (
+      <main className="min-h-screen bg-outline p-6 font-pixel text-xs leading-relaxed text-white">
+        <Landing data={gameData} />
+      </main>
+    )
+  }
 
   return (
     <main className="min-h-screen bg-outline p-6 font-pixel text-xs leading-relaxed text-white">
-      <header className="mb-6 text-center">
+      <header className="relative mb-6 text-center">
+        <button
+          type="button"
+          onClick={openLanding}
+          className="pixel-button absolute left-0 top-0 px-3 py-2 text-[10px]"
+        >
+          ◀ {t('landing.menu')}
+        </button>
         <h1 className="text-lg sm:text-xl">{t('app.title')}</h1>
         <p className="mt-2 text-[10px] text-metal-light">{t('app.tagline')}</p>
       </header>
