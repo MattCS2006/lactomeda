@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import type { GameData } from '../../engine/types'
 import { translateLabel, type Label } from '../scenarios/scenarioView'
 import { useMissionStore } from '../store/missionStore'
+import { SegmentReport } from '../segments/SegmentReport'
 import { GroundSection } from './GroundSection'
 import { LauncherSection } from './LauncherSection'
 import { instrumentsLostAt, toOrbitCard, type OrbitCard } from './orbitView'
@@ -48,6 +49,8 @@ export function OrbitStep({ data }: Props) {
       <LauncherSection data={data} />
 
       <GroundSection data={data} />
+
+      <SegmentReport data={data} />
 
       {(!design.orbitId || !design.launcherId || !design.groundNetworkId) && (
         <p className="mt-6 text-right text-[10px] text-warning">▲ {t('orbit.confirmNeeds')}</p>
