@@ -43,18 +43,18 @@ export function PayloadStep({ data }: Props) {
 
   return (
     <section aria-labelledby="payload-heading" className="mx-auto max-w-6xl">
-      <p className="text-[10px] uppercase text-[#73eff7]">{t('phase.payload')}</p>
+      <p className="text-[10px] uppercase text-shine">{t('phase.payload')}</p>
       <h2 id="payload-heading" className="mt-2 text-base">
         {t('payload.heading')}
       </h2>
-      <p className="mt-3 max-w-3xl text-[10px] text-[#94b0c2]">{t('payload.intro')}</p>
+      <p className="mt-3 max-w-3xl text-xs text-metal-light">{t('payload.intro')}</p>
 
       {/* Running totals of the selection */}
       <div
         aria-live="polite"
-        className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-2 border-2 border-[#566c86] bg-[#29366f] p-3 text-[10px]"
+        className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-2 border-2 border-metal bg-screen p-3 text-[10px]"
       >
-        <span className="text-[#ffcd75]">
+        <span className="text-warning">
           {slots.max === null
             ? t('payload.selectedCount', { count: totals.count })
             : t('payload.slots', { used: slots.used, max: slots.max })}
@@ -65,8 +65,8 @@ export function PayloadStep({ data }: Props) {
         <Total label={t('payload.stat.data')} value={`${formatNumber(totals.dataMbPerDay)} Mb/day`} />
         <Total label={t('payload.stat.science')} value={formatNumber(totals.science)} />
       </div>
-      {slots.max === null && <p className="mt-2 text-[8px] text-[#94b0c2]">{t('payload.noBus')}</p>}
-      <p className="mt-2 text-[8px] text-[#73eff7]">
+      {slots.max === null && <p className="mt-2 text-[10px] text-metal-light">{t('payload.noBus')}</p>}
+      <p className="mt-2 text-[10px] text-shine">
         {t('payload.compatibleCount', { count: compatibleCount, total: rows.length })}
       </p>
 
@@ -100,17 +100,13 @@ export function PayloadStep({ data }: Props) {
       </ul>
 
       <div className="mt-6 flex justify-between gap-3">
-        <button
-          type="button"
-          onClick={() => goTo('requirements')}
-          className="border-2 border-[#94b0c2] bg-[#333c57] px-4 py-3 text-[10px] hover:bg-[#566c86] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#73eff7]"
-        >
+        <button type="button" onClick={() => goTo('requirements')} className="pixel-button px-4 py-3 text-[10px]">
           ◀ {t('common.back')}
         </button>
         <button
           type="button"
           onClick={() => goTo('orbit')}
-          className="border-2 border-[#1a1c2c] bg-[#38b764] px-5 py-3 text-xs text-[#1a1c2c] shadow-[inset_-3px_-3px_0_#257179] hover:bg-[#a7f070] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#73eff7]"
+          className="border-2 border-outline bg-ok px-5 py-3 text-xs text-outline shadow-[inset_-3px_-3px_0_var(--color-teal)] hover:bg-ok-light focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-shine"
         >
           {t('payload.confirm')} ▶
         </button>
@@ -122,8 +118,8 @@ export function PayloadStep({ data }: Props) {
 function Total({ label, value }: { label: string; value: string }) {
   return (
     <span>
-      <span className="text-[#94b0c2]">{label}: </span>
-      <span className="text-[#f4f4f4]">{value}</span>
+      <span className="text-metal-light">{label}: </span>
+      <span className="text-white">{value}</span>
     </span>
   )
 }
@@ -165,14 +161,14 @@ function InstrumentCardView({
   const nextId = `${card.id}-next`
   return (
     <div
-      className={`flex h-full w-full flex-col border-2 shadow-[0_0_0_2px_#1a1c2c] ${
+      className={`flex h-full w-full flex-col border-2 shadow-[0_0_0_2px_var(--color-outline)] ${
         selected
           ? incompatibleSelected.length > 0
-            ? 'border-[#ffcd75] bg-[#29366f]'
-            : 'border-[#38b764] bg-[#29366f]'
+            ? 'border-warning bg-screen'
+            : 'border-ok bg-screen'
           : blocked
-            ? 'cursor-not-allowed border-[#566c86] bg-[#1a1c2c] text-[#94b0c2]'
-            : 'border-[#94b0c2] bg-[#333c57] hover:bg-[#3b4566]'
+            ? 'cursor-not-allowed border-metal bg-outline text-metal-light'
+            : 'border-metal-light bg-metal-dark hover:border-shine'
       }`}
     >
       <button
@@ -182,7 +178,7 @@ function InstrumentCardView({
         aria-describedby={shownReasons.length > 0 ? reasonId : undefined}
         title={shownReasons.length > 0 ? shownReasons.join('\n') : undefined}
         onClick={blocked ? undefined : onToggle}
-        className={`flex flex-1 flex-col p-4 text-left focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-[#73eff7] ${
+        className={`flex flex-1 flex-col p-4 text-left focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-shine ${
           blocked ? 'cursor-not-allowed' : ''
         }`}
       >
@@ -190,7 +186,7 @@ function InstrumentCardView({
           <span className="text-xs leading-relaxed">{card.name}</span>
           <span
             className={`shrink-0 border px-2 py-1 text-[8px] uppercase ${
-              selected ? 'border-[#38b764] text-[#38b764]' : 'border-[#566c86] text-[#94b0c2]'
+              selected ? 'border-ok text-ok' : 'border-metal text-metal-light'
             }`}
           >
             {selected
@@ -207,25 +203,25 @@ function InstrumentCardView({
           <Stat term={t('payload.stat.cost')} value={`$${formatNumber(card.costM)}M`} />
           <Stat term={t('payload.stat.data')} value={`${formatNumber(card.dataMbPerDay)} Mb/d`} />
           <div className="col-span-2">
-            <dt className="mb-1 text-[8px] uppercase text-[#94b0c2]">{t('payload.stat.science')}</dt>
+            <dt className="mb-1 text-[10px] uppercase text-metal-light">{t('payload.stat.science')}</dt>
             <dd className="flex items-center gap-2">
-              <span className="text-[#f4f4f4]">{card.science}</span>
-              <span aria-hidden className="h-2 flex-1 border border-[#1a1c2c] bg-[#1a1c2c]">
-                <span className="block h-full bg-[#a7f070]" style={{ width: `${Math.min(100, card.science)}%` }} />
+              <span className="text-white">{card.science}</span>
+              <span aria-hidden className="h-2 flex-1 border border-outline bg-outline">
+                <span className="block h-full bg-ok-light" style={{ width: `${Math.min(100, card.science)}%` }} />
               </span>
             </dd>
           </div>
         </dl>
 
-        <span className="mt-4 block border-t-2 border-[#1a1c2c] pt-3 text-[8px]">
+        <span className="mt-4 block border-t-2 border-outline pt-3 text-[10px]">
           {card.helps.length > 0 ? (
-            <span className="text-[#38b764]">✓ {t('payload.helps', { objectives: card.helps.join(' · ') })}</span>
+            <span className="text-ok">✓ {t('payload.helps', { objectives: card.helps.join(' · ') })}</span>
           ) : shownReasons.length === 0 ? (
-            <span className="text-[#94b0c2]">{t('payload.helpsNone')}</span>
+            <span className="text-metal-light">{t('payload.helpsNone')}</span>
           ) : null}
         </span>
         {shownReasons.length > 0 && (
-          <span id={reasonId} className="block space-y-1 text-[8px] leading-relaxed text-[#ffcd75]">
+          <span id={reasonId} className="block space-y-1 text-[10px] leading-relaxed text-warning">
             {incompatibleSelected.length > 0 && <span className="block">▲ {t('payload.incompatible.warning')}</span>}
             {shownReasons.map((r) => (
               <span key={r} className="block">
@@ -238,8 +234,8 @@ function InstrumentCardView({
 
       {/* FR-4.3 — extra copies give less science (engine marginalScience) */}
       {selected && (
-        <div className="border-t-2 border-[#1a1c2c] px-4 pb-4 pt-3">
-          <p id={nextId} className="text-[8px] leading-relaxed text-[#73eff7]">
+        <div className="border-t-2 border-outline px-4 pb-4 pt-3">
+          <p id={nextId} className="text-[10px] leading-relaxed text-shine">
             {t('payload.marginal', { count: next.have, value: formatNumber(next.value), pct: next.pct })}
           </p>
           <div className="mt-2 flex flex-wrap gap-2">
@@ -249,10 +245,10 @@ function InstrumentCardView({
               aria-disabled={addCopyBlockedReason !== null}
               title={addCopyBlockedReason ?? undefined}
               onClick={addCopyBlockedReason !== null ? undefined : onAddCopy}
-              className={`border-2 px-3 py-2 text-[8px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#73eff7] ${
+              className={`border-2 px-3 py-2 text-[10px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-shine ${
                 addCopyBlockedReason !== null
-                  ? 'cursor-not-allowed border-[#566c86] text-[#94b0c2]'
-                  : 'border-[#38b764] bg-[#1a1c2c] text-[#38b764] hover:bg-[#257179]'
+                  ? 'cursor-not-allowed border-metal text-metal-light'
+                  : 'border-ok bg-outline text-ok hover:bg-teal'
               }`}
             >
               + {t('payload.addAnother')}
@@ -261,14 +257,14 @@ function InstrumentCardView({
               <button
                 type="button"
                 onClick={onRemoveCopy}
-                className="border-2 border-[#94b0c2] bg-[#1a1c2c] px-3 py-2 text-[8px] hover:bg-[#333c57] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#73eff7]"
+                className="border-2 border-metal-light bg-outline px-3 py-2 text-[10px] hover:bg-metal-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-shine"
               >
                 − {t('payload.removeOne')}
               </button>
             )}
           </div>
           {addCopyBlockedReason !== null && (
-            <p className="mt-2 text-[8px] leading-relaxed text-[#ffcd75]">▲ {addCopyBlockedReason}</p>
+            <p className="mt-2 text-[10px] leading-relaxed text-warning">▲ {addCopyBlockedReason}</p>
           )}
         </div>
       )}
@@ -279,8 +275,8 @@ function InstrumentCardView({
 function Stat({ term, value }: { term: string; value: string }) {
   return (
     <div>
-      <dt className="mb-1 text-[8px] uppercase text-[#94b0c2]">{term}</dt>
-      <dd className="text-[#f4f4f4]">{value}</dd>
+      <dt className="mb-1 text-[10px] uppercase text-metal-light">{term}</dt>
+      <dd className="text-white">{value}</dd>
     </div>
   )
 }
