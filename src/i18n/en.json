@@ -118,6 +118,10 @@
       "title": "Not available",
       "warning": "Incompatible — remove it"
     },
-    "compatibleCount": "{{count}} of {{total}} instruments fit this mission"
+    "compatibleCount": "{{count}} of {{total}} instruments fit this mission",
+    "addAnother": "Add another",
+    "removeOne": "Remove one",
+    "marginal_one": "+{{value}} science, half because you already have one",
+    "marginal_other": "+{{value}} science, {{pct}}% because you already have {{count}}"
   }
 }
