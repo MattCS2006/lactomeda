@@ -1,6 +1,7 @@
 // Subsystem component options and selection rules (FR-3.2). Pure and deterministic: nothing is mutated.
 // `message` text is an English fallback; the UI translates by `code` via i18next.
-import type { Component, GameData, MissionDesign, Orbit, Subsystem, ValidationIssue } from '../types'
+import { TIERS_BY_DIFFICULTY } from '../constants'
+import type { Component, Difficulty, GameData, MissionDesign, Orbit, Subsystem, ValidationIssue } from '../types'
 
 export const SUBSYSTEMS: readonly Subsystem[] = [
   'structure',
@@ -16,10 +17,15 @@ export const SUBSYSTEMS: readonly Subsystem[] = [
 /** Beyond this distance from the Sun (AU) solar panels get a LOW_SOLAR_POWER warning. */
 export const LOW_SOLAR_DISTANCE_AU = 1.3
 
-/** Options for one subsystem, lightest first (for the selection screen). */
-export function componentOptions(subsystem: Subsystem, data: GameData): Component[] {
+/** FR-3.4 / FR-2.2: is this part offered at this difficulty? Advanced parts are hidden on Cadet. */
+export function isComponentAvailable(component: Component, difficulty: Difficulty): boolean {
+  return TIERS_BY_DIFFICULTY[difficulty].includes(component.tier)
+}
+
+/** Options for one subsystem, lightest first (for the selection screen). With `difficulty`, hides parts that tier does not allow. */
+export function componentOptions(subsystem: Subsystem, data: GameData, difficulty?: Difficulty): Component[] {
   return data.components
-    .filter((c) => c.subsystem === subsystem)
+    .filter((c) => c.subsystem === subsystem && (difficulty === undefined || isComponentAvailable(c, difficulty)))
     .sort((a, b) => a.massKg - b.massKg || a.id.localeCompare(b.id))
 }
 
@@ -28,7 +34,7 @@ export function selectedComponent(design: MissionDesign, subsystem: Subsystem, d
   return id === undefined ? undefined : data.components.find((c) => c.id === id)
 }
 
-/** Returns a NEW design with `subsystem` set to `componentId`. Throws on an unknown id or a mismatched subsystem. */
+/** Returns a NEW design with `subsystem` set to `componentId`. Throws on an unknown id, a mismatched subsystem or a part the design's difficulty hides. */
 export function selectComponent(
   design: MissionDesign,
   subsystem: Subsystem,
@@ -39,6 +45,9 @@ export function selectComponent(
   if (!component) throw new Error(`Unknown component "${componentId}"`)
   if (component.subsystem !== subsystem) {
     throw new Error(`Component "${componentId}" belongs to "${component.subsystem}", not "${subsystem}"`)
+  }
+  if (!isComponentAvailable(component, design.difficulty)) {
+    throw new Error(`Component "${componentId}" is ${component.tier} and not available on ${design.difficulty}`)
   }
   return { ...design, componentIds: { ...design.componentIds, [subsystem]: componentId } }
 }
@@ -85,6 +94,13 @@ export function validateComponents(design: MissionDesign, data: GameData): Valid
         severity: 'error',
         subsystem,
         message: `Component "${id}" is a ${component.subsystem} part and cannot be used for ${subsystem}.`,
+      })
+    } else if (!isComponentAvailable(component, design.difficulty)) {
+      issues.push({
+        code: 'COMPONENT_NOT_AVAILABLE',
+        severity: 'error',
+        subsystem,
+        message: `${component.name} is an ${component.tier} part and is not available on ${design.difficulty}.`,
       })
     }
   }

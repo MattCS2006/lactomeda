@@ -35,6 +35,15 @@ export const SCORE_AT_THRESHOLD = 0.5
 export const SCORE_AT_BASELINE = 0.75
 export const SCORE_AT_GOAL = 1
 
+// ─── FR-3.4 simple vs advanced components ───────────────────────────────
+
+/** FR-3.4 / FR-2.2: component tiers offered at each difficulty. Cadet = simple parts only. */
+export const TIERS_BY_DIFFICULTY: Record<'cadet' | 'engineer' | 'flightDirector', readonly ('simple' | 'advanced')[]> = {
+  cadet: ['simple'],
+  engineer: ['simple', 'advanced'],
+  flightDirector: ['simple', 'advanced'],
+}
+
 // ─── FR-5.2 orbit properties ────────────────────────────────────────────
 
 /** ERS 7.5: depth of discharge the battery is sized for (E_battery >= P_load x t_eclipse / DoD). */
@@ -67,7 +76,7 @@ export const RTG_DEGRADATION_PER_YEAR = 0.04
  * accepting the risk. An error issue is a hard blocker if its code starts with one of the prefixes or is listed.
  */
 export const HARD_BLOCKER_PREFIXES: readonly string[] = ['MISSING_', 'UNKNOWN_', 'LAUNCH_']
-export const HARD_BLOCKER_CODES: readonly string[] = ['WRONG_SUBSYSTEM', 'NO_COMMS']
+export const HARD_BLOCKER_CODES: readonly string[] = ['WRONG_SUBSYSTEM', 'NO_COMMS', 'COMPONENT_NOT_AVAILABLE']
 
 // ─── FR-7.8 simulation core ─────────────────────────────────────────────
 

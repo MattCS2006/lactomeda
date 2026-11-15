@@ -1,10 +1,15 @@
 import { describe, expect, it } from 'vitest'
 import { gameData } from '../../data'
-import type { Component, MissionDesign, Subsystem } from '../types'
+import { REFERENCE_DESIGNS } from '../../data/referenceDesigns'
+import type { Component, Difficulty, MissionDesign, Subsystem } from '../types'
+import { validate } from '../validate'
+import { previewOptions } from './preview'
+import { designReview } from './review'
 import {
   SUBSYSTEMS,
   componentOptions,
   effectivePowerW,
+  isComponentAvailable,
   isSolar,
   selectComponent,
   selectedComponent,
@@ -71,7 +76,7 @@ describe('componentOptions / selection', () => {
   })
 
   it('selectComponent returns a new design and leaves the input unchanged', () => {
-    const d = design()
+    const d = design({ difficulty: 'engineer' }) // the RTG is an advanced part
     const copy = structuredClone(d)
     const next = selectComponent(d, 'power', 'pwr-rtg', gameData)
     expect(next).not.toBe(d)
@@ -134,7 +139,7 @@ describe('validateComponents', () => {
     expect(solar[0]).toMatchObject({ code: 'LOW_SOLAR_POWER', severity: 'warning', resource: 'power', subsystem: 'power' })
     expect(solar[0].message).toContain('RTG')
 
-    const d = design({ orbitId: 'mars' })
+    const d = design({ orbitId: 'mars', difficulty: 'engineer' })
     const rtg = selectComponent(d, 'power', 'pwr-rtg', gameData)
     expect(validateComponents(rtg, gameData)).toEqual([])
   })
@@ -149,5 +154,98 @@ describe('validateComponents', () => {
     const copy = structuredClone(d)
     validateComponents(d, gameData)
     expect(d).toEqual(copy)
+  })
+})
+
+// ─── FR-3.4 simple vs advanced by difficulty ────────────────────────────
+
+describe('component tiers by difficulty (FR-3.4)', () => {
+  it('hides advanced parts on Cadet for every subsystem, and keeps at least 3 options', () => {
+    for (const s of SUBSYSTEMS) {
+      const options = componentOptions(s, gameData, 'cadet')
+      expect(options.some((c) => c.tier === 'advanced'), s).toBe(false)
+      expect(options.length, s).toBeGreaterThanOrEqual(3)
+    }
+  })
+
+  it('shows advanced parts on Engineer and Flight Director', () => {
+    for (const difficulty of ['engineer', 'flightDirector'] as const) {
+      for (const s of SUBSYSTEMS) {
+        const advanced = gameData.components.filter((c) => c.subsystem === s && c.tier === 'advanced')
+        expect(advanced.length).toBeGreaterThan(0)
+        const ids = componentOptions(s, gameData, difficulty).map((c) => c.id)
+        for (const a of advanced) expect(ids, `${difficulty}/${a.id}`).toContain(a.id)
+      }
+    }
+  })
+
+  it('keeps componentOptions without a difficulty exactly as before (everything, lightest first)', () => {
+    for (const s of SUBSYSTEMS) {
+      const all = gameData.components.filter((c) => c.subsystem === s)
+      const options = componentOptions(s, gameData)
+      expect(options).toHaveLength(all.length)
+      expect(options.map((c) => c.massKg)).toEqual(options.map((c) => c.massKg).sort((a, b) => a - b))
+      expect(componentOptions(s, gameData, 'engineer')).toEqual(options)
+    }
+  })
+
+  it('isComponentAvailable follows TIERS_BY_DIFFICULTY', () => {
+    for (const c of gameData.components) {
+      expect(isComponentAvailable(c, 'cadet'), c.id).toBe(c.tier === 'simple')
+      expect(isComponentAvailable(c, 'engineer'), c.id).toBe(true)
+      expect(isComponentAvailable(c, 'flightDirector'), c.id).toBe(true)
+    }
+  })
+
+  it('selectComponent throws for an advanced part on Cadet and works on Engineer', () => {
+    expect(() => selectComponent(design({ difficulty: 'cadet' }), 'power', 'pwr-rtg', gameData)).toThrow(/not available on cadet/)
+    expect(selectComponent(design({ difficulty: 'engineer' }), 'power', 'pwr-rtg', gameData).componentIds.power).toBe('pwr-rtg')
+    expect(selectComponent(design({ difficulty: 'cadet' }), 'power', 'pwr-body', gameData).componentIds.power).toBe('pwr-body')
+  })
+
+  it('validateComponents reports COMPONENT_NOT_AVAILABLE on Cadet only, as a hard blocker', () => {
+    const withRtg = (difficulty: Difficulty): MissionDesign => ({
+      ...design({ difficulty, orbitId: 'mars' }),
+      componentIds: { ...design().componentIds, power: 'pwr-rtg' },
+    })
+    const issues = validateComponents(withRtg('cadet'), gameData)
+    expect(issues).toHaveLength(1)
+    expect(issues[0]).toMatchObject({ code: 'COMPONENT_NOT_AVAILABLE', severity: 'error', subsystem: 'power' })
+    expect(issues[0].message).toContain(byId('pwr-rtg').name)
+    expect(issues[0].message).toContain('cadet')
+    expect(validateComponents(withRtg('engineer'), gameData)).toEqual([])
+    expect(validate(withRtg('cadet'), gameData).some((i) => i.code === 'COMPONENT_NOT_AVAILABLE')).toBe(true)
+
+    const review = designReview(withRtg('cadet'), gameData)
+    expect(review.hardBlockers.map((i) => i.code)).toContain('COMPONENT_NOT_AVAILABLE')
+    expect(review.disciplines.find((d) => d.discipline === 'power')!.findings.map((f) => f.code)).toContain('COMPONENT_NOT_AVAILABLE')
+  })
+
+  it('previewOptions only previews options available at the design difficulty', () => {
+    const cadet = previewOptions(design({ difficulty: 'cadet' }), 'power', gameData)
+    expect(Object.keys(cadet)).not.toContain('pwr-rtg')
+    expect(Object.keys(cadet).sort()).toEqual(componentOptions('power', gameData, 'cadet').map((c) => c.id).sort())
+    expect(Object.keys(previewOptions(design({ difficulty: 'engineer' }), 'power', gameData))).toContain('pwr-rtg')
+  })
+
+  it('reference designs never use a part their difficulty hides', () => {
+    expect(REFERENCE_DESIGNS.map((d) => [d.scenarioId, d.difficulty])).toEqual([
+      ['student-cubesat', 'cadet'],
+      ['wildfire-eo', 'cadet'],
+      ['space-telescope', 'engineer'],
+    ])
+    for (const d of REFERENCE_DESIGNS) {
+      expect(validateComponents(d, gameData).filter((i) => i.code === 'COMPONENT_NOT_AVAILABLE'), d.scenarioId).toEqual([])
+      expect(designReview(d, gameData).hardBlockers, d.scenarioId).toEqual([])
+    }
+  })
+
+  it('does not mutate its inputs', () => {
+    const d = design({ difficulty: 'cadet' })
+    const snaps = [JSON.stringify(d), JSON.stringify(gameData)]
+    componentOptions('power', gameData, 'cadet')
+    previewOptions(d, 'power', gameData)
+    validateComponents(d, gameData)
+    expect([JSON.stringify(d), JSON.stringify(gameData)]).toEqual(snaps)
   })
 })
