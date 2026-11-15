@@ -11,8 +11,10 @@
     "sunDistanceAU": 1.0,
     "radiation": "low",
     "insertionDeltaVms": 0,
+    "stationKeepingMsPerYear": 10,
+    "decayLifetimeDays": 1825,
     "source": "gmat",
-    "ref": "NASA GMAT R2025a, gmat/leo500.script, values from gmat/output/leo500.json (7-day run from 2027-01-01, 51.6° inclination, ground station San José CR at 10° min elevation): 3.1 passes/day, avg 5.8 min; insertion delta-v is an estimate — verify (NFR-09)"
+    "ref": "NASA GMAT R2025a, gmat/leo500.script, values from gmat/output/leo500.json (7-day run from 2027-01-01, 51.6\u00b0 inclination, ground station San Jos\u00e9 CR at 10\u00b0 min elevation): 3.1 passes/day, avg 5.8 min; insertion delta-v is an estimate \u2014 verify (NFR-09); stationKeepingMsPerYear is an estimate \u2014 verify (NFR-09); decayLifetimeDays is an estimate \u2014 verify (NFR-09)"
   },
   {
     "id": "sso",
@@ -26,8 +28,10 @@
     "sunDistanceAU": 1.0,
     "radiation": "low",
     "insertionDeltaVms": 0,
+    "stationKeepingMsPerYear": 2,
+    "decayLifetimeDays": 9125,
     "source": "analytic",
-    "ref": "ERS §7.3 + analytic estimate (circular orbit, worst-case beta=0 eclipse); replace with GMAT run; insertion delta-v is an estimate — verify (NFR-09)"
+    "ref": "ERS \u00a77.3 + analytic estimate (circular orbit, worst-case beta=0 eclipse); replace with GMAT run; insertion delta-v is an estimate \u2014 verify (NFR-09); stationKeepingMsPerYear is an estimate \u2014 verify (NFR-09); decayLifetimeDays is an estimate \u2014 verify (NFR-09)"
   },
   {
     "id": "meo",
@@ -41,8 +45,9 @@
     "sunDistanceAU": 1.0,
     "radiation": "high",
     "insertionDeltaVms": 1500,
+    "stationKeepingMsPerYear": 1,
     "source": "analytic",
-    "ref": "ERS §7.3 + analytic estimate (circular orbit, worst-case beta=0 eclipse); replace with GMAT run; insertion delta-v is an estimate — verify (NFR-09)"
+    "ref": "ERS \u00a77.3 + analytic estimate (circular orbit, worst-case beta=0 eclipse); replace with GMAT run; insertion delta-v is an estimate \u2014 verify (NFR-09); stationKeepingMsPerYear is an estimate \u2014 verify (NFR-09)"
   },
   {
     "id": "geo",
@@ -56,8 +61,9 @@
     "sunDistanceAU": 1.0,
     "radiation": "medium",
     "insertionDeltaVms": 1500,
+    "stationKeepingMsPerYear": 50,
     "source": "analytic",
-    "ref": "ERS §7.3 + analytic estimate (circular orbit, worst-case beta=0 eclipse); replace with GMAT run; insertion delta-v is an estimate — verify (NFR-09)"
+    "ref": "ERS \u00a77.3 + analytic estimate (circular orbit, worst-case beta=0 eclipse); replace with GMAT run; insertion delta-v is an estimate \u2014 verify (NFR-09); stationKeepingMsPerYear is an estimate \u2014 verify (NFR-09)"
   },
   {
     "id": "molniya",
@@ -71,8 +77,9 @@
     "sunDistanceAU": 1.0,
     "radiation": "high",
     "insertionDeltaVms": 100,
+    "stationKeepingMsPerYear": 5,
     "source": "analytic",
-    "ref": "ERS §7.3; 500 x 40,000 km, 12 h; eclipse and contacts are game estimates; replace with GMAT run; insertion delta-v is an estimate — verify (NFR-09)"
+    "ref": "ERS \u00a77.3; 500 x 40,000 km, 12 h; eclipse and contacts are game estimates; replace with GMAT run; insertion delta-v is an estimate \u2014 verify (NFR-09); stationKeepingMsPerYear is an estimate \u2014 verify (NFR-09)"
   },
   {
     "id": "l2",
@@ -86,8 +93,9 @@
     "sunDistanceAU": 1.01,
     "radiation": "medium",
     "insertionDeltaVms": 60,
+    "stationKeepingMsPerYear": 4,
     "source": "analytic",
-    "ref": "ERS §7.3; halo period ~6 months; contact = typical daily DSN pass; game estimate; insertion delta-v is an estimate — verify (NFR-09)"
+    "ref": "ERS \u00a77.3; halo period ~6 months; contact = typical daily DSN pass; game estimate; insertion delta-v is an estimate \u2014 verify (NFR-09); stationKeepingMsPerYear is an estimate \u2014 verify (NFR-09)"
   },
   {
     "id": "lunar",
@@ -101,8 +109,10 @@
     "sunDistanceAU": 1.0,
     "radiation": "medium",
     "insertionDeltaVms": 900,
+    "stationKeepingMsPerYear": 60,
+    "decayLifetimeDays": 180,
     "source": "analytic",
-    "ref": "ERS §7.3 + analytic estimate (Moon mu=4903, R=1737 km); contacts are a game estimate; insertion delta-v is an estimate — verify (NFR-09)"
+    "ref": "ERS \u00a77.3 + analytic estimate (Moon mu=4903, R=1737 km); contacts are a game estimate; insertion delta-v is an estimate \u2014 verify (NFR-09); stationKeepingMsPerYear is an estimate \u2014 verify (NFR-09); decayLifetimeDays is an estimate \u2014 verify (NFR-09)"
   },
   {
     "id": "mars",
@@ -116,7 +126,9 @@
     "sunDistanceAU": 1.52,
     "radiation": "medium",
     "insertionDeltaVms": 1000,
+    "stationKeepingMsPerYear": 5,
+    "decayLifetimeDays": 3650,
     "source": "analytic",
-    "ref": "ERS §7.3 + analytic estimate (Mars mu=42828, R=3390 km); distance = average Earth-Mars; contacts are a game estimate; insertion delta-v is an estimate — verify (NFR-09)"
+    "ref": "ERS \u00a77.3 + analytic estimate (Mars mu=42828, R=3390 km); distance = average Earth-Mars; contacts are a game estimate; insertion delta-v is an estimate \u2014 verify (NFR-09); stationKeepingMsPerYear is an estimate \u2014 verify (NFR-09); decayLifetimeDays is an estimate \u2014 verify (NFR-09)"
   }
 ]
