@@ -109,7 +109,7 @@ export function PayloadStep({ data }: Props) {
         </button>
         <button
           type="button"
-          onClick={() => goTo('design')}
+          onClick={() => goTo('orbit')}
           className="border-2 border-[#1a1c2c] bg-[#38b764] px-5 py-3 text-xs text-[#1a1c2c] shadow-[inset_-3px_-3px_0_#257179] hover:bg-[#a7f070] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#73eff7]"
         >
           {t('payload.confirm')} ▶

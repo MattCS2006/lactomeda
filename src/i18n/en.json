@@ -6,7 +6,8 @@
   "phase": {
     "brief": "Phase 1 · Mission Brief",
     "requirements": "Phase 2 · Requirements",
-    "payload": "Phase 4 · Payload"
+    "payload": "Phase 4 · Payload",
+    "orbit": "Phase 5 · Orbit & Launch"
   },
   "scenario": {
     "heading": "Choose your mission",
@@ -123,5 +124,77 @@
     "removeOne": "Remove one",
     "marginal_one": "+{{value}} science, half because you already have one",
     "marginal_other": "+{{value}} science, {{pct}}% because you already have {{count}}"
+  },
+  "orbit": {
+    "heading": "Choose your orbit",
+    "intro": "Where your spacecraft flies decides how sharp its images are, how long it sits in shadow, how often it can talk to the ground and how harsh the radiation is.",
+    "confirm": "Confirm orbit",
+    "goodFor": "Good for",
+    "tradeoff": "Trade-off",
+    "notAllowed": "This mission can’t fly here: it is outside the scenario’s allowed orbits.",
+    "instrumentsLost": "Your instruments that won’t work here: {{names}}",
+    "gmat": "Computed with NASA GMAT",
+    "stat": {
+      "altitude": "Altitude",
+      "period": "One orbit",
+      "eclipse": "Shadow",
+      "contact": "Ground contact",
+      "radiation": "Radiation",
+      "source": "Source"
+    },
+    "radiation": {
+      "low": "Low",
+      "medium": "Medium",
+      "high": "High"
+    },
+    "units": {
+      "min": "{{value}} min",
+      "hours": "{{value}} h",
+      "days": "{{value}} days",
+      "above": {
+        "earth": "{{value}} km above Earth",
+        "moon": "{{value}} km above the Moon",
+        "mars": "{{value}} km above Mars"
+      },
+      "fromEarth": "{{value}} km from Earth",
+      "shadow": "{{value}}% of each orbit",
+      "alwaysSun": "Always in sunlight",
+      "contact": "{{value}} min/day",
+      "alwaysContact": "All day"
+    },
+    "catalog": {
+      "leo": {
+        "goodFor": "Sharp Earth images and low-cost missions close to home.",
+        "tradeoff": "Short ground contacts, and air drag slowly pulls the spacecraft down."
+      },
+      "sso": {
+        "goodFor": "Earth observation with the same lighting every day.",
+        "tradeoff": "Needs more launch energy than a plain low orbit."
+      },
+      "meo": {
+        "goodFor": "Navigation satellites, like GPS.",
+        "tradeoff": "Strong radiation from the Van Allen belts."
+      },
+      "geo": {
+        "goodFor": "Weather and nonstop watch over one region.",
+        "tradeoff": "Low image detail, expensive launch and a long way to talk to."
+      },
+      "molniya": {
+        "goodFor": "Long views of the far north.",
+        "tradeoff": "Crosses the radiation belts twice a day."
+      },
+      "l2": {
+        "goodFor": "Telescopes: stable, cold, with the Sun always behind.",
+        "tradeoff": "Needs the Deep Space Network, and data comes down slowly."
+      },
+      "lunar": {
+        "goodFor": "Mapping the Moon.",
+        "tradeoff": "Takes a lot of fuel to get there, and comms are far away."
+      },
+      "mars": {
+        "goodFor": "Mars science and relaying rover data.",
+        "tradeoff": "Sunlight is only 43% of Earth’s, and the trip takes months."
+      }
+    }
   }
 }
