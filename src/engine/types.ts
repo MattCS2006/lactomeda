@@ -213,7 +213,8 @@ export interface ValidationIssue {
 
 export type Station = 'bridge' | 'comms' | 'power' | 'science' | 'navigation' | 'engine' | 'computer'
 
-export type EffectKey = ResourceKey | 'science' | 'risk' | 'propellant' | 'battery'
+// 'health' is a delta (-1..+1) applied to the event's `trigger.requiresSubsystem`, clamped to [0, 1] (FR-3.5).
+export type EffectKey = ResourceKey | 'science' | 'risk' | 'propellant' | 'battery' | 'health'
 
 export type MinigameKind = 'rewire' | 'alignDish' | 'reboot' | 'balanceWheels'
 
@@ -278,6 +279,7 @@ export interface SimState {
   science: number
   risk: number // 0-1, accumulated
   health: Partial<Record<Subsystem, number>> // 0-1
+  backupsUsed?: Subsystem[] // redundant subsystems whose backup unit is already in use (FR-3.5)
   activeEvents: ActiveEvent[]
   log: SimLogEntry[]
   rng: number // internal RNG state, do not touch outside engine
