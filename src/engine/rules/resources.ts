@@ -13,6 +13,7 @@ export const RESOURCE_KEYS: readonly ResourceKey[] = ['mass', 'power', 'budget',
 
 interface InstalledPart {
   component: Component
+  subsystem: Subsystem
   units: number // 2 when the subsystem is redundant (main + backup)
   redundant: boolean
 }
@@ -25,24 +26,36 @@ function installedParts(design: MissionDesign, data: GameData): InstalledPart[] 
     const component = data.components.find((c) => c.id === id)
     if (!component) continue
     const isRedundant = redundant.has(subsystem)
-    parts.push({ component, units: isRedundant ? 2 : 1, redundant: isRedundant })
+    parts.push({ component, subsystem, units: isRedundant ? 2 : 1, redundant: isRedundant })
   }
   return parts
 }
 
+export interface PartReliability {
+  component: Component
+  subsystem: Subsystem
+  redundant: boolean
+  reliability: number // probability this part (or its main + backup pair) works, after the radiation factor
+}
+
 /**
- * Probability that every installed component works (series system, 0-1). Radiation (FR-5.2) scales each failure
- * rate: r_eff = r ^ factor, except for radHard parts. A redundant subsystem works if either unit does.
+ * Per-part reliability: radiation (FR-5.2) scales each failure rate, r_eff = r ^ factor, except for radHard parts.
+ * A redundant subsystem works if either unit does: 1 - (1 - r_eff)^2.
  */
-export function systemReliability(design: MissionDesign, data: GameData): number {
+export function partReliabilities(design: MissionDesign, data: GameData): PartReliability[] {
   const orbit = data.orbits.find((o) => o.id === design.orbitId)
   const radiationFactor = orbit ? RADIATION_FACTOR[orbit.radiation] : 1
-  let reliability = 1
-  for (const p of installedParts(design, data)) {
+  return installedParts(design, data).map((p) => {
     const factor = (p.component.tags ?? []).includes('radHard') ? 1 : radiationFactor
     const r = p.component.reliability ** factor
-    reliability *= p.redundant ? 1 - (1 - r) ** 2 : r
-  }
+    return { component: p.component, subsystem: p.subsystem, redundant: p.redundant, reliability: p.redundant ? 1 - (1 - r) ** 2 : r }
+  })
+}
+
+/** Probability that every installed component works (series system, 0-1). */
+export function systemReliability(design: MissionDesign, data: GameData): number {
+  let reliability = 1
+  for (const p of partReliabilities(design, data)) reliability *= p.reliability
   return reliability
 }
 
