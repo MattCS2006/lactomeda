@@ -67,6 +67,9 @@ export interface Instrument {
   science: number
   objectives: string[] // Objective ids
   preferredOrbits: string[] // Orbit ids
+  ifovUrad?: number // instantaneous field of view (µrad): ground resolution = altitude × IFOV; angular resolution for telescopes
+  fovDeg?: number // full field of view (deg): swath width = 2 × altitude × tan(fov / 2)
+  resolutionM?: number // altitude-independent ground resolution (m), e.g. SAR
   ref?: string // source note for REFERENCES.md
 }
 
