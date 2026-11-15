@@ -907,5 +907,10 @@
     "label": "Language",
     "en": "English",
     "es": "Español"
+  },
+  "demoFixes": {
+    "issues": {
+      "MISSING_INSTRUMENT": "You have not chosen an instrument. Without one, your mission collects no data and no science. Add one on the Payload screen."
+    }
   }
 }

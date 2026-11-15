@@ -118,6 +118,15 @@ export function payloadCompatibility(design: MissionDesign, data: GameData): Ins
 /** FR-4.2: a warning for each selected instrument that is not compatible. Warnings never block launch. */
 export function validatePayload(design: MissionDesign, data: GameData): ValidationIssue[] {
   const issues: ValidationIssue[] = []
+  // A mission without an instrument collects no data and no science: the whole flight would show 0 Mb and 0 points.
+  if (!design.instrumentIds.some((id) => data.instruments.some((i) => i.id === id))) {
+    issues.push({
+      code: 'MISSING_INSTRUMENT', // MISSING_* is a hard blocker (constants.ts): this cannot launch, even on risk
+      severity: 'error',
+      resource: 'data',
+      message: 'No instrument chosen: the mission would collect no data and no science. Add at least one instrument.',
+    })
+  }
   for (const id of design.instrumentIds) {
     const instrument = data.instruments.find((i) => i.id === id)
     if (!instrument) continue // an unknown id has nothing to check

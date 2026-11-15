@@ -31,6 +31,7 @@ export const DISCIPLINE_STEP: Record<Discipline, DesignStep> = {
 }
 
 const PAYLOAD_CODES = new Set([
+  'MISSING_INSTRUMENT',
   'TOO_MANY_INSTRUMENTS',
   'INSTRUMENT_INCOMPATIBLE',
   'NO_MATCHING_OBJECTIVE',
