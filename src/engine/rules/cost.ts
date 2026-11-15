@@ -1,6 +1,7 @@
 // FR-6.5 cost budget: development + launch + operations x lifetime (M USD). Pure and deterministic.
 // Missing or unknown ids contribute 0 and never throw. `message` text is an English fallback; the UI translates by `code`.
 import type { GameData, MissionDesign, Subsystem, ValidationIssue } from '../types'
+import { scheduleBreakdown } from './schedule'
 
 export type CostCategory = 'development' | 'launch' | 'operations'
 
@@ -11,7 +12,7 @@ export interface CostLine {
 }
 
 export interface CostBreakdown {
-  development: { busM: number; componentsM: number; instrumentsM: number; totalM: number }
+  development: { busM: number; componentsM: number; instrumentsM: number; lateM: number; totalM: number } // lateM: FR-6.7 late-schedule cost, included in totalM
   launchM: number
   operations: { perYearM: number; years: number; totalM: number }
   totalM: number
@@ -19,6 +20,18 @@ export interface CostBreakdown {
   remainingM: number // budgetM - totalM (negative = over budget)
   lines: CostLine[] // every item, for drill-down / tooltips
   chart: { category: CostCategory; valueM: number; fraction: number }[] // development, launch, operations; fractions sum to 1 (all 0 if total is 0)
+}
+
+/** Bus + components (x2 with a backup) + instruments, before any late-schedule cost. Used by the schedule penalty. */
+export function baseDevelopmentCostM(design: MissionDesign, data: GameData): number {
+  const redundant = new Set<Subsystem>(design.redundant)
+  let total = data.busClasses.find((b) => b.id === design.busClassId)?.baseCostM ?? 0
+  for (const [subsystem, id] of Object.entries(design.componentIds) as [Subsystem, string | undefined][]) {
+    const component = id ? data.components.find((c) => c.id === id) : undefined
+    if (component) total += component.costM * (redundant.has(subsystem) ? 2 : 1)
+  }
+  for (const id of design.instrumentIds) total += data.instruments.find((i) => i.id === id)?.costM ?? 0
+  return total
 }
 
 export function costBreakdown(design: MissionDesign, data: GameData): CostBreakdown {
@@ -47,7 +60,11 @@ export function costBreakdown(design: MissionDesign, data: GameData): CostBreakd
     instrumentsM += instrument.costM
     lines.push({ category: 'development', itemId: instrument.id, costM: instrument.costM })
   }
-  const developmentM = busM + componentsM + instrumentsM
+
+  // FR-6.7: a design that is late pays a standing-army cost, its own line in development
+  const lateM = scheduleBreakdown(design, data).lateCostM
+  if (lateM > 0) lines.push({ category: 'development', itemId: 'schedule-late', costM: lateM })
+  const developmentM = busM + componentsM + instrumentsM + lateM
 
   // launch
   const launcher = data.launchers.find((l) => l.id === design.launcherId)
@@ -71,7 +88,7 @@ export function costBreakdown(design: MissionDesign, data: GameData): CostBreakd
   ]
 
   return {
-    development: { busM, componentsM, instrumentsM, totalM: developmentM },
+    development: { busM, componentsM, instrumentsM, lateM, totalM: developmentM },
     launchM,
     operations: { perYearM, years, totalM: operationsM },
     totalM,

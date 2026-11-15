@@ -14,6 +14,7 @@ import {
 import type { GameData, MissionDesign, RequirementLevel, ScoreResult, SimState } from '../types'
 import { evaluateObjectives } from './objectives'
 import { RESOURCE_KEYS, estimateBudgets } from './resources'
+import { scheduleBreakdown } from './schedule'
 
 export type ScoreComponent = 'science' | 'objectives' | 'efficiency' | 'reliability' | 'collaboration'
 
@@ -71,7 +72,10 @@ function efficiencyRaw(design: MissionDesign, data: GameData): Raw {
     inputs[key] = part
     return part
   })
-  return { points: SCORE_MAX.efficiency * mean(parts), inputs }
+  // FR-6.7: every late month of development takes points off the efficiency score
+  const schedule = scheduleBreakdown(design, data)
+  inputs.lateMonths = schedule.lateMonths
+  return { points: Math.max(0, SCORE_MAX.efficiency * mean(parts) - schedule.lateScorePenalty), inputs }
 }
 
 function reliabilityRaw(state: SimState): Raw {
