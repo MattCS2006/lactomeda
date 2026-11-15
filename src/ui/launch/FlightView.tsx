@@ -1,15 +1,17 @@
 // What the player sees while the mission controller runs (phases 'launch' and 'flight'): a liftoff panel, then the
 // ship interior (Dev 3) with the flight controls: mission day, speed (pause / 1× / 2× / 10×, FR-7.2) and abort.
-// Until the station pop-up (FR-13.5, Dev 3) lands, active alarms are listed here so the player can answer them.
+// Alarms are answered at their station (FR-13.5): walk there and press E to open the decision pop-up.
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { availableOptions } from '../../engine/rules/redundancy'
+import { stationsForDesign } from '../../game/shipLayout'
 import { PhaserGame } from '../../game/PhaserGame'
 import { bridge, type SimSnapshot } from '../../game/bridge'
 import { getMissionController, stopMission, type Speed } from '../../game/missionController'
 import { useFlightStore } from '../flight/flightStore'
+import { DecisionPopup } from './DecisionPopup'
+import { alarmsAtStation, answerStation } from './decisionView'
 import { SPEEDS, alarmSecondsLeft } from './reviewView'
-import type { GameData } from '../../engine/types'
+import type { GameData, Station } from '../../engine/types'
 
 export function FlightView({ data }: { data: GameData }) {
   const { t } = useTranslation()
@@ -17,11 +19,14 @@ export function FlightView({ data }: { data: GameData }) {
   const flown = useFlightStore((s) => s.lastFlight?.design ?? null)
   const [state, setState] = useState<SimSnapshot | null>(null)
 
+  // FR-13.5 — the station the player just used (E key / click in the ship)
+  const [atStation, setAtStation] = useState<Station | null>(null)
   const [speed, setSpeedState] = useState<Speed>(() => getMissionController()?.getSpeed() ?? 1)
 
   // Follow the controller: live state on every tick; a new launch starts from a clean slate at 1×
   useEffect(() => {
     const offTick = bridge.on('simTick', ({ state: next }) => setState(next))
+    const offStation = bridge.on('stationInteract', ({ station }) => setAtStation(station))
     const offPhase = bridge.on('phaseChanged', ({ phase: next }) => {
       if (next !== 'launch') return
       setState(null)
@@ -29,6 +34,7 @@ export function FlightView({ data }: { data: GameData }) {
     })
     return () => {
       offTick()
+      offStation()
       offPhase()
     }
   }, [])
@@ -41,6 +47,10 @@ export function FlightView({ data }: { data: GameData }) {
     stopMission()
     useFlightStore.getState().setPhase('design')
   }
+
+  const shipStations = flown ? stationsForDesign(flown, data) : []
+  const popupAlarm =
+    atStation && state ? (alarmsAtStation(state.activeEvents, atStation, shipStations)[0] ?? null) : null
 
   if (phase === 'launch') {
     const launcher = data.launchers.find((l) => l.id === flown?.launcherId)
@@ -76,37 +86,29 @@ export function FlightView({ data }: { data: GameData }) {
         </button>
       </div>
 
-      {state && state.activeEvents.length > 0 && flown && (
+      {/* Where each alarm is answered; the options open at that station (FR-13.5) */}
+      {state && state.activeEvents.length > 0 && (
         <ul aria-live="assertive" className="mb-4 space-y-2">
-          {state.activeEvents.map(({ event, deadlineTick }) => (
-            <li key={event.id} className="pixel-panel border-alarm! p-3 text-[10px]">
-              <p className="flex flex-wrap justify-between gap-2">
-                <span className="text-xs text-alarm">
-                  <span aria-hidden="true">▲ </span>
-                  {event.title}
-                </span>
-                <span>
-                  {t('flightView.alarmAt', { station: event.station })} ·{' '}
-                  {t('flightView.secondsLeft', { s: alarmSecondsLeft({ deadlineTick }, state.tick) })}
-                </span>
-              </p>
-              <p className="mt-1 text-metal-light">{event.description}</p>
-              <div className="mt-2 flex flex-wrap gap-2">
-                {availableOptions(event, flown, data, state).map((option) => (
-                  <button
-                    key={option.id}
-                    type="button"
-                    title={option.why}
-                    onClick={() => bridge.emit('eventResolved', { eventId: event.id, optionId: option.id })}
-                    className="pixel-button px-3 py-2 text-left text-[10px]"
-                  >
-                    {option.label}
-                  </button>
-                ))}
-              </div>
+          {state.activeEvents.map((alarm) => (
+            <li
+              key={alarm.event.id}
+              className="pixel-panel flex flex-wrap justify-between gap-2 border-alarm! p-3 text-[10px]"
+            >
+              <span className="text-xs text-alarm">
+                <span aria-hidden="true">▲ </span>
+                {alarm.event.title}
+              </span>
+              <span>
+                {t('flightView.goTo', { station: t(`station.${answerStation(alarm, shipStations)}`) })} ·{' '}
+                {t('flightView.secondsLeft', { s: alarmSecondsLeft(alarm, state.tick) })}
+              </span>
             </li>
           ))}
         </ul>
+      )}
+
+      {popupAlarm && state && flown && (
+        <DecisionPopup alarm={popupAlarm} state={state} design={flown} data={data} onClose={() => setAtStation(null)} />
       )}
 
       <PhaserGame />
