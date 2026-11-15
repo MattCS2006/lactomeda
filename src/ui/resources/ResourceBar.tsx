@@ -1,10 +1,12 @@
 // Persistent resource bar (FR-6.1): Mass, Power, Budget, Data, Comms, Time, on every design
-// screen, each with used / available and margin %. Updates on any edit of the design.
+// screen, each with used / available and margin %, and its green / amber / red state with
+// icon + text (FR-6.2). Updates on any edit of the design.
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { GameData } from '../../engine/types'
 import { useMissionStore } from '../store/missionStore'
 import { resourceCells, type ResourceCell } from './resourceBarView'
+import { lookFor } from './statusView'
 
 interface Props {
   data: GameData
@@ -31,9 +33,11 @@ function ResourceCellView({ cell }: { cell: ResourceCell }) {
   const { t } = useTranslation()
   const name = t(`resource.${cell.key}`)
   const pending = cell.available === null
+  const look = lookFor(cell.status)
+  const state = `${look.icon} ${t(look.textKey)}`
   return (
     <li
-      className="flex flex-col gap-1 text-[10px]"
+      className={`flex flex-col gap-1 border-l-4 pl-2 text-[10px] ${look.border}`}
       aria-label={
         pending
           ? t('resources.ariaPending', {
@@ -41,10 +45,14 @@ function ResourceCellView({ cell }: { cell: ResourceCell }) {
               used: cell.used,
               needs: cell.needs.map((n) => t(`resources.need.${n}`)).join(', '),
             })
-          : t('resources.aria', { name, used: cell.used, available: cell.available, margin: cell.marginPct })
+          : t('resources.aria', { name, used: cell.used, available: cell.available, margin: cell.marginPct, state })
       }
     >
-      <span className="uppercase text-metal-light">{name}</span>
+      <span className="flex items-center justify-between gap-1">
+        <span className="uppercase text-metal-light">{name}</span>
+        {/* FR-6.2 — state as icon + text, colour only reinforces it */}
+        <span className={`shrink-0 border px-2 py-1 text-[8px] uppercase ${look.badge}`}>{state}</span>
+      </span>
       <span className="whitespace-nowrap">
         {cell.used}
         <span className="text-metal-light"> / </span>

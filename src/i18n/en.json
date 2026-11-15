@@ -250,7 +250,13 @@
       "ground": "ground stations",
       "parts": "parts"
     },
-    "aria": "{{name}}: {{used}} used of {{available}}, margin {{margin}}%",
-    "ariaPending": "{{name}}: {{used}} used, still needs {{needs}}"
+    "aria": "{{name}}: {{used}} used of {{available}}, margin {{margin}}%, {{state}}",
+    "ariaPending": "{{name}}: {{used}} used, still needs {{needs}}",
+    "status": {
+      "green": "OK",
+      "amber": "Tight",
+      "red": "Over",
+      "pending": "Pending"
+    }
   }
 }
