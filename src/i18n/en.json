@@ -4,10 +4,10 @@
     "tagline": "Design a space mission, then keep it alive."
   },
   "phase": {
-    "brief": "Phase 1 · Mission Brief",
-    "requirements": "Phase 2 · Requirements",
-    "payload": "Phase 4 · Payload",
-    "orbit": "Phase 5 · Orbit & Launch"
+    "brief": "Phase 1 · Mission Brief · CML 1",
+    "requirements": "Phase 2 · Requirements · CML 2",
+    "payload": "Phase 4 · Payload · CML 3",
+    "orbit": "Phase 5 · Orbit & Launch · CML 3"
   },
   "scenario": {
     "heading": "Choose your mission",
@@ -266,5 +266,34 @@
       "red": "Over",
       "pending": "Pending"
     }
+  },
+  "cml": {
+    "heading": "Concept maturity (JPL CML)",
+    "reached": "Reached: CML {{level}} · {{name}}",
+    "reachedNone": "Reached: none yet",
+    "level": "CML {{level}}",
+    "name": {
+      "1": "Overarching idea",
+      "2": "Initial feasibility",
+      "3": "Trade space",
+      "4": "Point design"
+    },
+    "state": {
+      "done": "Done",
+      "now": "You are here",
+      "next": "Next"
+    },
+    "progress": "{{done}} of {{total}} done",
+    "item": {
+      "scenario": "Mission chosen",
+      "requirements": "Requirements set",
+      "bus": "Bus",
+      "payload": "Payload",
+      "orbitLaunch": "Orbit, launcher and ground stations",
+      "review": "Design review passed"
+    },
+    "debrief": "Your concept reached CML {{level}}: {{name}}.",
+    "debriefNone": "Your concept has not reached CML 1 yet.",
+    "help": "NASA JPL rates how mature a mission concept is with Concept Maturity Levels. Each phase of the game moves your concept up one level."
   }
 }
