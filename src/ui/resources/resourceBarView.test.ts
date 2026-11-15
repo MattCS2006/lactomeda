@@ -52,8 +52,8 @@ describe('persistent resource bar (FR-6.1)', () => {
     const d = complete()
     const budget = resourceCells(d, gameData).find((c) => c.key === 'budget')!
     const b = estimateBudgets(d, gameData).budget
-    expect(budget.used).toBe(`$${formatAmount(b.used)}M`)
-    expect(budget.available).toBe(`$${formatAmount(b.available)}M`)
+    expect(budget.used).toEqual({ key: 'units.moneyM', values: { value: formatAmount(b.used) } })
+    expect(budget.available).toEqual({ key: 'units.moneyM', values: { value: formatAmount(b.available) } })
   })
 
   it('a fresh design is not shown as red: missing capacities are pending with what they need', () => {
@@ -65,7 +65,7 @@ describe('persistent resource bar (FR-6.1)', () => {
     expect(cells.time.needs).toEqual(['parts'])
     // the scenario budget is known from the start
     expect(cells.budget.needs).toEqual([])
-    expect(cells.budget.available).toBe('$2M')
+    expect(cells.budget.available).toEqual({ key: 'units.moneyM', values: { value: '2' } })
     for (const c of Object.values(cells)) for (const n of c.needs) expect(en.resources.need).toHaveProperty(n)
   })
 
@@ -75,7 +75,7 @@ describe('persistent resource bar (FR-6.1)', () => {
     const after = resourceCells({ ...d, instrumentIds: [...d.instrumentIds, 'inst-magnetometer'] }, gameData).find(
       (c) => c.key === 'mass',
     )!.used
-    expect(after).not.toBe(before)
+    expect(after).not.toEqual(before)
   })
 
   it('needsFor reacts to each choice', () => {

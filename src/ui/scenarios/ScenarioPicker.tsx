@@ -4,7 +4,7 @@ import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { GameData } from '../../engine/types'
 import { useMissionStore } from '../store/missionStore'
-import { toScenarioCard, type Label, type ScenarioCard } from './scenarioView'
+import { toScenarioCard, translateLabel, type Label, type ScenarioCard } from './scenarioView'
 
 interface Props {
   data: Pick<GameData, 'scenarios' | 'orbits'>
@@ -16,7 +16,7 @@ export function ScenarioPicker({ data }: Props) {
   const selectScenario = useMissionStore((s) => s.selectScenario)
   const goTo = useMissionStore((s) => s.goTo)
   const cards = useMemo(() => data.scenarios.map((s) => toScenarioCard(s, data)), [data])
-  const label = (l: Label) => t(l.key, l.values ?? {})
+  const label = (l: Label) => translateLabel(t, l)
 
   return (
     <section aria-labelledby="scenario-heading" className="mx-auto max-w-6xl">

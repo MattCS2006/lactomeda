@@ -2,7 +2,7 @@
 // and ground station network (FR-5.6).
 import { useTranslation } from 'react-i18next'
 import type { GameData } from '../../engine/types'
-import type { Label } from '../scenarios/scenarioView'
+import { translateLabel, type Label } from '../scenarios/scenarioView'
 import { useMissionStore } from '../store/missionStore'
 import { GroundSection } from './GroundSection'
 import { LauncherSection } from './LauncherSection'
@@ -22,7 +22,7 @@ export function OrbitStep({ data }: Props) {
 
   // Orbits this mission may fly first, catalog order inside each group
   const cards = data.orbits.map((o) => toOrbitCard(o, scenario)).sort((a, b) => Number(!a.allowed) - Number(!b.allowed))
-  const label = (l: Label) => t(l.key, l.values ?? {})
+  const label = (l: Label) => translateLabel(t, l)
 
   return (
     <section aria-labelledby="orbit-heading" className="mx-auto max-w-6xl">

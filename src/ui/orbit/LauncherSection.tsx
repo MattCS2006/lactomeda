@@ -2,7 +2,7 @@
 import { useTranslation } from 'react-i18next'
 import type { GameData } from '../../engine/types'
 import { formatNumber } from '../payload/payloadView'
-import type { Label } from '../scenarios/scenarioView'
+import { translateLabel, type Label } from '../scenarios/scenarioView'
 import { useMissionStore } from '../store/missionStore'
 import { launchersFor, toLauncherCard, type LauncherCard } from './launcherView'
 
@@ -19,7 +19,7 @@ export function LauncherSection({ data }: Props) {
   const cards = launchersFor(design.scenarioId, data)
     .map((l) => toLauncherCard(l, design, data))
     .sort((a, b) => Number(a.reasons.length > 0) - Number(b.reasons.length > 0))
-  const label = (l: Label) => t(l.key, l.values ?? {})
+  const label = (l: Label) => translateLabel(t, l)
 
   return (
     <section aria-labelledby="launcher-heading" className="mt-10">
@@ -101,7 +101,7 @@ function LauncherCardView({ card, selected, onSelect, label }: CardProps) {
               {t(`launcher.regime.${c.regime}`)}
               {c.current ? ` (${t('launcher.yourOrbit')})` : ''}
             </span>
-            <span className="whitespace-nowrap">{formatNumber(c.kg)} kg</span>
+            <span className="whitespace-nowrap">{t('units.kg', { value: formatNumber(c.kg) })}</span>
           </li>
         ))}
       </ul>

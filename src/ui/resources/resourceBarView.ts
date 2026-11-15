@@ -2,24 +2,26 @@
 // estimateBudgets(); this file only decides how to present them. Pure, unit-tested.
 import { RESOURCE_KEYS, estimateBudgets } from '../../engine/rules/resources'
 import type { GameData, MissionDesign, ResourceBudget, ResourceKey } from '../../engine/types'
+import type { Label } from '../scenarios/scenarioView'
 
 /** A design choice that a resource needs before its "available" side can be computed. */
 export type Need = 'bus' | 'power' | 'comms' | 'orbit' | 'ground' | 'parts'
 
-export const RESOURCE_UNITS: Record<ResourceKey, string> = {
-  mass: 'kg',
-  power: 'W',
-  budget: '$M',
-  data: 'Mb/day',
-  comms: 'min/day',
-  time: 'days',
+/** i18n unit template per resource (all take {{value}}; time takes {{count}}). */
+export const RESOURCE_UNIT_KEYS: Record<ResourceKey, string> = {
+  mass: 'units.kg',
+  power: 'units.watts',
+  budget: 'units.moneyM',
+  data: 'units.mbPerDay',
+  comms: 'units.minPerDay',
+  time: 'units.days',
 }
 
 export interface ResourceCell {
   key: ResourceKey
-  used: string
+  used: Label
   /** null while the resource is still waiting for a choice (see needs). */
-  available: string | null
+  available: Label | null
   /** Margin in whole % ((available − used) / available); null while pending. */
   marginPct: number | null
   /** Engine status; null while pending (shown neutral, not as a false red). */
@@ -59,8 +61,9 @@ export function formatAmount(n: number): string {
   return String(Math.round(n * 100) / 100)
 }
 
-function withUnit(key: ResourceKey, n: number): string {
-  return key === 'budget' ? `$${formatAmount(n)}M` : `${formatAmount(n)} ${RESOURCE_UNITS[key]}`
+function withUnit(key: ResourceKey, n: number): Label {
+  const amount = formatAmount(n)
+  return { key: RESOURCE_UNIT_KEYS[key], values: key === 'time' ? { count: amount } : { value: amount } }
 }
 
 export function resourceCells(design: MissionDesign, data: GameData): ResourceCell[] {
