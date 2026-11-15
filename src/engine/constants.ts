@@ -86,3 +86,23 @@ export const DIFFICULTY_EVENT_FACTOR: Record<'cadet' | 'engineer' | 'flightDirec
 
 /** An event whose `mitigatedByTags` match the design has its chance multiplied by this (FR-7.7 hook). */
 export const MITIGATED_EVENT_FACTOR = 0.5
+
+// ─── FR-10.1 score ──────────────────────────────────────────────────────
+
+/** FR-10.1: maximum points per component; they add up to 1000. */
+export const SCORE_MAX = { science: 400, objectives: 250, efficiency: 150, reliability: 100, collaboration: 100 } as const
+
+/** Game balance: the science needed for full science points, as a fraction of what the best instruments could give. */
+export const SCIENCE_TARGET_FACTOR = 0.5
+
+/** Game balance: objective points by requirement level (FR-2.4: higher levels are worth more). */
+export const LEVEL_WEIGHT: Record<'threshold' | 'baseline' | 'goal', number> = { threshold: 0.6, baseline: 0.8, goal: 1 }
+
+/** Game balance: an objective missed at its chosen level but met at a lower one earns this fraction of the lower level's weight. */
+export const MISSED_LEVEL_PENALTY = 0.5
+
+/** Game balance: a resource margin at or above this earns full efficiency points for that resource. */
+export const EFFICIENCY_TARGET_MARGIN = 0.2
+
+/** PROVISIONAL (FR-10.2 will replace these with per-scenario thresholds): total score needed for 3, 2 and 1 stars. */
+export const STAR_THRESHOLDS = { three: 800, two: 600, one: 400 } as const
