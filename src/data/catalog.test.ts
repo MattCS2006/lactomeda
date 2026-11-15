@@ -240,4 +240,18 @@ describe('propellant data (FR-3.6)', () => {
       if (o.decayLifetimeDays !== undefined) expect(o.decayLifetimeDays, `${o.id} decayLifetimeDays`).toBeGreaterThan(0)
     }
   })
+
+  it('gives every launch failure mode a phase, a cause, a lesson and a positive weight (FR-7.1)', () => {
+    const modes = gameData.launchFailures ?? []
+    expect(modes.length).toBeGreaterThanOrEqual(6)
+    expect(new Set(modes.map((m) => m.id)).size).toBe(modes.length)
+    const phases = ['liftoff', 'maxQ', 'stageSeparation', 'fairingSeparation', 'upperStage', 'payloadSeparation']
+    for (const m of modes) {
+      expect(phases, `${m.id} phase`).toContain(m.phase)
+      expect(m.cause.length, `${m.id} cause`).toBeGreaterThan(0)
+      expect(m.lesson.length, `${m.id} lesson`).toBeGreaterThan(0)
+      expect(m.weight, `${m.id} weight`).toBeGreaterThan(0)
+      expect(m.ref, `${m.id} ref`).toBeTruthy()
+    }
+  })
 })

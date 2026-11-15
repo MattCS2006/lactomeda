@@ -1,0 +1,50 @@
+[
+  {
+    "id": "engine-shutdown",
+    "phase": "liftoff",
+    "weight": 2,
+    "cause": "A first-stage engine shut down seconds after liftoff.",
+    "lesson": "Engines are the riskiest part of a rocket; flight-proven launchers have had most of these problems fixed.",
+    "ref": "Game summary of common launch failure causes — verify (NFR-09)"
+  },
+  {
+    "id": "structural-failure",
+    "phase": "maxQ",
+    "weight": 2,
+    "cause": "A structural part broke under the stress of the climb.",
+    "lesson": "Small parts matter: SpaceX lost the CRS-7 cargo mission (2015) to a failed strut, and fixed it by testing every part.",
+    "ref": "NASA/SpaceX CRS-7 mishap summary (2015)"
+  },
+  {
+    "id": "stage-separation",
+    "phase": "stageSeparation",
+    "weight": 2,
+    "cause": "The stages didn't separate cleanly.",
+    "lesson": "Separation systems are tested again and again on the ground because they only get one chance in flight.",
+    "ref": "Game summary of common launch failure causes — verify (NFR-09)"
+  },
+  {
+    "id": "fairing-stuck",
+    "phase": "fairingSeparation",
+    "weight": 2,
+    "cause": "The fairing didn't open, so the rocket was too heavy to reach orbit.",
+    "lesson": "NASA lost the OCO (2009) and Glory (2011) satellites this way; fairing systems are now checked far more carefully.",
+    "ref": "NASA OCO and Glory mishap investigation summaries"
+  },
+  {
+    "id": "upper-stage-short",
+    "phase": "upperStage",
+    "weight": 2,
+    "cause": "The upper stage shut down early and left the spacecraft in an orbit that was too low.",
+    "lesson": "Margin matters: a rocket flying close to its limits has no room for small problems.",
+    "ref": "Game summary of common launch failure causes — verify (NFR-09)"
+  },
+  {
+    "id": "no-separation",
+    "phase": "payloadSeparation",
+    "weight": 1,
+    "cause": "The spacecraft never separated from the rocket.",
+    "lesson": "Even the last step of a launch needs testing; a stuck adapter can end a mission.",
+    "ref": "Game summary of common launch failure causes — verify (NFR-09)"
+  }
+]

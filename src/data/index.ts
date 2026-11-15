@@ -5,6 +5,7 @@ import type {
   GameData,
   GroundNetwork,
   Instrument,
+  LaunchFailureMode,
   Launcher,
   MissionEvent,
   Orbit,
@@ -16,6 +17,7 @@ import components from './components.json'
 import failureEvents from './failureEvents.json'
 import groundNetworks from './groundNetworks.json'
 import instruments from './instruments.json'
+import launchFailures from './launchFailures.json'
 import launchers from './launchers.json'
 import orbits from './orbits.json'
 import scenarios from './scenarios.json'
@@ -31,4 +33,5 @@ export const gameData: GameData = {
   scenarios: scenarios as Scenario[],
   events: [...(failureEvents as MissionEvent[])], // FR-3.5 failure alarms; other events are appended by later tasks
   wavelengthRules: wavelengthRules as WavelengthRule[],
+  launchFailures: launchFailures as LaunchFailureMode[],
 }
