@@ -570,3 +570,147 @@ describe('FR-7.4 rate scaling by mission length', () => {
     expect(chance('wildfire-eo', 'flightDirector')).toBeCloseTo(chance('wildfire-eo') * 1.5, 12)
   })
 })
+
+describe('FR-7.4 event deck in flight', () => {
+  const deck = gameData.events.filter((e) => !e.id.startsWith('failure-'))
+  const byId = (id: string) => deck.find((e) => e.id === id)!
+  /** A catalog with perfect parts and launchers, and a budget no mission can spend, so only the event deck is measured. */
+  const flat = (g: GameData = gameData): GameData => ({
+    ...perfect(g),
+    launchers: g.launchers.map((l) => ({ ...l, reliability: 1 })),
+    scenarios: g.scenarios.map((sc) => ({ ...sc, budgetM: 1_000_000 })),
+  })
+  const reference = (id: string, over: Partial<MissionDesign> = {}): MissionDesign => ({
+    ...REFERENCE_DESIGNS.find((d) => d.scenarioId === id)!,
+    ...over,
+  })
+
+  it('has the 15 random events of the deck in the catalog next to the failure alarms', () => {
+    expect(deck).toHaveLength(15)
+    expect(gameData.events.filter((e) => e.id.startsWith('failure-')).length).toBeGreaterThan(0)
+  })
+
+  describe('design choices change the odds and the options', () => {
+    const wildfire = reference('wildfire-eo')
+    const chance = (event: MissionEvent, design: MissionDesign) => eventChance(event, design, gameData)
+    const withParts = (design: MissionDesign, parts: Partial<MissionDesign['componentIds']>): MissionDesign => ({
+      ...design,
+      componentIds: { ...design.componentIds, ...parts },
+    })
+
+    it('a radHard computer halves the solar storm chance (by threshold, not luck)', () => {
+      const storm = byId('solar-storm-bitflip')
+      const cots = withParts(wildfire, { computer: 'obc-cubesat' })
+      const hard = withParts(wildfire, { computer: 'obc-radhard' })
+      expect(chance(storm, cots)).toBeGreaterThan(0)
+      expect(chance(storm, hard)).toBeCloseTo(chance(storm, cots) * 0.5, 12)
+    })
+
+    it('a battery backup halves the failing-cell chance, and cryogenic cooling halves the overheating chance', () => {
+      const cell = byId('battery-cell-failing')
+      expect(chance(cell, { ...wildfire, redundant: ['battery'] })).toBeCloseTo(chance(cell, { ...wildfire, redundant: [] }) * 0.5, 12)
+      const heat = byId('instrument-overheating')
+      const cryo = chance(heat, withParts(wildfire, { thermal: 'thm-cryo' }))
+      expect(cryo).toBeCloseTo(chance(heat, withParts(wildfire, { thermal: 'thm-passive' })) * 0.5, 12)
+    })
+
+    it('an event only happens in a design that has its subsystem', () => {
+      const noComms = { ...wildfire, componentIds: { ...wildfire.componentIds, comms: undefined } }
+      expect(chance(byId('ground-station-outage'), noComms)).toBe(0)
+      expect(chance(byId('ground-station-outage'), wildfire)).toBeGreaterThan(0)
+      expect(chance(byId('discovery-opportunity'), { ...wildfire, componentIds: {} })).toBeGreaterThan(0) // needs no subsystem
+    })
+
+    const offered = (id: string, design: MissionDesign) => availableOptions(byId(id), design, gameData).map((o) => o.id)
+
+    it('dodge-burn needs a thruster, and so does turning the solar panels', () => {
+      expect(offered('debris-collision', withParts(wildfire, { propulsion: 'prop-none' }))).toEqual(['accept-risk', 'turn-sturdy-side'])
+      for (const thruster of ['prop-coldgas', 'prop-mono', 'prop-biprop', 'prop-hall']) {
+        expect(offered('debris-collision', withParts(wildfire, { propulsion: thruster })), thruster).toEqual(['dodge-burn', 'accept-risk', 'turn-sturdy-side'])
+      }
+      expect(offered('solar-array-degraded', withParts(wildfire, { propulsion: 'prop-none' }))).toEqual(['accept-loss', 'reduce-load'])
+      expect(offered('solar-array-degraded', withParts(wildfire, { propulsion: 'prop-mono' }))).toEqual(['reorient-arrays', 'accept-loss', 'reduce-load'])
+    })
+
+    it('switch-to-backup is only offered with a redundant attitude system', () => {
+      expect(offered('reaction-wheel-failure', { ...wildfire, redundant: [] })).toEqual(['balance-wheels', 'magnetorquer-mode'])
+      expect(offered('reaction-wheel-failure', { ...wildfire, redundant: ['attitude'] })).toEqual([
+        'switch-to-backup',
+        'balance-wheels',
+        'magnetorquer-mode',
+      ])
+    })
+
+    it('every event offers every reference design a real choice of at least two options', () => {
+      for (const design of REFERENCE_DESIGNS) {
+        for (const event of deck) {
+          expect(availableOptions(event, design, gameData).length, `${design.scenarioId}/${event.id}`).toBeGreaterThanOrEqual(2)
+        }
+      }
+    })
+  })
+
+  describe('timeouts and decisions', () => {
+    const design = reference('student-cubesat', { difficulty: 'engineer', seed: 'timeout' }) // 365 days: no length scaling
+    /** A catalog whose only event is this one, never rolled at random unless `chancePerDay` is given. */
+    const only = (event: MissionEvent, chancePerDay = 0): GameData =>
+      flat({ ...gameData, events: [{ ...event, trigger: { ...event.trigger, chancePerDay } }] })
+
+    it.each(deck.map((e) => e.id))('%s: when the timer runs out the default option is applied', (id) => {
+      const event = byId(id)
+      const catalog = only(event)
+      const defaultOption = event.options.find((o) => o.id === event.defaultOptionId)!
+      const ringing: SimState = { ...initSim(design, catalog), science: 100, activeEvents: [{ event, startedTick: 0, deadlineTick: 1 }] }
+      const timedOut = simulateTick(ringing, design, catalog)
+      expect(timedOut.activeEvents).toEqual([])
+      expect(timedOut.log.at(-1)!.text).toContain(`"${defaultOption.label}" was applied automatically`)
+      // the same change as the same tick with no alarm plus the default option's effects (budget, science and risk are additive)
+      const quiet = simulateTick({ ...ringing, activeEvents: [] }, design, catalog)
+      const e = defaultOption.effects
+      expect(timedOut.spentM - quiet.spentM).toBeCloseTo(-(e.budget ?? 0), 9)
+      expect(timedOut.science - quiet.science).toBeCloseTo(e.science ?? 0, 9)
+      expect(timedOut.risk - quiet.risk).toBeCloseTo(e.risk ?? 0, 9)
+    })
+
+    it('every deck event rings at its own station, with the timer in ticks of SECONDS_PER_TICK', () => {
+      for (const event of deck) {
+        const catalog = only(event, 1) // 365 days on Engineer: the chance is exactly 1
+        const alarm = simulateTick(initSim(design, catalog), design, catalog).activeEvents[0]
+        expect(alarm, event.id).toBeDefined()
+        expect(alarm!.event.station).toBe(event.station)
+        expect(alarm!.deadlineTick - alarm!.startedTick).toBe(Math.ceil(event.timerSec / SECONDS_PER_TICK))
+      }
+    })
+
+    it('a decision applies the chosen option and removes the alarm', () => {
+      const event = byId('ground-station-outage')
+      const catalog = only(event)
+      const ringing: SimState = { ...initSim(design, catalog), storedDataMb: 1000, activeEvents: [{ event, startedTick: 0, deadlineTick: 20 }] }
+      const rented = resolveEvent(ringing, event.id, 'rent-commercial', design, catalog)
+      expect(rented.activeEvents).toEqual([])
+      expect(rented.spentM - ringing.spentM).toBeCloseTo(1, 12)
+      expect(rented.storedDataMb).toBe(1000)
+      const stored = resolveEvent(ringing, event.id, 'store-data', design, catalog)
+      expect(stored.storedDataMb).toBeCloseTo(700, 12)
+      expect(stored.spentM).toBe(ringing.spentM)
+    })
+  })
+
+  describe('determinism', () => {
+    it('gives an identical log and state for the same design and seed with the whole deck', () => {
+      const design = reference('wildfire-eo', { seed: 'deck-same' })
+      const a = runMission(design, gameData)
+      const b = runMission(design, gameData)
+      expect(a.log.filter((l) => l.kind === 'event').length).toBeGreaterThan(0)
+      expect(b.log).toEqual(a.log)
+      expect(b).toEqual(a)
+    })
+
+    it('does not mutate its inputs', () => {
+      const design = reference('wildfire-eo', { seed: 'deck-pure' })
+      const snaps = [JSON.stringify(design), JSON.stringify(gameData)]
+      runMission(design, gameData)
+      expect([JSON.stringify(design), JSON.stringify(gameData)]).toEqual(snaps)
+    })
+  })
+})

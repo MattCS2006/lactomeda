@@ -9,7 +9,9 @@ import { score, scoreDetails } from './score'
 const ref = (id: string): MissionDesign => ({ ...REFERENCE_DESIGNS.find((d) => d.scenarioId === id)!, seed: 'reference' })
 // FR-3.5 adds daily failure rolls: these tests fly a copy of the catalog where every component is perfect, and score with the real one.
 const perfect = (g: GameData): GameData => ({ ...g, components: g.components.map((c) => ({ ...c, reliability: 1 })) })
-const fly = (d: MissionDesign, data: GameData = gameData) => runMission(d, perfect(data))
+// FR-7.4 adds the random event deck: a nominal flight has only the failure alarms, so these tests fly without the deck.
+const quiet = (g: GameData): GameData => ({ ...g, events: g.events.filter((e) => e.id.startsWith('failure-')) })
+const fly = (d: MissionDesign, data: GameData = gameData) => runMission(d, perfect(quiet(data)))
 const points = (d: MissionDesign, data: GameData = gameData) =>
   Object.fromEntries(scoreDetails(fly(d, data), d, data).map((x) => [x.component, x.points]))
 

@@ -260,10 +260,12 @@ describe('successful launches consume the same draws as before (replays are unch
     ['space-telescope', 'alpha', 1825, 12776, 976, 2, 3449170087],
     ['space-telescope', 'gamma', 1825, 12776, 976, 2, 3449170087],
   ]
+  // recorded before SCRUM-75 added the random event deck, so it flies with the failure alarms only
+  const withoutDeck: GameData = { ...gameData, events: gameData.events.filter((e) => e.id.startsWith('failure-')) }
   it.each(golden)(
     '%s with seed %s plays exactly as before',
     (scenario, seed, tick, rng, spentM, logLength, logHash) => {
-      const state = runMission({ ...ref(scenario), seed }, gameData)
+      const state = runMission({ ...ref(scenario), seed }, withoutDeck)
       expect(state).toMatchObject({ status: 'success', endReason: 'lifetimeReached', tick, rng })
       expect(Math.round(state.spentM * 1e6) / 1e6).toBe(spentM)
       expect(state.log).toHaveLength(logLength)
