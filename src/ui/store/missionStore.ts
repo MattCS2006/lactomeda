@@ -1,10 +1,13 @@
 // Mission design state for the design screens (Dev 2). One MissionDesign object;
 // every screen edits it through this store (ERS §3 architecture).
 import { create } from 'zustand'
+import { createJSONStorage, persist } from 'zustand/middleware'
+import { gameData } from '../../data'
 import { canAddInstrument } from '../../engine/rules/busClass'
 import { groundReasons } from '../orbit/groundView'
 import { launcherReasons, launchersFor } from '../orbit/launcherView'
 import { isCompatible } from '../payload/compatibility'
+import { SAVE_KEY, SAVE_VERSION, safeStorage, sanitizeDesign } from './persistence'
 import type { Difficulty, GameData, MissionDesign, RequirementLevel } from '../../engine/types'
 
 /** Design phases in order (ERS §2). More steps are added as their screens land. */
@@ -65,87 +68,107 @@ interface MissionStore {
   goTo: (step: DesignStep) => void
 }
 
-export const useMissionStore = create<MissionStore>((set, get) => ({
-  step: 'brief',
-  design: null,
-  selectScenario: (scenarioId, data, difficulty) => {
-    const current = get().design
-    if (current?.scenarioId === scenarioId) return
-    set({ design: createDesign(scenarioId, data, difficulty ?? current?.difficulty) })
-  },
-  setRequirementLevel: (objectiveId, level) => {
-    const design = get().design
-    if (!design || !(objectiveId in design.requirementLevels)) return
-    set({ design: { ...design, requirementLevels: { ...design.requirementLevels, [objectiveId]: level } } })
-  },
-  toggleInstrument: (instrumentId, data) => {
-    const design = get().design
-    if (!design) return
-    if (!design.instrumentIds.includes(instrumentId)) {
-      get().addInstrument(instrumentId, data)
-      return
-    }
-    const dutyCycle = Object.fromEntries(Object.entries(design.dutyCycle).filter(([id]) => id !== instrumentId))
-    set({ design: { ...design, instrumentIds: design.instrumentIds.filter((id) => id !== instrumentId), dutyCycle } })
-  },
-  addInstrument: (instrumentId, data) => {
-    const design = get().design
-    const instrument = data.instruments.find((i) => i.id === instrumentId)
-    if (!design || !instrument) return
-    const scenario = data.scenarios.find((s) => s.id === design.scenarioId)
-    if (scenario && !isCompatible(instrument, scenario, design, data)) return
-    if (design.busClassId && !canAddInstrument(design, data)) return
-    set({ design: { ...design, instrumentIds: [...design.instrumentIds, instrumentId] } })
-  },
-  removeInstrument: (instrumentId) => {
-    const design = get().design
-    if (!design) return
-    const at = design.instrumentIds.lastIndexOf(instrumentId)
-    if (at < 0) return
-    const instrumentIds = design.instrumentIds.filter((_, i) => i !== at)
-    const dutyCycle = instrumentIds.includes(instrumentId)
-      ? design.dutyCycle
-      : Object.fromEntries(Object.entries(design.dutyCycle).filter(([id]) => id !== instrumentId))
-    set({ design: { ...design, instrumentIds, dutyCycle } })
-  },
-  selectOrbit: (orbitId, data) => {
-    const design = get().design
-    if (!design) return
-    const scenario = data.scenarios.find((s) => s.id === design.scenarioId)
-    if (!scenario?.allowedOrbitIds.includes(orbitId) || !data.orbits.some((o) => o.id === orbitId)) return
-    if (design.orbitId === orbitId) return
-    const launcher = data.launchers.find((l) => l.id === design.launcherId)
-    const keepLauncher = launcher && launcherReasons(launcher, { orbitId }, data).length === 0
-    const network = data.groundNetworks.find((g) => g.id === design.groundNetworkId)
-    const orbit = data.orbits.find((o) => o.id === orbitId) ?? null
-    const keepNetwork = network && groundReasons(network, orbit).length === 0
-    set({
-      design: {
-        ...design,
-        orbitId,
-        altitudeKm: undefined,
-        launcherId: keepLauncher ? design.launcherId : null,
-        groundNetworkId: keepNetwork ? design.groundNetworkId : null,
+/** FR-11.1 — the design and current step are auto-saved in the browser; a refresh resumes them. */
+export const useMissionStore = create<MissionStore>()(
+  persist(
+    (set, get) => ({
+      step: 'brief',
+      design: null,
+      selectScenario: (scenarioId, data, difficulty) => {
+        const current = get().design
+        if (current?.scenarioId === scenarioId) return
+        set({ design: createDesign(scenarioId, data, difficulty ?? current?.difficulty) })
       },
-    })
-  },
-  selectLauncher: (launcherId, data) => {
-    const design = get().design
-    if (!design) return
-    const launcher = launchersFor(design.scenarioId, data).find((l) => l.id === launcherId)
-    if (!launcher || launcherReasons(launcher, design, data).length > 0) return
-    set({ design: { ...design, launcherId } })
-  },
-  selectGroundNetwork: (networkId, data) => {
-    const design = get().design
-    const network = data.groundNetworks.find((g) => g.id === networkId)
-    if (!design || !network) return
-    const orbit = data.orbits.find((o) => o.id === design.orbitId) ?? null
-    if (groundReasons(network, orbit).length > 0) return
-    set({ design: { ...design, groundNetworkId: networkId } })
-  },
-  goTo: (step) => {
-    if (step !== 'brief' && !get().design) return
-    set({ step })
-  },
-}))
+      setRequirementLevel: (objectiveId, level) => {
+        const design = get().design
+        if (!design || !(objectiveId in design.requirementLevels)) return
+        set({ design: { ...design, requirementLevels: { ...design.requirementLevels, [objectiveId]: level } } })
+      },
+      toggleInstrument: (instrumentId, data) => {
+        const design = get().design
+        if (!design) return
+        if (!design.instrumentIds.includes(instrumentId)) {
+          get().addInstrument(instrumentId, data)
+          return
+        }
+        const dutyCycle = Object.fromEntries(Object.entries(design.dutyCycle).filter(([id]) => id !== instrumentId))
+        set({
+          design: { ...design, instrumentIds: design.instrumentIds.filter((id) => id !== instrumentId), dutyCycle },
+        })
+      },
+      addInstrument: (instrumentId, data) => {
+        const design = get().design
+        const instrument = data.instruments.find((i) => i.id === instrumentId)
+        if (!design || !instrument) return
+        const scenario = data.scenarios.find((s) => s.id === design.scenarioId)
+        if (scenario && !isCompatible(instrument, scenario, design, data)) return
+        if (design.busClassId && !canAddInstrument(design, data)) return
+        set({ design: { ...design, instrumentIds: [...design.instrumentIds, instrumentId] } })
+      },
+      removeInstrument: (instrumentId) => {
+        const design = get().design
+        if (!design) return
+        const at = design.instrumentIds.lastIndexOf(instrumentId)
+        if (at < 0) return
+        const instrumentIds = design.instrumentIds.filter((_, i) => i !== at)
+        const dutyCycle = instrumentIds.includes(instrumentId)
+          ? design.dutyCycle
+          : Object.fromEntries(Object.entries(design.dutyCycle).filter(([id]) => id !== instrumentId))
+        set({ design: { ...design, instrumentIds, dutyCycle } })
+      },
+      selectOrbit: (orbitId, data) => {
+        const design = get().design
+        if (!design) return
+        const scenario = data.scenarios.find((s) => s.id === design.scenarioId)
+        if (!scenario?.allowedOrbitIds.includes(orbitId) || !data.orbits.some((o) => o.id === orbitId)) return
+        if (design.orbitId === orbitId) return
+        const launcher = data.launchers.find((l) => l.id === design.launcherId)
+        const keepLauncher = launcher && launcherReasons(launcher, { orbitId }, data).length === 0
+        const network = data.groundNetworks.find((g) => g.id === design.groundNetworkId)
+        const orbit = data.orbits.find((o) => o.id === orbitId) ?? null
+        const keepNetwork = network && groundReasons(network, orbit).length === 0
+        set({
+          design: {
+            ...design,
+            orbitId,
+            altitudeKm: undefined,
+            launcherId: keepLauncher ? design.launcherId : null,
+            groundNetworkId: keepNetwork ? design.groundNetworkId : null,
+          },
+        })
+      },
+      selectLauncher: (launcherId, data) => {
+        const design = get().design
+        if (!design) return
+        const launcher = launchersFor(design.scenarioId, data).find((l) => l.id === launcherId)
+        if (!launcher || launcherReasons(launcher, design, data).length > 0) return
+        set({ design: { ...design, launcherId } })
+      },
+      selectGroundNetwork: (networkId, data) => {
+        const design = get().design
+        const network = data.groundNetworks.find((g) => g.id === networkId)
+        if (!design || !network) return
+        const orbit = data.orbits.find((o) => o.id === design.orbitId) ?? null
+        if (groundReasons(network, orbit).length > 0) return
+        set({ design: { ...design, groundNetworkId: networkId } })
+      },
+      goTo: (step) => {
+        if (step !== 'brief' && !get().design) return
+        set({ step })
+      },
+    }),
+    {
+      name: SAVE_KEY,
+      version: SAVE_VERSION,
+      storage: createJSONStorage(() => safeStorage),
+      partialize: (state) => ({ step: state.step, design: state.design }),
+      // Check what was saved against today's catalog before using it
+      merge: (persisted, current) => {
+        const saved = (persisted ?? {}) as Partial<Pick<MissionStore, 'step' | 'design'>>
+        const design = sanitizeDesign(saved.design, gameData)
+        const step = design && DESIGN_STEPS.includes(saved.step as DesignStep) ? (saved.step as DesignStep) : 'brief'
+        return { ...current, design, step }
+      },
+    },
+  ),
+)
