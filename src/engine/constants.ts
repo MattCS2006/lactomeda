@@ -68,3 +68,21 @@ export const RTG_DEGRADATION_PER_YEAR = 0.04
  */
 export const HARD_BLOCKER_PREFIXES: readonly string[] = ['MISSING_', 'UNKNOWN_', 'LAUNCH_']
 export const HARD_BLOCKER_CODES: readonly string[] = ['WRONG_SUBSYSTEM', 'NO_COMMS']
+
+// ─── FR-7.8 simulation core ─────────────────────────────────────────────
+
+/** One simulation tick is this many simulated days. */
+export const SIM_DAYS_PER_TICK = 1
+
+/** Game balance: real seconds of play one tick lasts, used to turn an event's `timerSec` into a deadline in ticks. */
+export const SECONDS_PER_TICK = 2
+
+/** Game balance (FR-2.2): scales every event's `chancePerDay` by difficulty. */
+export const DIFFICULTY_EVENT_FACTOR: Record<'cadet' | 'engineer' | 'flightDirector', number> = {
+  cadet: 0.5,
+  engineer: 1,
+  flightDirector: 1.5,
+}
+
+/** An event whose `mitigatedByTags` match the design has its chance multiplied by this (FR-7.7 hook). */
+export const MITIGATED_EVENT_FACTOR = 0.5
