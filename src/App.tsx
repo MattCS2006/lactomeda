@@ -15,6 +15,10 @@ import { RequirementsStep } from './ui/requirements/RequirementsStep'
 import { ResourceBar } from './ui/resources/ResourceBar'
 import { ScenarioPicker } from './ui/scenarios/ScenarioPicker'
 import { useMissionStore } from './ui/store/missionStore'
+import { ChangesSinceFlight } from './ui/flight/ChangesSinceFlight'
+import { MissionOver } from './ui/flight/MissionOver'
+import { useFlightStore } from './ui/flight/flightStore'
+import { useFlightRecorder } from './ui/flight/useFlightRecorder'
 
 export default function App() {
   const { t } = useTranslation()
@@ -24,6 +28,9 @@ export default function App() {
   const screen = useMissionStore((s) => s.screen)
   const openLanding = useMissionStore((s) => s.openLanding)
   const scenario = gameData.scenarios.find((s) => s.id === design?.scenarioId)
+  const phase = useFlightStore((s) => s.phase)
+  // FR-10.6 — keeps a copy of each design that flies, for "Fly again"
+  useFlightRecorder()
 
   // FR-1.1 — the game opens on the landing menu
   if (screen === 'landing') {
@@ -54,8 +61,12 @@ export default function App() {
       <MaturityMeter data={gameData} />
       {/* FR-14.5 — the four NASA mission segments organise the navigation */}
       <SegmentTabs />
+      {/* FR-10.6 — what changed since the last flight */}
+      {phase !== 'debrief' && <ChangesSinceFlight data={gameData} />}
 
-      {step === 'brief' || !scenario ? (
+      {phase === 'debrief' ? (
+        <MissionOver data={gameData} />
+      ) : step === 'brief' || !scenario ? (
         <ScenarioPicker data={gameData} />
       ) : step === 'requirements' ? (
         <RequirementsStep data={gameData} />
