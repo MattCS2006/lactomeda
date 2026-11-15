@@ -1,9 +1,10 @@
-// Phase 5 — Orbit & Launch (CML 3): orbit catalog (FR-5.1) and launcher catalog (FR-5.4).
-// Ground stations (FR-5.6) are added to this screen next.
+// Phase 5 — Orbit & Launch (CML 3): orbit catalog (FR-5.1), launcher catalog (FR-5.4)
+// and ground station network (FR-5.6).
 import { useTranslation } from 'react-i18next'
 import type { GameData } from '../../engine/types'
 import type { Label } from '../scenarios/scenarioView'
 import { useMissionStore } from '../store/missionStore'
+import { GroundSection } from './GroundSection'
 import { LauncherSection } from './LauncherSection'
 import { instrumentsLostAt, toOrbitCard, type OrbitCard } from './orbitView'
 
@@ -46,13 +47,19 @@ export function OrbitStep({ data }: Props) {
 
       <LauncherSection data={data} />
 
+      <GroundSection data={data} />
+
+      {(!design.orbitId || !design.launcherId || !design.groundNetworkId) && (
+        <p className="mt-6 text-right text-[10px] text-warning">▲ {t('orbit.confirmNeeds')}</p>
+      )}
+
       <div className="mt-6 flex justify-between gap-3">
         <button type="button" onClick={() => goTo('payload')} className="pixel-button px-4 py-3 text-[10px]">
           ◀ {t('common.back')}
         </button>
         <button
           type="button"
-          disabled={!design.orbitId || !design.launcherId}
+          disabled={!design.orbitId || !design.launcherId || !design.groundNetworkId}
           onClick={() => goTo('design')}
           className="border-2 border-outline bg-ok px-5 py-3 text-xs text-outline shadow-[inset_-3px_-3px_0_var(--color-teal)] hover:bg-ok-light focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-shine disabled:cursor-not-allowed disabled:bg-metal disabled:text-metal-dark disabled:shadow-none"
         >
