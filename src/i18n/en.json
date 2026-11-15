@@ -744,7 +744,9 @@
     "times": "{{n}}×",
     "abort": "Abort mission",
     "secondsLeft": "{{s}} s left",
-    "goTo": "Go to the {{station}} station and press E"
+    "goTo": "Go to the {{station}} station and press E",
+    "soundOff": "Sound: off",
+    "soundOn": "Sound: on"
   },
   "rooms": {
     "heading": {
