@@ -1,0 +1,66 @@
+[
+  {
+    "objectiveId": "earthImaging",
+    "bands": ["visible"],
+    "techniques": ["imaging"],
+    "target": "surface",
+    "why": "We see Earth's surface the way our eyes do, in visible light.",
+    "source": "NASA, A Learning Game About Telescopes (Space Apps challenge resource)"
+  },
+  {
+    "objectiveId": "spaceWeather",
+    "bands": ["magneticField", "particles"],
+    "techniques": ["inSitu"],
+    "target": "environment",
+    "why": "Space weather is measured directly: magnetic fields and charged particles around the spacecraft.",
+    "source": "NASA, A Learning Game About Telescopes (Space Apps challenge resource)"
+  },
+  {
+    "objectiveId": "fireDetection",
+    "bands": ["thermalIR", "shortwaveIR"],
+    "techniques": ["imaging"],
+    "target": "surface",
+    "why": "Active fires are hot, so they glow brightest in thermal and shortwave infrared.",
+    "source": "NASA, A Learning Game About Telescopes (Space Apps challenge resource)"
+  },
+  {
+    "objectiveId": "burnScar",
+    "bands": ["nearIR", "radar", "laser"],
+    "techniques": ["imaging", "ranging"],
+    "target": "surface",
+    "why": "Burned vegetation reflects less near-infrared; radar sees through smoke and lasers measure what's left of the canopy.",
+    "source": "NASA, A Learning Game About Telescopes (Space Apps challenge resource)"
+  },
+  {
+    "objectiveId": "deepSky",
+    "bands": ["visible", "nearIR"],
+    "techniques": ["imaging"],
+    "target": "sky",
+    "why": "Light from distant galaxies is stretched into the infrared on its way to us, so we need an infrared space telescope.",
+    "source": "NASA, A Learning Game About Telescopes (Space Apps challenge resource)"
+  },
+  {
+    "objectiveId": "exoplanetSpectra",
+    "bands": ["nearIR"],
+    "techniques": ["spectroscopy", "imaging"],
+    "target": "sky",
+    "why": "Molecules like water and carbon dioxide leave fingerprints in a planet's infrared spectrum.",
+    "source": "NASA, A Learning Game About Telescopes (Space Apps challenge resource)"
+  },
+  {
+    "objectiveId": "surfaceMapping",
+    "bands": ["laser", "radar"],
+    "techniques": ["ranging", "imaging"],
+    "target": "surface",
+    "why": "Lasers and radar measure height and shape, even in the dark.",
+    "source": "NASA, A Learning Game About Telescopes (Space Apps challenge resource)"
+  },
+  {
+    "objectiveId": "atmosphere",
+    "bands": ["microwave", "nearIR"],
+    "techniques": ["spectroscopy", "radiometry"],
+    "target": "atmosphere",
+    "why": "Gases in the air absorb and emit microwave and infrared light at their own wavelengths.",
+    "source": "NASA, A Learning Game About Telescopes (Space Apps challenge resource)"
+  }
+]

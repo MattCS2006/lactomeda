@@ -14,6 +14,13 @@
       "leo",
       "sso"
     ],
+    "bands": [
+      "visible"
+    ],
+    "technique": "imaging",
+    "targets": [
+      "surface"
+    ],
     "ifovUrad": 60,
     "fovDeg": 4,
     "ref": "ERS \u00a77.4 (starter instruments); imaging geometry is an estimate based on typical CubeSat imager (~30 m at 500 km) \u2014 verify (NFR-09)"
@@ -35,6 +42,15 @@
       "sso",
       "leo"
     ],
+    "bands": [
+      "visible",
+      "nearIR",
+      "shortwaveIR"
+    ],
+    "technique": "imaging",
+    "targets": [
+      "surface"
+    ],
     "ifovUrad": 42.5,
     "fovDeg": 15,
     "ref": "ERS \u00a77.4 (starter instruments); imaging geometry is an estimate based on Landsat 8/9 OLI (30 m, 185 km swath at 705 km) \u2014 verify (NFR-09)"
@@ -55,6 +71,13 @@
       "leo",
       "geo"
     ],
+    "bands": [
+      "thermalIR"
+    ],
+    "technique": "imaging",
+    "targets": [
+      "surface"
+    ],
     "ifovUrad": 452,
     "ref": "ERS \u00a77.4 (starter instruments); imaging geometry modelled on NASA/NOAA VIIRS, the active-fire sensor on Suomi NPP / NOAA-20 (375 m I-band at 830 km \u2248 452 \u00b5rad, ~3,000 km swath) \u2014 verify (NFR-09)",
     "swathKm": 3000
@@ -74,6 +97,13 @@
     "preferredOrbits": [
       "sso",
       "leo"
+    ],
+    "bands": [
+      "radar"
+    ],
+    "technique": "imaging",
+    "targets": [
+      "surface"
     ],
     "fovDeg": 20,
     "resolutionM": 10,
@@ -96,6 +126,15 @@
       "sso",
       "leo"
     ],
+    "bands": [
+      "visible",
+      "nearIR"
+    ],
+    "technique": "spectroscopy",
+    "targets": [
+      "sky",
+      "atmosphere"
+    ],
     "ref": "ERS \u00a77.4 (starter instruments)"
   },
   {
@@ -114,6 +153,13 @@
       "molniya",
       "meo"
     ],
+    "bands": [
+      "magneticField"
+    ],
+    "technique": "inSitu",
+    "targets": [
+      "environment"
+    ],
     "ref": "ERS \u00a77.4 (starter instruments)"
   },
   {
@@ -130,6 +176,14 @@
     ],
     "preferredOrbits": [
       "l2"
+    ],
+    "bands": [
+      "visible",
+      "nearIR"
+    ],
+    "technique": "imaging",
+    "targets": [
+      "sky"
     ],
     "ifovUrad": 0.48,
     "ref": "ERS \u00a77.4 (starter instruments); imaging geometry is an estimate based on JWST/Hubble-class diffraction limit (~0.1 arcsec) \u2014 verify (NFR-09)"
@@ -151,6 +205,13 @@
       "lunar",
       "mars"
     ],
+    "bands": [
+      "laser"
+    ],
+    "technique": "ranging",
+    "targets": [
+      "surface"
+    ],
     "ifovUrad": 25,
     "fovDeg": 0.5,
     "ref": "ERS \u00a77.4 (starter instruments); imaging geometry is an estimate based on ICESat-2 ATLAS (~13 m footprint at 500 km) \u2014 verify (NFR-09)"
@@ -171,6 +232,13 @@
       "meo",
       "leo"
     ],
+    "bands": [
+      "particles"
+    ],
+    "technique": "inSitu",
+    "targets": [
+      "environment"
+    ],
     "ref": "ERS \u00a77.4 (starter instruments)"
   },
   {
@@ -188,6 +256,13 @@
       "leo",
       "sso",
       "geo"
+    ],
+    "bands": [
+      "microwave"
+    ],
+    "technique": "radiometry",
+    "targets": [
+      "atmosphere"
     ],
     "ifovUrad": 14000,
     "fovDeg": 60,
@@ -208,6 +283,13 @@
       "leo",
       "sso",
       "molniya"
+    ],
+    "bands": [
+      "magneticField"
+    ],
+    "technique": "inSitu",
+    "targets": [
+      "environment"
     ],
     "ref": "CubeSat-class magnetometer; values are estimates based on typical CubeSat magnetometers in NASA's State-of-the-Art of Small Spacecraft Technology report \u2014 verify (NFR-09)"
   }

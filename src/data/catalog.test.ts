@@ -1,6 +1,7 @@
 // Catalog health check (SCRUM-25). Fails when the data has broken links,
 // impossible values, or a scenario that no design could win.
 import { describe, expect, it } from 'vitest'
+import { derivedObjectives } from '../engine/rules/compatibility'
 import { evaluateObjectives } from '../engine/rules/objectives'
 import { RESOURCE_KEYS, estimateBudgets } from '../engine/rules/resources'
 import type { Subsystem } from '../engine/types'
@@ -115,5 +116,34 @@ describe('data catalog', () => {
       const shown = r.value === undefined ? 'not measurable' : `${r.value.toFixed(2)} ${r.unit}`
       expect(r.levelAchieved, `${design.scenarioId}: ${r.objectiveId} = ${shown}`).not.toBeNull()
     }
+  })
+})
+
+// FR-14.8: objective -> wavelength -> instrument rules
+describe('wavelength rules (FR-14.8)', () => {
+  const rules = gameData.wavelengthRules ?? []
+
+  it('gives every instrument bands, a technique and targets', () => {
+    for (const i of instruments) {
+      expect(i.bands?.length ?? 0, `${i.id} bands`).toBeGreaterThan(0)
+      expect(i.technique, `${i.id} technique`).toBeDefined()
+      expect(i.targets?.length ?? 0, `${i.id} targets`).toBeGreaterThan(0)
+    }
+  })
+
+  it('has rules only for objectives that exist, and one for every instrument-driven objective', () => {
+    for (const r of rules) {
+      expect(objectiveIds.has(r.objectiveId) || FUTURE_OBJECTIVES.has(r.objectiveId), `rule -> objective ${r.objectiveId}`).toBe(true)
+      expect(r.source, `${r.objectiveId} source`).not.toBe('')
+      expect(r.why, `${r.objectiveId} why`).not.toBe('')
+    }
+    expect(new Set(rules.map((r) => r.objectiveId)).size).toBe(rules.length)
+    for (const id of objectiveIds) {
+      if (id !== 'missionLifetime') expect(rules.some((r) => r.objectiveId === id), `objective ${id} has no rule`).toBe(true)
+    }
+  })
+
+  it('derives, for every instrument, the same objectives as its objectives list', () => {
+    for (const i of instruments) expect([...derivedObjectives(i, gameData)].sort(), i.id).toEqual([...i.objectives].sort())
   })
 })

@@ -1,6 +1,7 @@
 // Engine validate() (EngineAPI.validate): runs every rule module's validator. Pure and deterministic.
 import type { GameData, MissionDesign, ValidationIssue } from './types'
 import { validateBusClass } from './rules/busClass'
+import { validatePayload } from './rules/compatibility'
 import { validateComponents } from './rules/components'
 import { validateCost } from './rules/cost'
 import { validateData } from './rules/data'
@@ -19,15 +20,16 @@ export const VALIDATORS: readonly ((design: MissionDesign, data: GameData) => Va
   validatePower,
   validateCost,
   validateData,
+  validatePayload,
 ]
 
-/** All issues from every rule, without exact duplicates (same code + subsystem + resource). */
+/** All issues from every rule, without exact duplicates (same code + subsystem + resource + message). */
 export function validate(design: MissionDesign, data: GameData): ValidationIssue[] {
   const seen = new Set<string>()
   const issues: ValidationIssue[] = []
   for (const rule of VALIDATORS) {
     for (const issue of rule(design, data)) {
-      const key = `${issue.code}|${issue.subsystem ?? ''}|${issue.resource ?? ''}`
+      const key = `${issue.code}|${issue.subsystem ?? ''}|${issue.resource ?? ''}|${issue.message}`
       if (seen.has(key)) continue
       seen.add(key)
       issues.push(issue)

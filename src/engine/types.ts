@@ -57,6 +57,30 @@ export interface Component {
   ref?: string // source note for REFERENCES.md
 }
 
+/** FR-14.8: what an instrument senses (wavelength band or field), how, and what it points at. */
+export type Band =
+  | 'visible'
+  | 'nearIR'
+  | 'shortwaveIR'
+  | 'thermalIR'
+  | 'microwave'
+  | 'radar'
+  | 'laser'
+  | 'magneticField'
+  | 'particles'
+export type Technique = 'imaging' | 'spectroscopy' | 'radiometry' | 'ranging' | 'inSitu'
+export type ObservationTarget = 'surface' | 'sky' | 'atmosphere' | 'environment'
+
+/** FR-14.8: objective -> wavelength -> instrument rule, modelled on NASA's telescope learning game. */
+export interface WavelengthRule {
+  objectiveId: string
+  bands: Band[] // any of these bands works
+  techniques: Technique[] // any of these techniques works
+  target: ObservationTarget
+  why: string // one plain sentence: why this objective needs these bands
+  source: string // credit, e.g. NASA "A Learning Game About Telescopes"
+}
+
 export interface Instrument {
   id: string
   name: string
@@ -67,6 +91,9 @@ export interface Instrument {
   science: number
   objectives: string[] // Objective ids
   preferredOrbits: string[] // Orbit ids
+  bands?: Band[] // FR-14.8
+  technique?: Technique // FR-14.8
+  targets?: ObservationTarget[] // FR-14.8
   ifovUrad?: number // instantaneous field of view (µrad): ground resolution = altitude × IFOV; angular resolution for telescopes
   fovDeg?: number // full field of view (deg): swath width = 2 × altitude × tan(fov / 2)
   resolutionM?: number // altitude-independent ground resolution (m), e.g. SAR
@@ -140,6 +167,7 @@ export interface GameData {
   groundNetworks: GroundNetwork[]
   scenarios: Scenario[]
   events: MissionEvent[]
+  wavelengthRules?: WavelengthRule[] // FR-14.8; optional so existing fixtures keep working
 }
 
 // ─── Player design ──────────────────────────────────────────────────────
