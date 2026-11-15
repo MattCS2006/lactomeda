@@ -546,5 +546,23 @@
       "gn-nen": "NASA’s Near Space Network: antennas and relay satellites for missions near Earth, out to the Moon.",
       "gn-dsn": "NASA’s Deep Space Network: giant 34–70 m dishes in California, Spain and Australia that talk to spacecraft across the solar system."
     }
+  },
+  "difficultyPicker": {
+    "heading": "Choose a difficulty",
+    "intro": "Harder levels unlock advanced parts but bring more emergencies and tighter margins.",
+    "recommended": "Recommended for this mission",
+    "who": {
+      "cadet": "First mission? Start here.",
+      "engineer": "You know the trade-offs.",
+      "flightDirector": "Tight margins, frequent trouble."
+    },
+    "partsSimple": "Simple, proven parts only",
+    "partsAll": "All parts, including advanced",
+    "events": "Emergencies in flight: ×{{value}}",
+    "massMargin": "Keep {{value}}% mass margin",
+    "riskNo": "Every red must be fixed before launch",
+    "riskYes": "Can launch by accepting the risk",
+    "hintsOn": "Hints on",
+    "hintsOff": "No hints"
   }
 }

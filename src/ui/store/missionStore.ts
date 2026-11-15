@@ -4,7 +4,7 @@ import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
 import { gameData } from '../../data'
 import { canAddInstrument } from '../../engine/rules/busClass'
-import { selectComponent as withComponent } from '../../engine/rules/components'
+import { isComponentAvailable, selectComponent as withComponent } from '../../engine/rules/components'
 import { groundReasons } from '../orbit/groundView'
 import { launcherReasons, launchersFor } from '../orbit/launcherView'
 import { isCompatible } from '../payload/compatibility'
@@ -59,6 +59,8 @@ interface MissionStore {
   selectScenario: (scenarioId: string, data: Pick<GameData, 'scenarios'>, difficulty?: Difficulty) => void
   /** FR-2.3 — set the target level of one objective. */
   setRequirementLevel: (objectiveId: string, level: RequirementLevel) => void
+  /** FR-2.2 — change difficulty. Parts the new level doesn't offer (advanced parts on Cadet) are removed. */
+  setDifficulty: (difficulty: Difficulty, data: GameData) => void
   /** FR-3.1 — choose the bus size class. */
   selectBus: (busClassId: string, data: GameData) => void
   /** FR-3.2 — choose the part for one subsystem (engine selectComponent checks it). */
@@ -101,6 +103,18 @@ export const useMissionStore = create<MissionStore>()(
         const design = get().design
         if (!design || !(objectiveId in design.requirementLevels)) return
         set({ design: { ...design, requirementLevels: { ...design.requirementLevels, [objectiveId]: level } } })
+      },
+      setDifficulty: (difficulty, data) => {
+        const design = get().design
+        if (!design || design.difficulty === difficulty) return
+        const componentIds = Object.fromEntries(
+          Object.entries(design.componentIds).filter(([, id]) => {
+            const part = data.components.find((c) => c.id === id)
+            return part !== undefined && isComponentAvailable(part, difficulty)
+          }),
+        ) as MissionDesign['componentIds']
+        const redundant = design.redundant.filter((s) => s in componentIds)
+        set({ design: { ...design, difficulty, componentIds, redundant } })
       },
       selectBus: (busClassId, data) => {
         const design = get().design

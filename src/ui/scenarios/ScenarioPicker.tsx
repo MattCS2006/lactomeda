@@ -3,11 +3,12 @@
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { GameData } from '../../engine/types'
+import { DifficultyPicker } from '../difficulty/DifficultyPicker'
 import { useMissionStore } from '../store/missionStore'
 import { toScenarioCard, translateLabel, type Label, type ScenarioCard } from './scenarioView'
 
 interface Props {
-  data: Pick<GameData, 'scenarios' | 'orbits'>
+  data: GameData
 }
 
 export function ScenarioPicker({ data }: Props) {
@@ -37,6 +38,9 @@ export function ScenarioPicker({ data }: Props) {
           />
         ))}
       </div>
+
+      {/* FR-2.2 — difficulty, once a mission is picked */}
+      <DifficultyPicker data={data} recommended={cards.find((c) => c.id === design?.scenarioId)?.difficulty} />
 
       <div className="mt-6 flex justify-end">
         <button
