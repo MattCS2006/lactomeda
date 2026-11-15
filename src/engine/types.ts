@@ -131,6 +131,19 @@ export interface Launcher {
   ref?: string // source note for REFERENCES.md
 }
 
+/** FR-7.1: where in the launch a failure happens (the launch animation plays it at this phase). */
+export type LaunchPhase = 'liftoff' | 'maxQ' | 'stageSeparation' | 'fairingSeparation' | 'upperStage' | 'payloadSeparation'
+
+/** FR-7.1: one way a launch can fail, with the lesson it teaches. */
+export interface LaunchFailureMode {
+  id: string
+  phase: LaunchPhase
+  weight: number // relative likelihood
+  cause: string // what happened, one plain sentence
+  lesson: string // what engineers learned, one plain sentence
+  ref?: string // source note for REFERENCES.md
+}
+
 export interface GroundNetwork {
   id: string
   name: string // e.g. 'NASA NEN', 'DSN'
@@ -171,6 +184,7 @@ export interface GameData {
   scenarios: Scenario[]
   events: MissionEvent[]
   wavelengthRules?: WavelengthRule[] // FR-14.8; optional so existing fixtures keep working
+  launchFailures?: LaunchFailureMode[] // FR-7.1; optional so existing fixtures keep working
 }
 
 // ─── Player design ──────────────────────────────────────────────────────
