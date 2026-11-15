@@ -590,5 +590,40 @@
     "months": "{{value}} months",
     "years": "{{value}} years",
     "forever": "Never (no air drag)"
+  },
+  "flight": {
+    "missionOver": "Mission over",
+    "result": "{{total}} / 1000 · {{stars}} of 3 stars · {{outcome}}",
+    "outcome": {
+      "fullSuccess": "Full success",
+      "partialSuccess": "Partial success",
+      "failure": "Failure"
+    },
+    "flyAgain": "Fly again",
+    "flyAgainNew": "Fly again with new events",
+    "flyAgainHelp": "Your design is kept. Change one thing, fly again and compare.",
+    "sameEvents": "Same launch roll and events as last time, so only your changes make a difference.",
+    "newEvents": "Same design, but the launch roll and events are drawn again.",
+    "sinceHeading": "Since your last flight",
+    "noChanges": "Nothing changed yet. Change one thing and fly again to see its effect.",
+    "changeCount_one": "{{count}} change:",
+    "changeCount_other": "{{count}} changes:",
+    "none": "none",
+    "what": {
+      "difficulty": "Difficulty",
+      "bus": "Bus",
+      "propellant": "Propellant",
+      "orbit": "Orbit",
+      "altitude": "Altitude",
+      "launcher": "Launcher",
+      "ground": "Ground stations"
+    },
+    "change": {
+      "swap": "{{what}}: {{from}} → {{to}}",
+      "added": "Added {{name}} ×{{count}}",
+      "removed": "Removed {{name}} ×{{count}}",
+      "events": "New random events",
+      "scenario": "Different scenario"
+    }
   }
 }
