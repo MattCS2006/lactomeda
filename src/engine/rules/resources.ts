@@ -29,8 +29,23 @@ function installedParts(design: MissionDesign, data: GameData): InstalledPart[] 
   return parts
 }
 
+/**
+ * Probability that every installed component works (series system, 0-1). Radiation (FR-5.2) scales each failure
+ * rate: r_eff = r ^ factor, except for radHard parts. A redundant subsystem works if either unit does.
+ */
+export function systemReliability(design: MissionDesign, data: GameData): number {
+  const orbit = data.orbits.find((o) => o.id === design.orbitId)
+  const radiationFactor = orbit ? RADIATION_FACTOR[orbit.radiation] : 1
+  let reliability = 1
+  for (const p of installedParts(design, data)) {
+    const factor = (p.component.tags ?? []).includes('radHard') ? 1 : radiationFactor
+    const r = p.component.reliability ** factor
+    reliability *= p.redundant ? 1 - (1 - r) ** 2 : r
+  }
+  return reliability
+}
+
 export function estimateBudgets(design: MissionDesign, data: GameData): Budgets {
-  const parts = installedParts(design, data)
   const bus = data.busClasses.find((b) => b.id === design.busClassId)
   const orbit = data.orbits.find((o) => o.id === design.orbitId) ?? null
   const launcher = data.launchers.find((l) => l.id === design.launcherId)
@@ -58,14 +73,7 @@ export function estimateBudgets(design: MissionDesign, data: GameData): Budgets 
   const commsUsed = Number.isFinite(link.contactMinNeeded) ? link.contactMinNeeded : contactMin + 1
 
   // time (days): median life of a constant-failure-rate system vs the required lifetime
-  // radiation (FR-5.2) scales each failure rate: r_eff = r ^ factor, except for radHard parts
-  const radiationFactor = orbit ? RADIATION_FACTOR[orbit.radiation] : 1
-  let reliability = 1
-  for (const p of parts) {
-    const factor = (p.component.tags ?? []).includes('radHard') ? 1 : radiationFactor
-    const r = p.component.reliability ** factor
-    reliability *= p.redundant ? 1 - (1 - r) ** 2 : r
-  }
+  const reliability = systemReliability(design, data)
   const medianLifeDays =
     durationDays <= 0
       ? 0
