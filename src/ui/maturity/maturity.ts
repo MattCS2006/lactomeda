@@ -16,7 +16,7 @@ export const STEP_CML: Record<DesignStep, CmlLevel> = {
   bus: 3,
   payload: 3,
   orbit: 3,
-  design: 3, // ship preview placeholder until the review screen lands
+  design: 4, // Design Review (FR-6.9): CML 4 point design
 }
 
 /** What has to be done to complete a CML. CML 3 has several parts, shown as a checklist. */
