@@ -572,7 +572,8 @@ describe('FR-7.4 rate scaling by mission length', () => {
 })
 
 describe('FR-7.4 event deck in flight', () => {
-  const deck = gameData.events.filter((e) => !e.id.startsWith('failure-'))
+  // the random events of events.json: not the failure alarms, and not the events that only appear by escalation (chance 0)
+  const deck = gameData.events.filter((e) => !e.id.startsWith('failure-') && e.trigger.chancePerDay > 0)
   const byId = (id: string) => deck.find((e) => e.id === id)!
   /** A catalog with perfect parts and launchers, and a budget no mission can spend, so only the event deck is measured. */
   const flat = (g: GameData = gameData): GameData => ({

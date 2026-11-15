@@ -27,7 +27,8 @@
     "trigger": {
       "chancePerDay": 0.002411,
       "requiresSubsystem": "comms"
-    }
+    },
+    "escalateTo": "contact-lost"
   },
   {
     "id": "antenna-misaligned",
@@ -92,7 +93,8 @@
       "mitigatedByTags": [
         "redundant:battery"
       ]
-    }
+    },
+    "escalateTo": "battery-running-flat"
   },
   {
     "id": "solar-array-degraded",
@@ -166,7 +168,8 @@
       "mitigatedByTags": [
         "cryogenic"
       ]
-    }
+    },
+    "escalateTo": "instrument-burnout"
   },
   {
     "id": "data-storage-full",
@@ -336,7 +339,8 @@
     "trigger": {
       "chancePerDay": 0.00211,
       "requiresSubsystem": "propulsion"
-    }
+    },
+    "escalateTo": "hull-damage"
   },
   {
     "id": "thruster-leak",
@@ -401,7 +405,8 @@
       "mitigatedByTags": [
         "radHard"
       ]
-    }
+    },
+    "escalateTo": "computer-crash"
   },
   {
     "id": "software-bug",

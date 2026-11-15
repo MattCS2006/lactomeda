@@ -5,7 +5,8 @@
 // Tick order (draws are always consumed in this order):
 //   1. data, science and operations cost; FR-3.6 station-keeping burn (propellant)
 //   2. alarms whose timer ran out are resolved (an ignored failure alarm switches to the backup, or ends the mission
-//      if the subsystem is critical)
+//      if the subsystem is critical); then FR-13.4 escalation: if the ignored event has `escalateTo` (and the problem
+//      was not fixed by a backup), that worse event rings as a new alarm with its own deadline. No random draws.
 //   3. FR-3.5 daily failure rolls: one draw per installed subsystem except structure, in Subsystem order, only for a
 //      subsystem with health > 0, no failure alarm and a failure chance above 0 (a perfect part draws nothing)
 //   4. random event rolls: one draw per applicable event, in catalog order
@@ -333,8 +334,26 @@ export function resolveEvent(
   return resolve(state, active.event, optionId, minigameScore, design, data, 'decision')
 }
 
-/** An alarm whose timer ran out. A failure alarm switches to a free backup, else the subsystem stays offline (and a critical one ends the mission). */
+/**
+ * FR-13.4: an ignored alarm gets worse. If the event names `escalateTo`, the worse event rings now as a new alarm. A
+ * failure alarm that the backup fixed does not escalate; nor does one that ended the mission. Rules: rules/escalation.ts.
+ */
+function escalate(next: SimState, event: MissionEvent, data: GameData): SimState {
+  if (next.status !== 'running' || event.escalateTo === undefined) return next
+  const subsystem = failureSubsystem(event)
+  if (subsystem !== undefined && (next.health[subsystem] ?? 0) > 0) return next // the backup took over
+  const worse = data.events.find((e) => e.id === event.escalateTo)
+  if (!worse || next.activeEvents.some((a) => a.event.id === worse.id)) return next
+  return startAlarm(withLog(next, 'warning', `"${event.title}" was ignored and got worse: "${worse.title}".`), worse)
+}
+
+/** An alarm whose timer ran out: its default option applies, then it may escalate. */
 function timeOut(state: SimState, active: ActiveEvent, design: MissionDesign, data: GameData): SimState {
+  return escalate(applyTimeout(state, active, design, data), active.event, data)
+}
+
+/** The default consequence of an alarm whose timer ran out. A failure alarm switches to a free backup, else the subsystem stays offline (and a critical one ends the mission). */
+function applyTimeout(state: SimState, active: ActiveEvent, design: MissionDesign, data: GameData): SimState {
   const { event } = active
   const subsystem = failureSubsystem(event)
   if (!subsystem) return resolve(state, event, event.defaultOptionId, 1, design, data, 'timeout')

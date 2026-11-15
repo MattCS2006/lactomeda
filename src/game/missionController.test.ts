@@ -529,3 +529,67 @@ describe('integration with the flight record (Fly again)', () => {
     detach()
   })
 })
+
+describe('escalation (FR-13.4)', () => {
+  const first = alarm({ id: 'first', timerSec: 6, escalateTo: 'worse' })
+  const worse = alarm({ id: 'worse', title: 'Worse alarm', timerSec: 8, trigger: { chancePerDay: 0 } })
+  /** A catalog where `first` rings once (at the first tick) and `worse` only by escalation. */
+  const catalog = () => withEvents([first, worse])
+  /** From now on no event rings at random: the catalog object is shared with the controller. */
+  const quietFromNow = (data: GameData) => {
+    data.events = data.events.map((e) => ({ ...e, trigger: { ...e.trigger, chancePerDay: 0 } }))
+  }
+
+  it('ends an ignored alarm as escalated, then starts the worse event', () => {
+    const s = setup()
+    const data = catalog()
+    s.controller.start(student(), data)
+    s.fake.advance(1000 + 100) // the first alarm rings
+    expect(ofType(s.events, 'alarmStart').map((a) => a.event.id)).toEqual(['first'])
+    quietFromNow(data)
+    s.events.length = 0
+    s.fake.advance(100 * 3) // its timer (3 ticks) runs out
+    const alarms = s.events.filter((e) => e.type === 'alarmEnd' || e.type === 'alarmStart')
+    expect(alarms.map((e) => e.type)).toEqual(['alarmEnd', 'alarmStart'])
+    expect(alarms[0]!.payload).toEqual({ eventId: 'first', optionId: 'ignore', reason: 'escalated' })
+    const start = alarms[1]!.payload as BridgeEvents['alarmStart']
+    expect(start.event.id).toBe('worse')
+    expect(start.deadlineTick).toBe(s.controller.getState()!.tick + 4) // 8 s = 4 ticks
+    expect(s.controller.getState()!.activeEvents.map((a) => a.event.id)).toEqual(['worse'])
+  })
+
+  it('the worse event ends as a plain timeout when it does not escalate further', () => {
+    const s = setup()
+    const data = catalog()
+    s.controller.start(student(), data)
+    s.fake.advance(1100)
+    quietFromNow(data)
+    s.fake.advance(100 * 3 + 100 * 4)
+    expect(ofType(s.events, 'alarmEnd').map((e) => [e.eventId, e.reason])).toEqual([
+      ['first', 'escalated'],
+      ['worse', 'timeout'],
+    ])
+  })
+
+  it('an alarm answered in time ends as resolved and the worse event never rings', () => {
+    const s = setup()
+    const data = catalog()
+    s.controller.start(student(), data)
+    s.fake.advance(1100)
+    quietFromNow(data)
+    s.bus.emit('eventResolved', { eventId: 'first', optionId: 'fix' })
+    s.fake.advance(100 * 20)
+    expect(ofType(s.events, 'alarmEnd')).toEqual([{ eventId: 'first', optionId: 'fix', reason: 'resolved' }])
+    expect(ofType(s.events, 'alarmStart').map((a) => a.event.id)).toEqual(['first'])
+  })
+
+  it('an alarm without an escalation rule still ends as a plain timeout', () => {
+    const s = setup()
+    const data = withEvents([alarm({ id: 'plain', timerSec: 6 })])
+    s.controller.start(student(), data)
+    s.fake.advance(1100)
+    quietFromNow(data)
+    s.fake.advance(300)
+    expect(ofType(s.events, 'alarmEnd')[0]).toEqual({ eventId: 'plain', optionId: 'ignore', reason: 'timeout' })
+  })
+})

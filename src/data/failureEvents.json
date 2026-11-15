@@ -237,7 +237,8 @@
     "trigger": {
       "chancePerDay": 0,
       "requiresSubsystem": "propulsion"
-    }
+    },
+    "escalateTo": "propellant-venting"
   },
   {
     "id": "failure-thermal",
@@ -285,7 +286,8 @@
     "trigger": {
       "chancePerDay": 0,
       "requiresSubsystem": "thermal"
-    }
+    },
+    "escalateTo": "heat-spreading"
   },
   {
     "id": "failure-comms",
