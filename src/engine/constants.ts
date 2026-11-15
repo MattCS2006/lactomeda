@@ -169,3 +169,15 @@ export const EFFICIENCY_TARGET_MARGIN = 0.2
 
 /** PROVISIONAL (FR-10.2 will replace these with per-scenario thresholds): total score needed for 3, 2 and 1 stars. */
 export const STAR_THRESHOLDS = { three: 800, two: 600, one: 400 } as const
+
+/** FR-7.2: real milliseconds one engine tick lasts at 1x while no alarm rings. The longest scenario is 1825 ticks, so a quiet mission plays in about 164 s (under 3 min). */
+export const MISSION_TICK_MS = 90
+
+/** FR-7.2: a mission without alarms never takes longer than this at 1x (alarm time is player time; the test checks the longest scenario). */
+export const MISSION_MAX_REAL_MS = 180_000
+
+/** Real milliseconds the 'launch' phase lasts before 'flight': room for the launch animation (FR-9.3 allows up to 20 s). */
+export const LAUNCH_PHASE_MS = 3000
+
+/** FR-7.2: real milliseconds one tick lasts at 1x while an alarm rings, so an alarm lasts its real `timerSec` (the engine counts it in ticks of SECONDS_PER_TICK). */
+export const ALARM_TICK_MS = SECONDS_PER_TICK * 1000
