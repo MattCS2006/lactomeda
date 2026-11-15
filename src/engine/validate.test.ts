@@ -14,8 +14,8 @@ const broken = (): MissionDesign => {
 }
 
 describe('validate', () => {
-  it('runs eight rule validators', () => {
-    expect(VALIDATORS).toHaveLength(8)
+  it('runs nine rule validators', () => {
+    expect(VALIDATORS).toHaveLength(9)
   })
 
   it('returns the union of every rule without duplicates', () => {

@@ -13,6 +13,7 @@ import {
   URAD_PER_ARCSEC,
 } from '../constants'
 import type { GameData, Instrument, MissionDesign, Objective, Orbit, RequirementLevel } from '../types'
+import { derivedObjectives } from './compatibility'
 import { linkBudget } from './link'
 import { estimateBudgets } from './resources'
 import { payloadScience } from './science'
@@ -93,7 +94,7 @@ export function objectiveValue(objective: Objective, design: MissionDesign, data
   if (!orbit) return undefined
   const serving = design.instrumentIds
     .map((id) => data.instruments.find((i) => i.id === id))
-    .filter((i): i is Instrument => i !== undefined && i.objectives.includes(objective.id))
+    .filter((i): i is Instrument => i !== undefined && derivedObjectives(i, data).includes(objective.id))
   if (serving.length === 0) return undefined
 
   const altitude = effectiveAltitudeKm(design, orbit)

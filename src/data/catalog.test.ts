@@ -1,6 +1,7 @@
 // Catalog health check (SCRUM-25). Fails when the data has broken links,
 // impossible values, or a scenario that no design could win.
 import { describe, expect, it } from 'vitest'
+import { derivedObjectives } from '../engine/rules/compatibility'
 import { evaluateObjectives } from '../engine/rules/objectives'
 import { RESOURCE_KEYS, estimateBudgets } from '../engine/rules/resources'
 import type { Subsystem } from '../engine/types'
@@ -140,5 +141,9 @@ describe('wavelength rules (FR-14.8)', () => {
     for (const id of objectiveIds) {
       if (id !== 'missionLifetime') expect(rules.some((r) => r.objectiveId === id), `objective ${id} has no rule`).toBe(true)
     }
+  })
+
+  it('derives, for every instrument, the same objectives as its objectives list', () => {
+    for (const i of instruments) expect([...derivedObjectives(i, gameData)].sort(), i.id).toEqual([...i.objectives].sort())
   })
 })
