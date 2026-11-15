@@ -14,6 +14,7 @@ import type {
 } from '../engine/types'
 import busClasses from './busClasses.json'
 import components from './components.json'
+import escalationEvents from './escalationEvents.json'
 import events from './events.json'
 import failureEvents from './failureEvents.json'
 import groundNetworks from './groundNetworks.json'
@@ -32,7 +33,8 @@ export const gameData: GameData = {
   launchers: launchers as Launcher[],
   groundNetworks: groundNetworks as GroundNetwork[],
   scenarios: scenarios as Scenario[],
-  events: [...(events as MissionEvent[]), ...(failureEvents as MissionEvent[])], // FR-7.4 random events, then FR-3.5 failure alarms
+  // FR-7.4 random events, FR-3.5 failure alarms, then the FR-13.4 events that only appear when an alarm is ignored
+  events: [...(events as MissionEvent[]), ...(failureEvents as MissionEvent[]), ...(escalationEvents as MissionEvent[])],
   wavelengthRules: wavelengthRules as WavelengthRule[],
   launchFailures: launchFailures as LaunchFailureMode[],
 }

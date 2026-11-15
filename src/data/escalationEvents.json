@@ -1,0 +1,274 @@
+[
+  {
+    "id": "battery-running-flat",
+    "station": "power",
+    "title": "Battery running flat",
+    "description": "The failing battery cell was ignored, and now the whole battery is draining fast.",
+    "timerSec": 45,
+    "options": [
+      {
+        "id": "shed-load",
+        "label": "Switch off extra equipment",
+        "why": "Free, but 10 science points are lost while the extra equipment stays off.",
+        "effects": {
+          "science": -10
+        }
+      },
+      {
+        "id": "recharge-carefully",
+        "label": "Rewire the charging line",
+        "why": "Costs $1M, and a good job lets the battery charge again.",
+        "effects": {
+          "budget": -1
+        },
+        "minigame": "rewire"
+      },
+      {
+        "id": "run-on-reserve",
+        "label": "Run on the last of the charge",
+        "why": "Free, but the battery loses 30% of its charge and adds 5% to the mission risk.",
+        "effects": {
+          "battery": -0.3,
+          "risk": 0.05
+        }
+      }
+    ],
+    "defaultOptionId": "run-on-reserve",
+    "trigger": {
+      "chancePerDay": 0,
+      "requiresSubsystem": "battery"
+    }
+  },
+  {
+    "id": "contact-lost",
+    "station": "comms",
+    "title": "Lost contact with Earth",
+    "description": "Nobody on the ground can hear the ship any more, and the data keeps piling up on board.",
+    "timerSec": 45,
+    "options": [
+      {
+        "id": "call-backup-station",
+        "label": "Call a backup station",
+        "why": "Costs $1.5M, but the data finally gets home.",
+        "effects": {
+          "budget": -1.5
+        }
+      },
+      {
+        "id": "send-blind-commands",
+        "label": "Send commands without a reply",
+        "why": "Free, but without any answer it adds 3% to the mission risk.",
+        "effects": {
+          "risk": 0.03
+        }
+      },
+      {
+        "id": "wait-for-pass",
+        "label": "Wait for the next pass",
+        "why": "Free, but half of the stored data is lost and 5 science points with it.",
+        "effects": {
+          "data": -0.5,
+          "science": -5
+        }
+      }
+    ],
+    "defaultOptionId": "wait-for-pass",
+    "trigger": {
+      "chancePerDay": 0,
+      "requiresSubsystem": "comms"
+    }
+  },
+  {
+    "id": "instrument-burnout",
+    "station": "science",
+    "title": "Instrument burned out",
+    "description": "The overheated instrument has been damaged, and it may never work properly again.",
+    "timerSec": 40,
+    "options": [
+      {
+        "id": "repair-instrument",
+        "label": "Repair the instrument",
+        "why": "Costs $1.5M, and a good repair saves most of its work.",
+        "effects": {
+          "budget": -1.5
+        },
+        "minigame": "rewire"
+      },
+      {
+        "id": "run-reduced",
+        "label": "Run it at half power",
+        "why": "Free, but 10 science points are lost.",
+        "effects": {
+          "science": -10
+        }
+      },
+      {
+        "id": "give-up",
+        "label": "Give up on it",
+        "why": "Free, but 25 science points are lost for good.",
+        "effects": {
+          "science": -25
+        }
+      }
+    ],
+    "defaultOptionId": "give-up",
+    "trigger": {
+      "chancePerDay": 0,
+      "requiresSubsystem": "thermal"
+    }
+  },
+  {
+    "id": "hull-damage",
+    "station": "engine",
+    "title": "Debris hit the ship",
+    "description": "The space junk that was ignored has hit the ship and made a small hole in it.",
+    "timerSec": 45,
+    "options": [
+      {
+        "id": "patch-hole",
+        "label": "Patch the hole",
+        "why": "Costs $0.5M and 5% of the propellant that leaked out, but the hole is sealed.",
+        "effects": {
+          "budget": -0.5,
+          "propellant": -0.05
+        },
+        "minigame": "rewire"
+      },
+      {
+        "id": "ignore-damage",
+        "label": "Leave the hole",
+        "why": "Free, but 15% of the propellant leaks away and it adds 5% to the mission risk.",
+        "effects": {
+          "propellant": -0.15,
+          "risk": 0.05
+        }
+      }
+    ],
+    "defaultOptionId": "ignore-damage",
+    "trigger": {
+      "chancePerDay": 0,
+      "requiresSubsystem": "propulsion"
+    }
+  },
+  {
+    "id": "computer-crash",
+    "station": "computer",
+    "title": "Computer crashed",
+    "description": "The solar storm damage was ignored, and now the flight computer has crashed completely.",
+    "timerSec": 40,
+    "options": [
+      {
+        "id": "hard-reboot",
+        "label": "Restart the computer",
+        "why": "A restart brings it back and adds 3% to the mission risk.",
+        "effects": {
+          "risk": 0.03
+        },
+        "minigame": "reboot"
+      },
+      {
+        "id": "restore-from-backup",
+        "label": "Restore the last saved software",
+        "why": "Costs $0.5M of engineers' time, and it brings the computer back safely.",
+        "effects": {
+          "budget": -0.5
+        }
+      },
+      {
+        "id": "wait-for-restart",
+        "label": "Wait for it to restart itself",
+        "why": "Free, but 15 science points are lost while the computer is down.",
+        "effects": {
+          "science": -15
+        }
+      }
+    ],
+    "defaultOptionId": "wait-for-restart",
+    "trigger": {
+      "chancePerDay": 0,
+      "requiresSubsystem": "computer"
+    }
+  },
+  {
+    "id": "propellant-venting",
+    "station": "engine",
+    "title": "Propellant venting",
+    "description": "The broken thruster was left offline, and now it is letting propellant leak into space.",
+    "timerSec": 45,
+    "options": [
+      {
+        "id": "close-all-valves",
+        "label": "Close every valve",
+        "why": "Stops the leak, but 15% of the propellant is already gone.",
+        "effects": {
+          "propellant": -0.15
+        }
+      },
+      {
+        "id": "isolate-tank",
+        "label": "Seal off the leaking line",
+        "why": "Costs $1M, and a good repair stops the leak with little propellant lost.",
+        "effects": {
+          "budget": -1,
+          "propellant": -0.03
+        },
+        "minigame": "rewire"
+      },
+      {
+        "id": "let-it-vent",
+        "label": "Let it vent",
+        "why": "Free, but 30% of the propellant is lost and it adds 5% to the mission risk.",
+        "effects": {
+          "propellant": -0.3,
+          "risk": 0.05
+        }
+      }
+    ],
+    "defaultOptionId": "let-it-vent",
+    "trigger": {
+      "chancePerDay": 0,
+      "requiresSubsystem": "propulsion"
+    }
+  },
+  {
+    "id": "heat-spreading",
+    "station": "engine",
+    "title": "Heat spreading",
+    "description": "The broken cooling system was left offline, and the heat is spreading to the other systems.",
+    "timerSec": 45,
+    "options": [
+      {
+        "id": "power-down-hot-parts",
+        "label": "Power down the hot parts",
+        "why": "Free, but 10 science points are lost while they cool down.",
+        "effects": {
+          "science": -10
+        }
+      },
+      {
+        "id": "turn-from-sun",
+        "label": "Turn away from the Sun",
+        "why": "A small thruster burn (2% of the propellant) shades the hot side (you need a thruster).",
+        "effects": {
+          "propellant": -0.02
+        },
+        "requiresTag": "thruster"
+      },
+      {
+        "id": "let-it-heat",
+        "label": "Let it heat up",
+        "why": "Free, but the battery loses 20% of its charge, 5 science points are lost and it adds 5% to the mission risk.",
+        "effects": {
+          "battery": -0.2,
+          "science": -5,
+          "risk": 0.05
+        }
+      }
+    ],
+    "defaultOptionId": "let-it-heat",
+    "trigger": {
+      "chancePerDay": 0,
+      "requiresSubsystem": "thermal"
+    }
+  }
+]

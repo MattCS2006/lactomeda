@@ -100,12 +100,24 @@ export function createMissionController(options: MissionControllerOptions = {}):
   /** An alarm is identified by its event and the tick it started, so one that ends and rings again in the same tick still shows up. */
   const alarmKey = (a: SimState['activeEvents'][number]): string => `${a.event.id}@${a.startedTick}`
 
-  /** Emits what changed in the alarm list between two states. A removed alarm is a timeout during a tick and a decision otherwise. */
+  /**
+   * Emits what changed in the alarm list between two states. A removed alarm is a timeout during a tick and a decision
+   * otherwise. A timed-out alarm whose `escalateTo` event started in the same tick (FR-13.4) ends as 'escalated', and
+   * the alarmStart of the worse event follows.
+   */
   function emitAlarms(before: SimState, after: SimState, removed: 'timeout' | 'resolved'): void {
     const stillActive = new Set(after.activeEvents.map(alarmKey))
     for (const a of before.activeEvents) {
       if (!stillActive.has(alarmKey(a))) {
-        bus.emit('alarmEnd', { eventId: a.event.id, optionId: a.event.defaultOptionId, reason: removed })
+        const escalated =
+          removed === 'timeout' &&
+          a.event.escalateTo !== undefined &&
+          after.activeEvents.some((n) => n.event.id === a.event.escalateTo && n.startedTick === after.tick)
+        bus.emit('alarmEnd', {
+          eventId: a.event.id,
+          optionId: a.event.defaultOptionId,
+          reason: escalated ? 'escalated' : removed,
+        })
       }
     }
     const wasActive = new Set(before.activeEvents.map(alarmKey))

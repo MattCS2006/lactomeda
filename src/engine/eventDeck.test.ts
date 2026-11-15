@@ -6,9 +6,13 @@ import { REFERENCE_DESIGNS } from '../data/referenceDesigns'
 import { runMission } from './sim'
 import type { GameData, MissionDesign } from './types'
 
-/** A catalog with perfect parts and launchers, and a budget no mission can spend, so only the event deck is measured. */
+/**
+ * A catalog with perfect parts and launchers, and a budget no mission can spend, so only the event deck is measured.
+ * No event escalates (FR-13.4): the count is of random events, not of the worse ones an ignored alarm turns into.
+ */
 const flat: GameData = {
   ...gameData,
+  events: gameData.events.map((e) => ({ ...e, escalateTo: undefined })),
   components: gameData.components.map((c) => ({ ...c, reliability: 1 })),
   launchers: gameData.launchers.map((l) => ({ ...l, reliability: 1 })),
   scenarios: gameData.scenarios.map((s) => ({ ...s, budgetM: 1_000_000 })),
