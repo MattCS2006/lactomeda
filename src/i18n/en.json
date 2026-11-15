@@ -458,7 +458,9 @@
       "debrief": "Debrief: see your score and why the mission worked or failed, then fly again with one change."
     },
     "menu": "Menu",
-    "logo": "LACTOMEDA"
+    "logo": "LACTOMEDA",
+    "sources": "NASA Sources",
+    "sourcesHint": "The NASA resources behind this game."
   },
   "tooltip": {
     "label": "What is this?",
@@ -624,6 +626,64 @@
       "removed": "Removed {{name}} ×{{count}}",
       "events": "New random events",
       "scenario": "Different scenario"
+    }
+  },
+  "sources": {
+    "button": "NASA Sources",
+    "heading": "NASA Sources",
+    "intro": "This game is built on the {{count}} resources of the NASA Space Apps challenge. Each one has a job in the game; here is what it does and where you see it.",
+    "use": "In the game",
+    "where": "Where you see it",
+    "open": "Open the original",
+    "newTab": "(opens in a new tab)",
+    "close": "Close",
+    "alsoFromNasa": "Also from NASA: the real missions in the debrief comparison (Landsat 9, GOES-R, JWST, LRO, MRO) come from NASA mission pages. NASA images are credited where they are used.",
+    "items": {
+      "scienceMissions": {
+        "name": "Design and Develop Science Missions",
+        "use": "The four mission segments (launch, space, ground and user) organise the design tabs and the report. The user segment shows who uses your data, like fire agencies for the wildfire mission.",
+        "where": "Segment tabs, mission report, debrief"
+      },
+      "gmat": {
+        "name": "GMAT (General Mission Analysis Tool)",
+        "use": "Our orbits are computed with NASA GMAT scripts: period, time in Earth's shadow and minutes of ground contact per day. The power and comms budgets use those numbers.",
+        "where": "Orbit cards (\"computed with NASA GMAT\"), power and comms budgets"
+      },
+      "cml": {
+        "name": "Concept Maturity Levels (JPL)",
+        "use": "The design phases follow JPL's maturity levels, CML 1 to 4. The maturity meter rises as your concept grows, and the debrief tells you the level you reached.",
+        "where": "Phase titles, maturity meter, debrief"
+      },
+      "mdl": {
+        "name": "Mission Design Lab (NASA Goddard)",
+        "use": "The design review works like a Mission Design Lab study: one finding per discipline plus an equipment list and cost. Those disciplines are also the rooms of your ship.",
+        "where": "Design review, ship rooms, mission report"
+      },
+      "missionViz": {
+        "name": "NASA Mission Viz",
+        "use": "The debrief opens a real mission like yours, and its trajectory views inspire our launch and orbit animation.",
+        "where": "Debrief (\"See a real mission like yours\")"
+      },
+      "telescopeGame": {
+        "name": "A Learning Game About Telescopes",
+        "use": "Your objective decides the wavelength, and the wavelength decides which instruments fit. Parts that don't fit are disabled with the reason.",
+        "where": "Payload screen, Space Telescope mission, debrief"
+      },
+      "cubesat101": {
+        "name": "CubeSat 101 (NASA CubeSat Launch Initiative)",
+        "use": "The Student CubeSat mission follows it: unit sizes, how a CubeSat gets a launch, licences and typical part values.",
+        "where": "Student CubeSat mission, tutorial, tooltips"
+      },
+      "vrChallenge": {
+        "name": "Visualize a Space Mission Using VR (Space Apps 2023)",
+        "use": "Its concept → trajectory → timeline structure shapes the timeline of the flight HUD.",
+        "where": "Flight HUD"
+      },
+      "csaGames": {
+        "name": "Digital games and activities (Canadian Space Agency)",
+        "use": "Our model for kid-friendly explanations. Canada's RADARSAT radar satellites inspire the radar instrument.",
+        "where": "Tooltips, radar instrument card"
+      }
     }
   }
 }

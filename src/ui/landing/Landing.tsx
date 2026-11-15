@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { GameData } from '../../engine/types'
 import { useMissionStore } from '../store/missionStore'
+import { NasaSources } from '../sources/NasaSources'
 import { HOW_TO_PLAY_STEPS, MENU_ENTRIES, isAvailable, type MenuEntry } from './landingView'
 
 interface Props {
@@ -18,6 +19,7 @@ export function Landing({ data }: Props) {
   const openDesign = useMissionStore((s) => s.openDesign)
   const goTo = useMissionStore((s) => s.goTo)
   const [howTo, setHowTo] = useState(false)
+  const [sources, setSources] = useState(false)
   const saved = design ? data.scenarios.find((s) => s.id === design.scenarioId) : undefined
 
   const choose = (entry: MenuEntry) => {
@@ -65,10 +67,24 @@ export function Landing({ data }: Props) {
           </ul>
         </nav>
 
+        {/* FR-14.1 — the NASA resources behind the game */}
+        <button
+          type="button"
+          onClick={() => setSources(true)}
+          aria-describedby="landing-sources-hint"
+          className="pixel-button mt-4 flex w-full flex-col items-start gap-1 px-4 py-2 text-left"
+        >
+          <span className="text-[10px] text-shine">{t('landing.sources')}</span>
+          <span id="landing-sources-hint" className="text-[10px] text-metal-light">
+            {t('landing.sourcesHint')}
+          </span>
+        </button>
+
         <p className="mt-8 text-[10px] text-metal-light">{t('landing.footer')}</p>
       </div>
 
       {howTo && <HowToPlay onClose={() => setHowTo(false)} />}
+      {sources && <NasaSources onClose={() => setSources(false)} />}
     </div>
   )
 }

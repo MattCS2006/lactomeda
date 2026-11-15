@@ -3,15 +3,17 @@
 Everything external used in this project (required by NASA Space Apps).
 
 ## NASA and partner resources (challenge Resources tab)
-- Design and Develop Science Missions — mission segments structure the game (ERS §9)
-- General Mission Analysis Tool (GMAT) — orbit data in `gmat/`
-- Concept Maturity Levels (JPL) — design phases CML 1–4
-- Mission Design Lab (MDL) — design review structure and ship stations
-- NASA Mission Viz — debrief links to real missions
-- A Learning Game About Telescopes — instrument compatibility and real-mission comparison
-- CubeSat 101 — Student CubeSat scenario and tutorial
-- Visualize a Space Mission Using VR (Space Apps 2023) — flight timeline HUD
-- CSA Digital Games and Activities — educational design reference
+Also shown in the game on the *NASA Sources* screen (FR-14.1); `src/ui/sources/sources.test.ts` keeps these links in sync.
+
+- Design and Develop Science Missions — mission segments structure the game (ERS §9) — https://ntrs.nasa.gov/citations/20250002492
+- General Mission Analysis Tool (GMAT) — orbit data in `gmat/` — https://etd.gsfc.nasa.gov/capabilities/capabilities-listing/general-mission-analysis-tool-gmat/
+- Concept Maturity Levels (JPL) — design phases CML 1–4 — https://ntrs.nasa.gov/citations/20150007816
+- Mission Design Lab (MDL) — design review structure and ship stations — https://etd.gsfc.nasa.gov/capabilities/integrated-design-center/mission-design-lab
+- NASA Mission Viz — debrief links to real missions — https://nasa.github.io/mission-viz/
+- A Learning Game About Telescopes — instrument compatibility and real-mission comparison — https://science.nasa.gov/mission/webb/game-build-it-yourself/
+- CubeSat 101 — Student CubeSat scenario and tutorial — https://www.nasa.gov/wp-content/uploads/2017/03/nasa_csli_cubesat_101_508.pdf
+- Visualize a Space Mission Using VR (Space Apps 2023) — flight timeline HUD — https://www.spaceappschallenge.org/2023/challenges/visualize-a-space-mission-using-virtual-reality/
+- CSA Digital Games and Activities — educational design reference — https://www.asc-csa.gc.ca/eng/youth-educators/digital-games-and-activities.asp
 
 ## Data catalog sources (`src/data/*.json`)
 
