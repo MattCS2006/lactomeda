@@ -8,6 +8,7 @@ import type {
   Launcher,
   Orbit,
   Scenario,
+  WavelengthRule,
 } from '../engine/types'
 import busClasses from './busClasses.json'
 import components from './components.json'
@@ -16,6 +17,7 @@ import instruments from './instruments.json'
 import launchers from './launchers.json'
 import orbits from './orbits.json'
 import scenarios from './scenarios.json'
+import wavelengthRules from './wavelengthRules.json'
 
 export const gameData: GameData = {
   busClasses: busClasses as BusClass[],
@@ -26,4 +28,5 @@ export const gameData: GameData = {
   groundNetworks: groundNetworks as GroundNetwork[],
   scenarios: scenarios as Scenario[],
   events: [], // filled by the events task
+  wavelengthRules: wavelengthRules as WavelengthRule[],
 }
