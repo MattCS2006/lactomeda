@@ -460,7 +460,9 @@
     "menu": "Menu",
     "logo": "LACTOMEDA",
     "sources": "NASA Sources",
-    "sourcesHint": "The NASA resources behind this game."
+    "sourcesHint": "The NASA resources behind this game.",
+    "offline": "Offline",
+    "offlineReason": "The multiplayer server can't be reached right now. Play Solo still works."
   },
   "tooltip": {
     "label": "What is this?",
@@ -744,5 +746,36 @@
     "abort": "Abort mission",
     "alarmAt": "{{station}} station",
     "secondsLeft": "{{s}} s left"
+  },
+  "rooms": {
+    "heading": {
+      "create": "Create a team room",
+      "join": "Join a team room"
+    },
+    "lobbyHeading": "Team room",
+    "codeLabel": "Room code",
+    "codeHint": "The {{n}} letters and numbers your host shared.",
+    "nameLabel": "Your name",
+    "defaultName": "Astronaut {{tag}}",
+    "submit": {
+      "create": "Create room",
+      "join": "Join"
+    },
+    "cancel": "Cancel",
+    "shareCode": "Share this code with your team",
+    "copy": "Copy code",
+    "copied": "Copied!",
+    "players": "Players {{n}} of {{max}}",
+    "host": "Host",
+    "you": "You",
+    "waiting": "Up to 4 players can join. Roles and the team mission come next.",
+    "leave": "Leave room",
+    "status": {
+      "connecting": "Connecting to the multiplayer server…",
+      "full": "This room is full (4 of 4 players). Ask your host to start another room.",
+      "notFound": "No room with this code. Check the letters and try again.",
+      "error": "Couldn't reach the multiplayer server. Try again in a moment.",
+      "offline": "The multiplayer server isn't available. Play Solo still works."
+    }
   }
 }
