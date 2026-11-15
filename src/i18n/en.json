@@ -739,7 +739,6 @@
     "heading": "Mission in flight",
     "liftoff": "Liftoff!",
     "liftoffHint": "Your spacecraft is riding a {{launcher}} to orbit.",
-    "day": "Mission day {{day}}",
     "speed": "Time speed",
     "pause": "Pause",
     "times": "{{n}}×",
@@ -835,6 +834,39 @@
       "power": "Power {{value}}",
       "comms": "Comms {{value}}",
       "time": "Time {{value}}"
+    }
+  },
+  "hud": {
+    "heading": "Flight HUD",
+    "waiting": "Waiting for the first telemetry…",
+    "day": "Day {{day}} of {{total}}",
+    "missionProgress": "Mission progress",
+    "label": {
+      "battery": "Battery",
+      "data": "Data",
+      "propellant": "Fuel",
+      "health": "Health",
+      "science": "Science",
+      "budget": "Budget"
+    },
+    "level": {
+      "ok": "OK",
+      "warning": "Warning",
+      "alarm": "Critical"
+    },
+    "value": {
+      "battery": "{{pct}}% · {{wh}} Wh",
+      "data": "{{stored}} on board · {{sent}} sent home",
+      "propellant": "{{kg}} kg left",
+      "noPropellant": "No thrusters",
+      "health": "{{ok}} of {{total}} parts OK",
+      "science": "{{points}} points",
+      "budget": "${{spent}}M of ${{total}}M"
+    },
+    "unit": {
+      "mb": "{{value}} Mb",
+      "gb": "{{value}} Gb",
+      "tb": "{{value}} Tb"
     }
   }
 }

@@ -9,6 +9,7 @@ import { bridge, type SimSnapshot } from '../../game/bridge'
 import { getMissionController, stopMission, type Speed } from '../../game/missionController'
 import { useFlightStore } from '../flight/flightStore'
 import { DecisionPopup } from './DecisionPopup'
+import { FlightHud } from './FlightHud'
 import { alarmsAtStation, answerStation } from './decisionView'
 import { SPEEDS, alarmSecondsLeft } from './reviewView'
 import type { GameData, Station } from '../../engine/types'
@@ -66,25 +67,33 @@ export function FlightView({ data }: { data: GameData }) {
 
   return (
     <section aria-label={t('flightView.heading')} className="mx-auto max-w-6xl">
-      <div className="pixel-panel mb-4 flex flex-wrap items-center justify-between gap-3 p-3 text-[10px]">
-        <p aria-live="polite">{t('flightView.day', { day: state?.day ?? 0 })}</p>
-        <div role="group" aria-label={t('flightView.speed')} className="flex gap-2">
-          {SPEEDS.map((s) => (
-            <button
-              key={s}
-              type="button"
-              aria-pressed={speed === s}
-              onClick={() => setSpeed(s)}
-              className={`pixel-button px-3 py-2 text-[10px] ${speed === s ? 'border-shine! bg-screen!' : ''}`}
-            >
-              {s === 0 ? t('flightView.pause') : t('flightView.times', { n: s })}
-            </button>
-          ))}
-        </div>
-        <button type="button" onClick={abort} className="pixel-button px-3 py-2 text-[10px] text-warning!">
-          {t('flightView.abort')}
-        </button>
-      </div>
+      {/* FR-13.11 — flight HUD: mission day, time speed and the live mission state, always visible */}
+      <section aria-label={t('hud.heading')} className="pixel-panel mb-4 p-3 text-[10px]">
+        {state && flown ? (
+          <FlightHud state={state} design={flown} data={data}>
+            <div className="flex flex-wrap items-center gap-2">
+              <div role="group" aria-label={t('flightView.speed')} className="flex gap-2">
+                {SPEEDS.map((s) => (
+                  <button
+                    key={s}
+                    type="button"
+                    aria-pressed={speed === s}
+                    onClick={() => setSpeed(s)}
+                    className={`pixel-button px-3 py-2 text-[10px] ${speed === s ? 'border-shine! bg-screen!' : ''}`}
+                  >
+                    {s === 0 ? t('flightView.pause') : t('flightView.times', { n: s })}
+                  </button>
+                ))}
+              </div>
+              <button type="button" onClick={abort} className="pixel-button px-3 py-2 text-[10px] text-warning!">
+                {t('flightView.abort')}
+              </button>
+            </div>
+          </FlightHud>
+        ) : (
+          <p className="text-metal-light">{t('hud.waiting')}</p>
+        )}
+      </section>
 
       {/* Where each alarm is answered; the options open at that station (FR-13.5) */}
       {state && state.activeEvents.length > 0 && (
