@@ -5,6 +5,7 @@ import { createJSONStorage, persist } from 'zustand/middleware'
 import { gameData } from '../../data'
 import { canAddInstrument } from '../../engine/rules/busClass'
 import { isComponentAvailable, selectComponent as withComponent } from '../../engine/rules/components'
+import { altitudeRange, clampAltitude } from '../orbit/altitudeView'
 import { groundReasons } from '../orbit/groundView'
 import { launcherReasons, launchersFor } from '../orbit/launcherView'
 import { isCompatible } from '../payload/compatibility'
@@ -73,6 +74,8 @@ interface MissionStore {
   removeInstrument: (instrumentId: string) => void
   /** FR-5.1 — choose an orbit the scenario allows. Clears any altitude override (FR-5.3) and a launcher or ground network that can't reach it. */
   selectOrbit: (orbitId: string, data: GameData) => void
+  /** FR-5.3 — set the altitude of a LEO/SSO orbit (clamped to its range); the nominal altitude clears the override. */
+  setAltitude: (km: number, data: GameData) => void
   /** FR-5.4 — choose a launcher offered in this scenario that reaches the chosen orbit. */
   selectLauncher: (launcherId: string, data: GameData) => void
   /** FR-5.6 — choose a ground station network that can reach the chosen orbit. */
@@ -182,6 +185,14 @@ export const useMissionStore = create<MissionStore>()(
             groundNetworkId: keepNetwork ? design.groundNetworkId : null,
           },
         })
+      },
+      setAltitude: (km, data) => {
+        const design = get().design
+        const orbit = data.orbits.find((o) => o.id === design?.orbitId)
+        const range = altitudeRange(orbit)
+        if (!design || !orbit || !range || !Number.isFinite(km)) return
+        const value = clampAltitude(km, range)
+        set({ design: { ...design, altitudeKm: value === orbit.altitudeKm ? undefined : value } })
       },
       selectLauncher: (launcherId, data) => {
         const design = get().design
