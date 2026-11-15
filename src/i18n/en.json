@@ -237,5 +237,20 @@
       "gn-nen": "NASA’s network for spacecraft near Earth, out to the Moon and L2.",
       "gn-dsn": "NASA’s giant dishes in California, Spain and Australia. The only way to talk to deep space."
     }
+  },
+  "resources": {
+    "heading": "Mission resources",
+    "margin": "Margin",
+    "needs": "Needs",
+    "need": {
+      "bus": "bus",
+      "power": "power part",
+      "comms": "comms part",
+      "orbit": "orbit",
+      "ground": "ground stations",
+      "parts": "parts"
+    },
+    "aria": "{{name}}: {{used}} used of {{available}}, margin {{margin}}%",
+    "ariaPending": "{{name}}: {{used}} used, still needs {{needs}}"
   }
 }

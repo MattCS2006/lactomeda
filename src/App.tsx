@@ -8,6 +8,7 @@ import './i18n'
 import { OrbitStep } from './ui/orbit/OrbitStep'
 import { PayloadStep } from './ui/payload/PayloadStep'
 import { RequirementsStep } from './ui/requirements/RequirementsStep'
+import { ResourceBar } from './ui/resources/ResourceBar'
 import { ScenarioPicker } from './ui/scenarios/ScenarioPicker'
 import { useMissionStore } from './ui/store/missionStore'
 
@@ -24,6 +25,9 @@ export default function App() {
         <h1 className="text-lg sm:text-xl">{t('app.title')}</h1>
         <p className="mt-2 text-[10px] text-metal-light">{t('app.tagline')}</p>
       </header>
+
+      {/* FR-6.1 — visible on every design screen once a scenario is chosen */}
+      <ResourceBar data={gameData} />
 
       {step === 'brief' || !scenario ? (
         <ScenarioPicker data={gameData} />
