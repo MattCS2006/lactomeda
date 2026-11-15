@@ -246,6 +246,8 @@ export interface EventOption {
 
 export interface MissionEvent {
   id: string
+  /** 'alarm' (default when absent): rings, slows the clock and can escalate. 'task': an optional mini-mission at a station: calm, never slows the clock or escalates, skipping costs nothing. */
+  kind?: 'alarm' | 'task'
   station: Station
   title: string
   description: string

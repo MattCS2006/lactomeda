@@ -907,5 +907,34 @@
     "label": "Language",
     "en": "English",
     "es": "Español"
+  },
+  "demoFixes": {
+    "issues": {
+      "MISSING_INSTRUMENT": "You have not chosen an instrument. Without one, your mission collects no data and no science. Add one on the Payload screen."
+    },
+    "debrief": {
+      "scoreHeading": "Your score",
+      "points": "{{points}} / {{max}}",
+      "part": {
+        "science": "Science collected",
+        "objectives": "Mission goals",
+        "efficiency": "Room to spare in your budgets",
+        "reliability": "Parts that kept working",
+        "collaboration": "Alarms answered in time"
+      },
+      "pointsHeading": "The 3 most important things",
+      "kind": {
+        "good": "Went well",
+        "bad": "Went wrong",
+        "tip": "Try this next time"
+      },
+      "launchHeading": "Why the launch failed",
+      "cause": "What happened:",
+      "lesson": "What engineers learn:"
+    },
+    "task": {
+      "label": "Optional task",
+      "hint": "Do it to earn the reward below, or skip it: nothing is lost."
+    }
   }
 }

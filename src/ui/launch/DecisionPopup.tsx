@@ -24,6 +24,7 @@ export function DecisionPopup({ alarm, state, design, data, onClose }: Props) {
   const { event } = alarm
   const options = availableOptions(event, design, data, state)
   const secondsLeft = alarmSecondsLeft(alarm, state.tick)
+  const isTask = event.kind === 'task' // an optional station task: calm colours, no danger
 
   useEffect(() => {
     firstRef.current?.focus()
@@ -44,24 +45,26 @@ export function DecisionPopup({ alarm, state, design, data, onClose }: Props) {
         aria-modal="true"
         aria-labelledby="decision-heading"
         aria-describedby="decision-problem"
-        className="pixel-panel max-h-full w-full max-w-2xl overflow-y-auto border-alarm! p-5"
+        className={`pixel-panel max-h-full w-full max-w-2xl overflow-y-auto p-5 ${isTask ? 'border-warning!' : 'border-alarm!'}`}
         onClick={(e) => e.stopPropagation()}
       >
         <p className="flex flex-wrap justify-between gap-2 text-[10px]">
           <span className="uppercase text-metal-light">
             {t('decision.station', { station: t(`station.${event.station}`) })}
           </span>
-          <span aria-live="polite" className={secondsLeft <= 10 ? 'text-alarm' : 'text-warning'}>
+          <span aria-live="polite" className={secondsLeft <= 10 && !isTask ? 'text-alarm' : 'text-warning'}>
             {t('decision.timeLeft', { s: secondsLeft })}
           </span>
         </p>
-        <h2 id="decision-heading" className="mt-2 text-base text-alarm">
-          <span aria-hidden="true">▲ </span>
+        <h2 id="decision-heading" className={`mt-2 text-base ${isTask ? 'text-warning' : 'text-alarm'}`}>
+          <span aria-hidden="true">{isTask ? '! ' : '▲ '}</span>
+          {isTask && <span className="mr-2 text-[10px] uppercase">{t('demoFixes.task.label')}:</span>}
           {event.title}
         </h2>
         <p id="decision-problem" className="mt-2 text-[10px] leading-relaxed">
           {event.description}
         </p>
+        {isTask && <p className="mt-2 text-[10px] text-metal-light">{t('demoFixes.task.hint')}</p>}
 
         <ul className="mt-4 grid gap-3 sm:grid-cols-2">
           {options.map((option, i) => {

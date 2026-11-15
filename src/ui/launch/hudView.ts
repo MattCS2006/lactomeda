@@ -113,7 +113,11 @@ export function hudCells(state: SimSnapshot, design: MissionDesign, data: GameDa
       id: 'science',
       level: 'ok',
       fraction: null,
-      value: { key: 'hud.value.science', values: { points: round(state.science) } },
+      // one decimal while it is small, so the first days do not read "0 points"
+      value: {
+        key: 'hud.value.science',
+        values: { points: state.science < 10 ? oneDecimal(state.science) : round(state.science) },
+      },
     },
     {
       id: 'budget',

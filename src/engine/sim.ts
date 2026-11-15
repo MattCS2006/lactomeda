@@ -38,6 +38,9 @@ import {
   REPAIR_BASE_HEALTH,
   SECONDS_PER_TICK,
   SIM_DAYS_PER_TICK,
+  TASK_LOG_DONE,
+  TASK_LOG_SKIPPED,
+  TASK_LOG_STARTED,
 } from './constants'
 import { draw } from './rng'
 import { SUBSYSTEMS, selectedComponent } from './rules/components'
@@ -47,6 +50,7 @@ import { dataBudget } from './rules/data'
 import { availableDeltaVms, orbitHolding, propellantBurned } from './rules/propellant'
 import type { OrbitHolding } from './rules/propellant'
 import { availableOptions, dailyFailureProbability, designTags } from './rules/redundancy'
+import { isTask, taskDeadlineTicks } from './rules/tasks'
 import { payloadScience } from './rules/science'
 import type {
   ActiveEvent,
@@ -94,8 +98,9 @@ export function eventChance(
   const mitigated = (mitigatedByTags ?? []).some((tag) => tags.has(tag))
   const durationDays = data.scenarios.find((s) => s.id === design.scenarioId)?.durationDays ?? 0
   const lengthFactor = durationDays > 0 ? REFERENCE_MISSION_DAYS / durationDays : 1
-  const chance =
-    event.trigger.chancePerDay * DIFFICULTY_EVENT_FACTOR[design.difficulty] * lengthFactor * (mitigated ? MITIGATED_EVENT_FACTOR : 1)
+  // A task is a reward, not a danger: the difficulty does not change how often one is offered
+  const difficultyFactor = isTask(event) ? 1 : DIFFICULTY_EVENT_FACTOR[design.difficulty]
+  const chance = event.trigger.chancePerDay * difficultyFactor * lengthFactor * (mitigated ? MITIGATED_EVENT_FACTOR : 1)
   return clamp(chance, 0, 1)
 }
 
@@ -210,6 +215,11 @@ function criticalFailure(state: SimState, why: string): SimState {
 }
 
 function startAlarm(state: SimState, event: MissionEvent): SimState {
+  if (isTask(event)) {
+    // Calm: an 'info' entry (never counted as an alarm), and a deadline in real seconds, not in slow alarm ticks
+    const offered: ActiveEvent = { event, startedTick: state.tick, deadlineTick: state.tick + taskDeadlineTicks(event) }
+    return withLog({ ...state, activeEvents: [...state.activeEvents, offered] }, 'info', `${TASK_LOG_STARTED}${event.station} station: ${event.title}.`)
+  }
   const raised: ActiveEvent = {
     event,
     startedTick: state.tick,
@@ -307,11 +317,17 @@ function resolve(
   next = applied.state
   if (subsystem && option.id === 'backup') next = { ...next, backupsUsed: [...(next.backupsUsed ?? []), subsystem] }
 
-  const text =
-    how === 'timeout'
-      ? `"${event.title}" timed out: "${option.label}" was applied automatically.`
-      : `Decision on "${event.title}": ${option.label}.`
-  next = withLog(next, how === 'timeout' ? 'warning' : 'decision', text)
+  if (isTask(event)) {
+    // Tasks are not alarms and not decisions: they never touch the collaboration score
+    const done = option.id !== event.defaultOptionId
+    next = withLog(next, 'info', `${done ? TASK_LOG_DONE : TASK_LOG_SKIPPED}${event.title}.`)
+  } else {
+    const text =
+      how === 'timeout'
+        ? `"${event.title}" timed out: "${option.label}" was applied automatically.`
+        : `Decision on "${event.title}": ${option.label}.`
+    next = withLog(next, how === 'timeout' ? 'warning' : 'decision', text)
+  }
   for (const failedSubsystem of applied.failed) next = raiseFailure(next, failedSubsystem, data)
   return next
 }
@@ -339,7 +355,7 @@ export function resolveEvent(
  * failure alarm that the backup fixed does not escalate; nor does one that ended the mission. Rules: rules/escalation.ts.
  */
 function escalate(next: SimState, event: MissionEvent, data: GameData): SimState {
-  if (next.status !== 'running' || event.escalateTo === undefined) return next
+  if (next.status !== 'running' || event.escalateTo === undefined || isTask(event)) return next
   const subsystem = failureSubsystem(event)
   if (subsystem !== undefined && (next.health[subsystem] ?? 0) > 0) return next // the backup took over
   const worse = data.events.find((e) => e.id === event.escalateTo)
@@ -442,8 +458,10 @@ export function simulateTick(state: SimState, design: MissionDesign, data: GameD
     }
   }
 
-  // new alarms: one draw per applicable event, always in catalog order
+  // new alarms: one draw per applicable event, always in catalog order. Tasks draw from their own stream (below), so
+  // adding or removing a task never changes which alarms ring.
   for (const event of data.events) {
+    if (isTask(event)) continue
     const chance = eventChance(event, design, data, next)
     if (chance <= 0 || next.activeEvents.some((a) => a.event.id === event.id)) continue
     const roll = draw(design.seed, next.rng)
@@ -451,6 +469,17 @@ export function simulateTick(state: SimState, design: MissionDesign, data: GameD
     if (roll.value >= chance) continue
     next = startAlarm(next, event)
   }
+
+  // new tasks: the draw is a pure function of the seed, the tick and the task's place among the tasks (no state).
+  // The draw is cheap and eventChance is not, so the draw comes first and the chance is only worked out for a hit.
+  const tasks = data.events.filter(isTask)
+  const lengthFactor = durationDays > 0 ? REFERENCE_MISSION_DAYS / durationDays : 1
+  tasks.forEach((event, index) => {
+    const roll = draw(`${design.seed}:tasks`, next.tick * tasks.length + index).value
+    if (roll >= clamp(event.trigger.chancePerDay * lengthFactor, 0, 1)) return // above the largest the chance can be
+    if (next.activeEvents.some((a) => a.event.id === event.id)) return
+    if (roll < eventChance(event, design, data, next)) next = startAlarm(next, event)
+  })
 
   return orbitDecay(endCondition(next, design, data), design, data)
 }

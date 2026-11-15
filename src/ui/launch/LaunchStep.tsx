@@ -30,7 +30,7 @@ export function LaunchStep({ data }: { data: GameData }) {
   const overall = VERDICT_LOOK[review.overallVerdict]
   const totals = equipmentTotals(review)
   const findingText = (f: Finding) =>
-    t(`issues.${f.code}`, {
+    t([`issues.${f.code}`, `demoFixes.issues.${f.code}`], {
       defaultValue: f.message,
       subsystem: f.subsystem ? t(`subsystem.${f.subsystem}.name`) : '',
     })

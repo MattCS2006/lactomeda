@@ -1,0 +1,208 @@
+[
+  {
+    "id": "task-science-photo",
+    "kind": "task",
+    "station": "science",
+    "title": "New target spotted",
+    "description": "The scientists found something interesting. They ask for a photo of it. Optional.",
+    "timerSec": 60,
+    "options": [
+      {
+        "id": "take-photo",
+        "label": "Take the photo",
+        "why": "The team gets new pictures: more science points.",
+        "effects": {
+          "science": 8
+        }
+      },
+      {
+        "id": "skip",
+        "label": "Skip it",
+        "why": "Nothing happens. You can do another task later.",
+        "effects": {}
+      }
+    ],
+    "defaultOptionId": "skip",
+    "trigger": {
+      "chancePerDay": 0.003
+    }
+  },
+  {
+    "id": "task-calibrate-antenna",
+    "kind": "task",
+    "station": "comms",
+    "title": "Calibrate the antenna",
+    "description": "A quick tune-up keeps the radio link clear and the antenna steady. Optional.",
+    "timerSec": 50,
+    "options": [
+      {
+        "id": "calibrate",
+        "label": "Calibrate it",
+        "why": "A sharper link: a few science points and a little less risk.",
+        "effects": {
+          "science": 4,
+          "risk": -0.01
+        },
+        "minigame": "alignDish"
+      },
+      {
+        "id": "skip",
+        "label": "Skip it",
+        "why": "Nothing happens. You can do another task later.",
+        "effects": {}
+      }
+    ],
+    "defaultOptionId": "skip",
+    "trigger": {
+      "chancePerDay": 0.003,
+      "requiresSubsystem": "comms"
+    }
+  },
+  {
+    "id": "task-check-battery",
+    "kind": "task",
+    "station": "power",
+    "title": "Check the battery cells",
+    "description": "Look over the battery cells to make sure none is getting weak. Optional.",
+    "timerSec": 50,
+    "options": [
+      {
+        "id": "check-cells",
+        "label": "Check the cells",
+        "why": "Healthy cells hold more charge: the battery gets a 10% boost.",
+        "effects": {
+          "battery": 0.1
+        },
+        "minigame": "rewire"
+      },
+      {
+        "id": "skip",
+        "label": "Skip it",
+        "why": "Nothing happens. You can do another task later.",
+        "effects": {}
+      }
+    ],
+    "defaultOptionId": "skip",
+    "trigger": {
+      "chancePerDay": 0.003,
+      "requiresSubsystem": "battery"
+    }
+  },
+  {
+    "id": "task-software-update",
+    "kind": "task",
+    "station": "computer",
+    "title": "Install a software update",
+    "description": "A small update makes the computer more stable. Optional.",
+    "timerSec": 55,
+    "options": [
+      {
+        "id": "install-update",
+        "label": "Install the update",
+        "why": "The computer is safer from glitches: a little less risk.",
+        "effects": {
+          "risk": -0.02
+        },
+        "minigame": "reboot"
+      },
+      {
+        "id": "skip",
+        "label": "Skip it",
+        "why": "Nothing happens. You can do another task later.",
+        "effects": {}
+      }
+    ],
+    "defaultOptionId": "skip",
+    "trigger": {
+      "chancePerDay": 0.003,
+      "requiresSubsystem": "computer"
+    }
+  },
+  {
+    "id": "task-tune-wheels",
+    "kind": "task",
+    "station": "navigation",
+    "title": "Fine-tune the reaction wheels",
+    "description": "The wheels that turn the ship can be tuned to point more precisely. Optional.",
+    "timerSec": 55,
+    "options": [
+      {
+        "id": "tune-wheels",
+        "label": "Tune the wheels",
+        "why": "Sharper pointing gives a few more science points.",
+        "effects": {
+          "science": 5
+        },
+        "minigame": "balanceWheels"
+      },
+      {
+        "id": "skip",
+        "label": "Skip it",
+        "why": "Nothing happens. You can do another task later.",
+        "effects": {}
+      }
+    ],
+    "defaultOptionId": "skip",
+    "trigger": {
+      "chancePerDay": 0.003,
+      "requiresSubsystem": "attitude"
+    }
+  },
+  {
+    "id": "task-thruster-check",
+    "kind": "task",
+    "station": "engine",
+    "title": "Run a thruster health check",
+    "description": "A short test makes sure the thrusters are ready when you need them. Optional.",
+    "timerSec": 45,
+    "options": [
+      {
+        "id": "run-check",
+        "label": "Run the check",
+        "why": "Spotting problems early makes the mission a little safer.",
+        "effects": {
+          "risk": -0.01
+        }
+      },
+      {
+        "id": "skip",
+        "label": "Skip it",
+        "why": "Nothing happens. You can do another task later.",
+        "effects": {}
+      }
+    ],
+    "defaultOptionId": "skip",
+    "trigger": {
+      "chancePerDay": 0.003,
+      "requiresSubsystem": "propulsion"
+    }
+  },
+  {
+    "id": "task-status-report",
+    "kind": "task",
+    "station": "bridge",
+    "title": "Send a status report",
+    "description": "The science team would like a short update on how the mission is going. Optional.",
+    "timerSec": 60,
+    "options": [
+      {
+        "id": "send-report",
+        "label": "Send the report",
+        "why": "The team feels in the loop: a few science points.",
+        "effects": {
+          "science": 3
+        }
+      },
+      {
+        "id": "skip",
+        "label": "Skip it",
+        "why": "Nothing happens. You can do another task later.",
+        "effects": {}
+      }
+    ],
+    "defaultOptionId": "skip",
+    "trigger": {
+      "chancePerDay": 0.003
+    }
+  }
+]

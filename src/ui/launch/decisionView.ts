@@ -12,9 +12,9 @@ export function alarmsAtStation(
   station: Station,
   shipStations: readonly Station[],
 ): ActiveEvent[] {
-  return active.filter(
-    (a) => a.event.station === station || (station === 'bridge' && !shipStations.includes(a.event.station)),
-  )
+  return active
+    .filter((a) => a.event.station === station || (station === 'bridge' && !shipStations.includes(a.event.station)))
+    .sort((a, b) => Number(a.event.kind === 'task') - Number(b.event.kind === 'task')) // a real alarm comes before an optional task
 }
 
 /** The station where an alarm is answered on this ship. */

@@ -3,6 +3,7 @@
 import { useEffect } from 'react'
 import { bridge, type Bridge } from '../../game/bridge'
 import { useMissionStore } from '../store/missionStore'
+import { useDebriefStore } from './debriefStore'
 import { useFlightStore } from './flightStore'
 
 /** Subscribe the flight record to the bridge. Returns the unsubscribe function. */
@@ -11,6 +12,7 @@ export function attachFlightRecorder(bus: Bridge = bridge): () => void {
   const offPhase = bus.on('phaseChanged', ({ phase }) => {
     const flight = useFlightStore.getState()
     flight.setPhase(phase)
+    if (phase === 'design' || phase === 'launch') useDebriefStore.getState().setDebrief(null)
     if (phase === 'design') recorded = false
     // The first of launch / flight after the design phase is the moment the design flies
     if ((phase === 'launch' || phase === 'flight') && !recorded) {
@@ -19,7 +21,8 @@ export function attachFlightRecorder(bus: Bridge = bridge): () => void {
       recorded = true
     }
   })
-  const offEnd = bus.on('missionEnded', ({ score }) => {
+  const offEnd = bus.on('missionEnded', ({ status, score, explanation }) => {
+    useDebriefStore.getState().setDebrief({ status, score, explanation })
     const flight = useFlightStore.getState()
     flight.recordResult(score)
     flight.setPhase('debrief')

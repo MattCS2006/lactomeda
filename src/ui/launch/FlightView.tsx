@@ -30,7 +30,8 @@ export function FlightView({ data }: { data: GameData }) {
     const offTick = bridge.on('simTick', ({ state: next }) => setState(next))
     const offStation = bridge.on('stationInteract', ({ station }) => setAtStation(station))
     // FR-13.4 — every new alarm plays the alarm sound (unless muted)
-    const offAlarm = bridge.on('alarmStart', () => playAlarm())
+    // (an optional station task is calm: no alarm sound)
+    const offAlarm = bridge.on('alarmStart', ({ event }) => event.kind !== 'task' && playAlarm())
     const offPhase = bridge.on('phaseChanged', ({ phase: next }) => {
       if (next !== 'launch') return
       setState(null)
@@ -67,9 +68,9 @@ export function FlightView({ data }: { data: GameData }) {
   if (phase === 'launch') return null
 
   return (
-    <section aria-label={t('flightView.heading')} className="mx-auto max-w-6xl">
+    <section aria-label={t('flightView.heading')} className="mx-auto flex min-h-0 w-full max-w-[1600px] flex-1 flex-col">
       {/* FR-13.11 — flight HUD: mission day, time speed and the live mission state, always visible */}
-      <section aria-label={t('hud.heading')} className="pixel-panel mb-4 p-3 text-[10px]">
+      <section aria-label={t('hud.heading')} className="pixel-panel mb-2 shrink-0 p-2 text-[10px]">
         {state && flown ? (
           <FlightHud state={state} design={flown} data={data}>
             <div className="flex flex-wrap items-center gap-2">
@@ -105,9 +106,9 @@ export function FlightView({ data }: { data: GameData }) {
       </section>
 
       {/* Where each alarm is answered; the options open at that station (FR-13.5) */}
-      {state && state.activeEvents.length > 0 && (
-        <ul aria-live="assertive" className="mb-4 space-y-2">
-          {state.activeEvents.map((alarm) => (
+      {state && state.activeEvents.some((a) => a.event.kind !== 'task') && (
+        <ul aria-live="assertive" className="mb-2 max-h-24 shrink-0 space-y-1 overflow-y-auto">
+          {state.activeEvents.filter((a) => a.event.kind !== 'task').map((alarm) => (
             <li
               key={alarm.event.id}
               className="pixel-panel flex flex-wrap justify-between gap-2 border-alarm! p-3 text-[10px]"
@@ -125,11 +126,33 @@ export function FlightView({ data }: { data: GameData }) {
         </ul>
       )}
 
+      {/* Optional station tasks: calm, yellow, no sound; answered at their station like an alarm */}
+      {state && state.activeEvents.some((a) => a.event.kind === 'task') && (
+        <ul aria-live="polite" className="mb-2 max-h-16 shrink-0 space-y-1 overflow-y-auto">
+          {state.activeEvents
+            .filter((a) => a.event.kind === 'task')
+            .map((task) => (
+              <li key={task.event.id} className="flex flex-wrap justify-between gap-2 border-l-4 border-warning pl-2 text-[10px]">
+                <span className="text-warning">
+                  <span aria-hidden="true">! </span>
+                  {t('demoFixes.task.label')}: {task.event.title}
+                </span>
+                <span className="text-metal-light">
+                  {t('flightView.goTo', { station: t(`station.${answerStation(task, shipStations)}`) })} ·{' '}
+                  {t('flightView.secondsLeft', { s: alarmSecondsLeft(task, state.tick) })}
+                </span>
+              </li>
+            ))}
+        </ul>
+      )}
+
       {popupAlarm && state && flown && (
         <DecisionPopup alarm={popupAlarm} state={state} design={flown} data={data} onClose={() => setAtStation(null)} />
       )}
 
-      <PhaserGame />
+      <div className="min-h-0 flex-1">
+        <PhaserGame />
+      </div>
     </section>
   )
 }

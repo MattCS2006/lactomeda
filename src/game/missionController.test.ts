@@ -138,7 +138,8 @@ describe('phases', () => {
     const ended = ofType(events, 'missionEnded')[0]!
     expect(ended.status).toBe('success')
     expect(ended.score.total).toBeGreaterThan(0)
-    expect(ended.explanation).toEqual({ summary: '', points: [] }) // TODO SCRUM-100
+    expect(ended.explanation.summary).not.toBe('') // explain() fills it (SCRUM-100)
+    expect(ended.explanation.points.length).toBeGreaterThanOrEqual(1)
   })
 
   it('sends one simTick with the initial state when the flight starts, then one per tick', () => {

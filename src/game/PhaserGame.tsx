@@ -6,7 +6,7 @@ import { supabase, testRealtime } from '../net/supabase'
 import { gameData } from '../data'
 import { useMissionStore } from '../ui/store/missionStore'
 import { PALETTE } from './palette'
-import { integerZoom } from './scaling'
+import { fitZoom } from './scaling'
 import { loadPixelFont } from './textStyles'
 
 export function PhaserGame() {
@@ -30,7 +30,7 @@ export function PhaserGame() {
 
   useEffect(() => {
     const parent = host.current!
-    const zoomFor = () => integerZoom(parent.clientWidth, parent.clientHeight, GAME_WIDTH, GAME_HEIGHT)
+    const zoomFor = () => fitZoom(parent.clientWidth, parent.clientHeight, GAME_WIDTH, GAME_HEIGHT)
     let cancelled = false
     let observer: ResizeObserver | null = null
 
@@ -45,7 +45,7 @@ export function PhaserGame() {
         pixelArt: true,
         roundPixels: true,
         backgroundColor: PALETTE.outline,
-        // Fixed 640x360 art resolution shown at a whole-number zoom (never blurry, docs/ART.md §1)
+        // Fixed 640x360 art resolution, zoomed to fill the area: a whole number when possible (docs/ART.md §1)
         scale: { mode: Phaser.Scale.NONE, zoom: zoomFor(), autoCenter: Phaser.Scale.CENTER_BOTH },
         physics: { default: 'arcade', arcade: { debug: false } },
         // Set before any scene starts, so the first build already uses the design
@@ -74,10 +74,10 @@ export function PhaserGame() {
   }, [])
 
   return (
-    <div>
-      {/* Integer zoom is computed from this box: 16:9, grows up to 2x the game size */}
-      <div ref={host} className="mx-auto aspect-video w-full max-w-[1280px] border-4 border-slate-600" />
-      <p className="mt-2 text-center text-xs text-slate-400">
+    <div className="flex h-full min-h-0 flex-col">
+      {/* The zoom is computed from this box: it fills whatever room the flight page leaves (no page scroll) */}
+      <div ref={host} className="min-h-0 w-full flex-1 overflow-hidden border-4 border-slate-600" />
+      <p className="mt-1 shrink-0 text-center text-xs text-slate-400">
         Multiplayer server:{' '}
         {online === 'checking' ? 'checking…' : online === 'online' ? '🟢 connected' : supabase ? '🔴 cannot connect' : '⚪ not configured (solo mode)'}
       </p>

@@ -28,7 +28,8 @@ const pct = (fraction: number) => `${Math.round(fraction * 100)}%`
 const n = (value: number, digits = 0) => value.toFixed(digits)
 
 function stationState(station: Station, snap: SimSnapshot, opts: StatusOptions): StationState {
-  if (snap.activeEvents.some((a) => a.event.station === station)) return 'alarm'
+  // Optional station tasks are calm: they never turn a station red
+  if (snap.activeEvents.some((a) => a.event.station === station && a.event.kind !== 'task')) return 'alarm'
 
   const healths = STATION_SUBSYSTEMS[station]
     .map((sub) => snap.health[sub])
@@ -84,7 +85,7 @@ function stationLines(station: Station, snap: SimSnapshot, opts: StatusOptions):
         { label: 'Mission day', value: n(snap.day) },
         { label: 'Spent', value: `$${n(snap.spentM, 1)} M` },
         { label: 'Risk', value: pct(snap.risk) },
-        { label: 'Active alarms', value: String(snap.activeEvents.length) },
+        { label: 'Active alarms', value: String(snap.activeEvents.filter((a) => a.event.kind !== 'task').length) },
       ]
     case 'engine':
       return [...healthLine(snap, 'propulsion', 'Propulsion health'), { label: 'Propellant', value: `${n(snap.propellantKg, 1)} kg` }]

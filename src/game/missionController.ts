@@ -3,9 +3,11 @@
 // Determinism (FR-7.8): the engine is seeded and the clock only decides WHEN a tick runs, never what it computes.
 // No UI text here: the log text stays in the engine.
 import { ALARM_TICK_MS, LAUNCH_PHASE_MS, MISSION_TICK_MS } from '../engine/constants'
+import { explain } from '../engine/rules/explain'
+import { isTask } from '../engine/rules/tasks'
 import { score } from '../engine/rules/score'
 import { initSim, resolveEvent, simulateTick } from '../engine/sim'
-import type { Explanation, GameData, MissionDesign, SimState } from '../engine/types'
+import type { GameData, MissionDesign, SimState } from '../engine/types'
 import { bridge, type Bridge, type SimSnapshot } from './bridge'
 
 /** 0 = paused */
@@ -49,9 +51,6 @@ function snapshot(state: SimState): SimSnapshot {
   return rest
 }
 
-// TODO(SCRUM-100): replace with explain(state, design, data) once the engine has it.
-const emptyExplanation = (): Explanation => ({ summary: '', points: [] })
-
 export function createMissionController(options: MissionControllerOptions = {}): MissionController {
   const bus = options.bus ?? bridge
   const clock = options.scheduler ?? defaultScheduler
@@ -88,13 +87,16 @@ export function createMissionController(options: MissionControllerOptions = {}):
     if (clockHandle !== null) clock.clearInterval(clockHandle)
     clockHandle = null
     if (!flying || ended || speed === 0) return
-    clockSlow = (state?.activeEvents.length ?? 0) > 0 // while an alarm rings the clock slows down (it never pauses)
+    clockSlow = alarmRinging() // while an alarm rings the clock slows down (it never pauses); a station task never slows it
     clockHandle = clock.setInterval(tick, (clockSlow ? alarmTickMs : tickMs) / speed)
   }
 
+  /** Is a real alarm ringing? Optional station tasks do not count: they never slow the clock. */
+  const alarmRinging = (): boolean => (state?.activeEvents ?? []).some((a) => !isTask(a.event))
+
   /** Switches the interval when the last alarm ended or the first one started. Speed 0 keeps the clock stopped. */
   function syncClock(): void {
-    if (clockHandle !== null && (state?.activeEvents.length ?? 0) > 0 !== clockSlow) restartClock()
+    if (clockHandle !== null && alarmRinging() !== clockSlow) restartClock()
   }
 
   /** An alarm is identified by its event and the tick it started, so one that ends and rings again in the same tick still shows up. */
@@ -134,7 +136,7 @@ export function createMissionController(options: MissionControllerOptions = {}):
     bus.emit('missionEnded', {
       status: state.status === 'success' ? 'success' : 'failed',
       score: score(state, design, data),
-      explanation: emptyExplanation(),
+      explanation: explain(design, state, data),
     })
     bus.emit('phaseChanged', { phase: 'debrief' })
   }
