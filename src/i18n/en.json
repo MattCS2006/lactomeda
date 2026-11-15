@@ -195,7 +195,8 @@
         "goodFor": "Mars science and relaying rover data.",
         "tradeoff": "Sunlight is only 43% of Earth’s, and the trip takes months."
       }
-    }
+    },
+    "confirmNeeds": "Pick an orbit, a launcher and ground stations to continue."
   },
   "launcher": {
     "heading": "Choose your launcher",
@@ -214,6 +215,27 @@
       "GTO": "High Earth orbit",
       "TLI": "Moon / L2",
       "ESCAPE": "Deep space"
+    }
+  },
+  "ground": {
+    "heading": "Choose your ground stations",
+    "intro": "Your spacecraft can only send data home while a ground station can see it. More and bigger stations give more minutes of contact per day, but cost more every year.",
+    "contact": "Contact per day",
+    "contactValue": "{{value}} min/day",
+    "allDay": "All day",
+    "times": "×{{value}} vs one station ({{base}} min)",
+    "pickOrbit": "Pick an orbit to see the minutes",
+    "costYear": "Cost per year",
+    "costMission": "For this mission",
+    "costMissionValue": "{{cost}} ({{years}} years)",
+    "reach": "Reaches",
+    "reachValue": "up to {{value}}",
+    "tooFar": "Too far: reaches up to {{reach}}, your orbit is {{distance}} away.",
+    "catalog": {
+      "gn-university": "One small dish on campus. Cheap, but it only sees you for a few passes a day.",
+      "gn-commercial": "A rented network of stations around the world: many more passes per day.",
+      "gn-nen": "NASA’s network for spacecraft near Earth, out to the Moon and L2.",
+      "gn-dsn": "NASA’s giant dishes in California, Spain and Australia. The only way to talk to deep space."
     }
   }
 }
