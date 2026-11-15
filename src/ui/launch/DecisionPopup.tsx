@@ -75,7 +75,7 @@ export function DecisionPopup({ alarm, state, design, data, onClose }: Props) {
                   onClick={() => choose(option.id)}
                   className="pixel-button flex h-full w-full flex-col items-start gap-2 p-3 text-left"
                 >
-                  <span className="text-xs text-shine">{option.label}</span>
+                  <span className="font-pixel text-xs text-shine">{option.label}</span>
                   <span className="flex flex-wrap gap-1">
                     {chips.length === 0 ? (
                       <span className="border border-metal-light px-1 text-[10px] text-metal-light">

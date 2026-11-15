@@ -40,14 +40,14 @@ export default function App() {
   // FR-1.1 — the game opens on the landing menu
   if (screen === 'landing') {
     return (
-      <main className="min-h-screen bg-outline p-6 font-pixel text-xs leading-relaxed text-white">
+      <main className="min-h-screen bg-outline p-6 text-xs leading-relaxed text-white">
         <Landing data={gameData} />
       </main>
     )
   }
 
   return (
-    <main className="min-h-screen bg-outline p-6 font-pixel text-xs leading-relaxed text-white">
+    <main className="min-h-screen bg-outline p-6 text-xs leading-relaxed text-white">
       <header className="relative mb-6 text-center">
         <button
           type="button"

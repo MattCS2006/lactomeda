@@ -27,6 +27,7 @@ export function MaturityMeter({ data }: Props) {
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <h2 id="cml-heading" className="text-[10px] uppercase text-metal-light" title={t('cml.help')}>
           {t('cml.heading')}
+          <span className="ml-2 font-sans normal-case">({t('sources.items.cml.name')})</span>
         </h2>
         <p className="text-[10px] text-shine">{reachedText}</p>
       </div>

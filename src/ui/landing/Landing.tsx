@@ -56,7 +56,7 @@ export function Landing({ data }: Props) {
                 <button
                   type="button"
                   onClick={openDesign}
-                  className="flex w-full flex-col items-start gap-1 border-2 border-outline bg-ok px-4 py-3 text-left text-outline shadow-[inset_-3px_-3px_0_var(--color-teal),0_0_0_2px_var(--color-outline)] hover:bg-ok-light focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-shine"
+                  className="font-pixel flex w-full flex-col items-start gap-1 border-2 border-outline bg-ok px-4 py-3 text-left text-outline shadow-[inset_-3px_-3px_0_var(--color-teal),0_0_0_2px_var(--color-outline)] hover:bg-ok-light focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-shine"
                 >
                   <span className="text-xs">▶ {t('landing.continue')}</span>
                   <span className="text-[10px]">
@@ -124,7 +124,7 @@ function MenuButton({ entry, primary, onChoose }: { entry: MenuEntry; primary: b
       } ${available ? '' : 'cursor-not-allowed! text-metal-light!'}`}
     >
       <span className="flex flex-col gap-1">
-        <span className="text-xs">
+        <span className="font-pixel text-xs">
           {primary ? '▶ ' : ''}
           {t(`landing.entry.${entry}`)}
         </span>
@@ -133,7 +133,7 @@ function MenuButton({ entry, primary, onChoose }: { entry: MenuEntry; primary: b
         </span>
       </span>
       {reason && (
-        <span className="shrink-0 border px-2 py-1 text-[8px] uppercase border-warning text-warning">
+        <span className="shrink-0 border px-2 py-1 text-[10px] uppercase border-warning text-warning">
           {reason === 'landing.offlineReason' ? t('landing.offline') : t('landing.soon')}
         </span>
       )}

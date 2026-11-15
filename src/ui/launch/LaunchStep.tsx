@@ -172,7 +172,7 @@ export function LaunchStep({ data }: { data: GameData }) {
             disabled={!decision.allowed}
             aria-describedby="launch-reason"
             onClick={() => startMission(design, data)}
-            className="border-2 border-outline bg-ok px-6 py-3 text-sm text-outline shadow-[inset_-3px_-3px_0_var(--color-teal)] hover:bg-ok-light focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-shine disabled:cursor-not-allowed disabled:bg-metal disabled:text-metal-dark disabled:shadow-none"
+            className="font-pixel border-2 border-outline bg-ok px-6 py-3 text-sm text-outline shadow-[inset_-3px_-3px_0_var(--color-teal)] hover:bg-ok-light focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-shine disabled:cursor-not-allowed disabled:bg-metal disabled:text-metal-dark disabled:shadow-none"
           >
             {t('review.launch')} ▲
           </button>

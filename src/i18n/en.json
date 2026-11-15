@@ -13,14 +13,14 @@
   },
   "scenario": {
     "heading": "Choose your mission",
-    "intro": "Every scenario has its own goal, budget and deadline. There is no single right design — pick one and start planning.",
-    "objectives": "Objectives",
+    "intro": "Each mission has its own goal, budget and deadline. There is no single right answer. Pick one to start.",
+    "objectives": "What you must do",
     "destination": "Destination",
     "budget": "Budget",
     "deadline": "Build deadline",
     "duration": "Mission length",
     "difficulty": "Recommended difficulty",
-    "orbits": "Allowed orbits",
+    "orbits": "Orbits you can use",
     "select": "Select",
     "selected": "Selected",
     "start": "Set requirements",
@@ -70,7 +70,7 @@
   },
   "requirements": {
     "heading": "Set your targets",
-    "intro": "Turn the goals of {{name}} into numbers you will be judged on. Harder targets can earn more points, but they make the spacecraft harder to design.",
+    "intro": "Turn the goals of {{name}} into numbers you will be scored on. Harder targets earn more points but are harder to build.",
     "confirm": "Confirm requirements",
     "level": {
       "threshold": "Threshold",
@@ -78,26 +78,26 @@
       "goal": "Goal"
     },
     "levelHelp": {
-      "threshold": "The minimum. Below this, the objective fails.",
-      "baseline": "What the mission promises. A solid, balanced choice.",
-      "goal": "The stretch target. Best science, hardest design."
+      "threshold": "The least you can accept. Miss this and the goal fails.",
+      "baseline": "What the mission promises. A balanced choice.",
+      "goal": "The stretch target. Best science, hardest to build."
     },
     "atMost": "max {{value}} {{unit}}",
     "atLeast": "min {{value}} {{unit}}",
     "scoreMultiplier": "×{{value}} score",
     "potential": "Score potential",
-    "potentialHelp": "Average of your levels. Applied to the objectives part of the final score.",
+    "potentialHelp": "The average of your levels. It boosts the goals part of your final score.",
     "vsBaseline": {
-      "stricter": "{{factor}}× stricter than baseline",
+      "stricter": "{{factor}}× harder than baseline",
       "easier": "{{factor}}× easier than baseline",
       "same": "Same as baseline"
     },
-    "pushesOn": "Pushes on",
-    "pressure": "Harder to meet",
-    "pressureNone": "Nothing above baseline — a balanced start."
+    "pushesOn": "Puts pressure on",
+    "pressure": "Harder to reach",
+    "pressureNone": "Nothing above baseline: an easy, balanced start."
   },
   "metric": {
-    "resolution": "Image resolution",
+    "resolution": "Image sharpness",
     "revisit": "Revisit time",
     "dataPerDay": "Data per day",
     "lifetime": "Mission lifetime"
@@ -112,15 +112,15 @@
   },
   "payload": {
     "heading": "Pick your instruments",
-    "intro": "Instruments collect the science. Each one adds mass, power, cost and data that the rest of the spacecraft must carry.",
+    "intro": "Instruments collect the science. Each one adds weight, power use, cost and data that the spacecraft must handle.",
     "selectedCount": "{{count}} selected",
     "slots": "Slots {{used}}/{{max}}",
-    "noBus": "No bus chosen yet: instrument slot limits will apply once you pick a spacecraft size.",
-    "slotsFull": "No free instrument slot on this bus. Remove one or choose a bigger bus.",
+    "noBus": "You have not picked a spacecraft size yet. Slot limits will apply once you do.",
+    "slotsFull": "No free slot on this bus. Remove an instrument or pick a bigger bus.",
     "add": "Add",
     "added": "Added",
     "helps": "Helps: {{objectives}}",
-    "helpsNone": "Not used by this mission’s objectives",
+    "helpsNone": "Not needed for this mission’s goals",
     "confirm": "Confirm payload",
     "stat": {
       "mass": "Mass",
@@ -130,32 +130,32 @@
       "science": "Science"
     },
     "incompatible": {
-      "objective": "Measures nothing this mission needs. Mission goals: {{needs}}.",
+      "objective": "Measures nothing this mission needs. The mission needs: {{needs}}.",
       "orbit": "Only works from {{orbits}}, and this mission can’t fly there.",
       "chosenOrbit": "Doesn’t work from your chosen orbit ({{orbit}}).",
       "title": "Not available",
-      "warning": "Incompatible — remove it"
+      "warning": "Doesn’t fit: remove it"
     },
     "compatibleCount": "{{count}} of {{total}} instruments fit this mission",
     "addAnother": "Add another",
     "removeOne": "Remove one",
-    "marginal_one": "+{{value}} science, half because you already have one",
-    "marginal_other": "+{{value}} science, {{pct}}% because you already have {{count}}"
+    "marginal_one": "+{{value}} science (half, because you already have one)",
+    "marginal_other": "+{{value}} science ({{pct}}%, because you already have {{count}})"
   },
   "orbit": {
     "heading": "Choose your orbit",
-    "intro": "Where your spacecraft flies decides how sharp its images are, how long it sits in shadow, how often it can talk to the ground and how harsh the radiation is.",
+    "intro": "Your orbit decides how sharp your images are, how long you sit in shadow, how often you can talk to the ground, and how much radiation you get.",
     "confirm": "Continue",
     "goodFor": "Good for",
     "tradeoff": "Trade-off",
-    "notAllowed": "This mission can’t fly here: it is outside the scenario’s allowed orbits.",
-    "instrumentsLost": "Your instruments that won’t work here: {{names}}",
+    "notAllowed": "This mission can’t fly here. The scenario doesn’t allow this orbit.",
+    "instrumentsLost": "Instruments that won’t work here: {{names}}",
     "gmat": "Computed with NASA GMAT",
     "stat": {
       "altitude": "Altitude",
       "period": "One orbit",
       "eclipse": "Shadow",
-      "contact": "Ground contact",
+      "contact": "Time to send data home",
       "radiation": "Radiation",
       "source": "Source"
     },
@@ -182,11 +182,11 @@
     "catalog": {
       "leo": {
         "goodFor": "Sharp Earth images and low-cost missions close to home.",
-        "tradeoff": "Short ground contacts, and air drag slowly pulls the spacecraft down."
+        "tradeoff": "Short chances to talk to the ground. Thin air slowly pulls the spacecraft down."
       },
       "sso": {
         "goodFor": "Earth observation with the same lighting every day.",
-        "tradeoff": "Needs more launch energy than a plain low orbit."
+        "tradeoff": "Needs a more powerful launch than a plain low orbit."
       },
       "meo": {
         "goodFor": "Navigation satellites, like GPS.",
@@ -194,7 +194,7 @@
       },
       "geo": {
         "goodFor": "Weather and nonstop watch over one region.",
-        "tradeoff": "Low image detail, expensive launch and a long way to talk to."
+        "tradeoff": "Less detailed images, an expensive launch, and a long way to send data."
       },
       "molniya": {
         "goodFor": "Long views of the far north.",
@@ -202,26 +202,26 @@
       },
       "l2": {
         "goodFor": "Telescopes: stable, cold, with the Sun always behind.",
-        "tradeoff": "Needs the Deep Space Network, and data comes down slowly."
+        "tradeoff": "Needs NASA’s Deep Space Network, and data comes home slowly."
       },
       "lunar": {
         "goodFor": "Mapping the Moon.",
-        "tradeoff": "Takes a lot of fuel to get there, and comms are far away."
+        "tradeoff": "Takes lots of fuel to reach, and Earth is far away."
       },
       "mars": {
         "goodFor": "Mars science and relaying rover data.",
-        "tradeoff": "Sunlight is only 43% of Earth’s, and the trip takes months."
+        "tradeoff": "Sunlight is only 43% as strong as at Earth, and the trip takes months."
       }
     },
-    "confirmNeeds": "Pick an orbit, a launcher and ground stations to continue."
+    "confirmNeeds": "Pick an orbit, a rocket and ground stations to continue."
   },
   "launcher": {
     "heading": "Choose your launcher",
-    "intro": "The rocket must lift your spacecraft to the orbit you chose. Bigger rockets carry more and reach farther, but cost more. Cheaper rides can be less reliable.",
+    "intro": "The rocket must lift your spacecraft to your orbit. Bigger rockets lift more and go farther, but cost more. Cheap rides can be riskier.",
     "pickOrbitFirst": "Pick an orbit above to see which launchers can reach it.",
-    "capacity": "Can lift to",
+    "capacity": "Can lift up to",
     "cost": "Cost",
-    "reliability": "Reliability",
+    "reliability": "Chance it works",
     "reliabilityValue": "{{value}}% ({{fail}}% chance of failure)",
     "free": "Free",
     "cantReach": "Can’t reach {{orbit}}.",
@@ -236,11 +236,11 @@
   },
   "ground": {
     "heading": "Choose your ground stations",
-    "intro": "Your spacecraft can only send data home while a ground station can see it. More and bigger stations give more minutes of contact per day, but cost more every year.",
-    "contact": "Contact per day",
+    "intro": "Your spacecraft can only send data home when a ground station can see it. More and bigger stations mean more minutes per day, but they cost more each year.",
+    "contact": "Time to send data home each day",
     "contactValue": "{{value}} min/day",
     "allDay": "All day",
-    "times": "×{{value}} vs one station ({{base}} min)",
+    "times": "×{{value}} compared with one station ({{base}} min)",
     "pickOrbit": "Pick an orbit to see the minutes",
     "costYear": "Cost per year",
     "costMission": "For this mission",
@@ -249,15 +249,15 @@
     "reachValue": "up to {{value}}",
     "tooFar": "Too far: reaches up to {{reach}}, your orbit is {{distance}} away.",
     "catalog": {
-      "gn-university": "One small dish on campus. Cheap, but it only sees you for a few passes a day.",
-      "gn-commercial": "A rented network of stations around the world: many more passes per day.",
-      "gn-nen": "NASA’s network for spacecraft near Earth, out to the Moon and L2.",
-      "gn-dsn": "NASA’s giant dishes in California, Spain and Australia. The only way to talk to deep space."
+      "gn-university": "One small dish on campus. Cheap, but it only sees you a few times a day.",
+      "gn-commercial": "A rented network of stations around the world: many more chances per day.",
+      "gn-nen": "NASA’s network for spacecraft near Earth, as far as the Moon and L2.",
+      "gn-dsn": "NASA’s giant dishes in California, Spain and Australia. The only way to reach deep space."
     }
   },
   "resources": {
     "heading": "Mission resources",
-    "margin": "Margin",
+    "margin": "Room to spare",
     "needs": "Needs",
     "need": {
       "bus": "bus",
@@ -277,7 +277,7 @@
     }
   },
   "cml": {
-    "heading": "Concept maturity (JPL CML)",
+    "heading": "Mission progress",
     "reached": "Reached: CML {{level}} · {{name}}",
     "reachedNone": "Reached: none yet",
     "level": "CML {{level}}",
@@ -303,11 +303,11 @@
     },
     "debrief": "Your concept reached CML {{level}}: {{name}}.",
     "debriefNone": "Your concept has not reached CML 1 yet.",
-    "help": "NASA JPL rates how mature a mission concept is with Concept Maturity Levels. Each phase of the game moves your concept up one level."
+    "help": "(NASA/JPL Concept Maturity Level) NASA’s Jet Propulsion Laboratory rates how developed a mission idea is, from CML 1 to 4. Each phase of the game moves your idea up one level."
   },
   "segments": {
-    "heading": "Mission segments",
-    "help": "NASA splits every science mission into four segments: launch, space, ground and user.",
+    "heading": "The 4 parts of every mission",
+    "help": "NASA splits every science mission into four parts: launch, space, ground and user.",
     "name": {
       "launch": "Launch",
       "space": "Space",
@@ -317,7 +317,7 @@
     "tabDone": "done",
     "tabTodo": "to do",
     "summary": "Mission summary by segment",
-    "summaryIntro": "Your design so far, organised the way NASA plans a science mission.",
+    "summaryIntro": "Your design so far, sorted the way NASA plans a science mission.",
     "notChosen": "Not chosen yet",
     "raw": "{{text}}",
     "percent": "{{value}}%",
@@ -332,7 +332,7 @@
       "orbit": "Orbit",
       "mass": "Spacecraft mass",
       "network": "Ground stations",
-      "contact": "Contact per day",
+      "contact": "Time to send data home each day",
       "dataPerDay": "Science data per day",
       "users": "Who uses the data",
       "objective": "Objective"
@@ -356,8 +356,8 @@
       "componentSlots": "Parts",
       "mass": "Mass",
       "power": "Power",
-      "reliability": "Reliability",
-      "trl": "TRL"
+      "reliability": "Chance it works",
+      "trl": "How proven"
     },
     "power": {
       "generates": "Makes {{value}} W",
@@ -367,11 +367,11 @@
     "special": {
       "battery": "Stores {{value}} Wh",
       "radio": "Sends {{value}}",
-      "deltaV": "Δv {{value}} m/s",
+      "deltaV": "Fuel to change orbit: {{value}} m/s",
       "storage": "Holds {{value}}"
     },
     "advanced": "Advanced",
-    "trlHelp": "Technology Readiness Level: 9 = flown many times, lower = newer and riskier.",
+    "trlHelp": "TRL (Technology Readiness Level) shows how proven a part is. 9 = flown many times. Lower = newer and riskier.",
     "reliabilityValue": "{{value}}%",
     "progress": "{{done}} of {{total}} subsystems chosen",
     "preview": "Your spacecraft",
@@ -398,16 +398,16 @@
       "what": "Runs the spacecraft and stores data until it can be sent home."
     },
     "attitude": {
-      "name": "Attitude control",
-      "what": "Points the spacecraft: cameras at the target, antennas at Earth."
+      "name": "Pointing",
+      "what": "Attitude control keeps the spacecraft facing the right way: cameras at the target, antennas at Earth."
     },
     "propulsion": {
       "name": "Propulsion",
-      "what": "Thrusters to change orbit, dodge debris and stay up longer."
+      "what": "Thrusters to change orbit, dodge junk and stay up longer."
     },
     "thermal": {
       "name": "Thermal",
-      "what": "Keeps parts not too hot and not too cold."
+      "what": "Keeps parts from getting too hot or too cold."
     },
     "comms": {
       "name": "Comms",
@@ -420,7 +420,7 @@
     "WRONG_SUBSYSTEM": "That part does not belong to {{subsystem}}: pick another one.",
     "LOW_SOLAR_POWER": "Far from the Sun, solar panels make much less power. Consider an RTG.",
     "TOO_MANY_INSTRUMENTS": "Too many instruments for this bus: remove one or pick a bigger bus.",
-    "TOO_MANY_COMPONENTS": "Too many parts for this bus (backups count twice): pick a bigger bus.",
+    "TOO_MANY_COMPONENTS": "Too many parts for this bus (backups count twice). Pick a bigger bus.",
     "OVER_BUS_MASS": "Too heavy for this bus: pick a bigger bus or lighter parts.",
     "UNKNOWN_BUS_CLASS": "This bus size no longer exists: pick another one.",
     "MISSING_BUS_CLASS": "Choose a bus size."
@@ -451,29 +451,29 @@
     "howTo": {
       "heading": "How to play",
       "close": "Close",
-      "design": "Design: pick a mission, set its targets, then build the spacecraft, choose instruments, orbit, rocket and ground stations.",
-      "resources": "Watch the resource bar: mass, power, budget, data, comms and time. Green is fine, amber is tight, red is over.",
-      "maturity": "Every finished phase raises your concept maturity, like NASA JPL rates real mission ideas (CML 1 to 4).",
-      "flight": "Fly: walk around your ship and answer emergencies at each station before time runs out.",
-      "debrief": "Debrief: see your score and why the mission worked or failed, then fly again with one change."
+      "design": "Design: pick a mission and set its targets. Then build the spacecraft and choose instruments, orbit, rocket and ground stations.",
+      "resources": "Watch the resource bar: weight, power, budget, data, radio and time. Green is fine, amber is tight, red is over.",
+      "maturity": "Each finished phase raises your mission progress, the way NASA JPL rates real mission ideas (CML 1 to 4).",
+      "flight": "Fly: walk around your ship and fix emergencies at each station before time runs out.",
+      "debrief": "Debrief: see your score and why the mission worked or failed. Then fly again with one change."
     },
     "menu": "Menu",
     "logo": "LACTOMEDA",
     "sources": "NASA Sources",
     "sourcesHint": "The NASA resources behind this game.",
     "offline": "Offline",
-    "offlineReason": "The multiplayer server can't be reached right now. Play Solo still works."
+    "offlineReason": "The team server can’t be reached right now. Play Solo still works."
   },
   "tooltip": {
     "label": "What is this?",
     "close": "Close",
     "items": {
-      "mass": "Everything the spacecraft weighs: parts, instruments and fuel. It must fit the bus limit and the rocket’s lift to your orbit.",
-      "power": "Electricity the spacecraft uses on average, compared with what its solar panels or RTG make. Shadow time counts: no sun, no solar power.",
+      "mass": "Everything the spacecraft weighs: parts, instruments and fuel. It must fit the bus limit and what the rocket can lift to your orbit.",
+      "power": "The electricity the spacecraft uses, compared with what its solar panels or RTG make. In shadow there is no sunlight, so no solar power.",
       "budget": "Money for the whole mission: building the spacecraft, the launch and paying ground stations every year until the mission ends.",
-      "data": "Science data your instruments collect each day, compared with how much you can send down to Earth. Data you cannot send is lost.",
+      "data": "Science data your instruments collect each day, compared with how much you can send to Earth. Data you can’t send is lost.",
       "comms": "Minutes per day you need to talk to Earth, compared with the minutes ground stations can actually see your spacecraft.",
-      "time": "How long the mission must last, compared with how long the spacecraft is likely to survive. Radiation and weak parts shorten its life.",
+      "time": "How long the mission must last, compared with how long the spacecraft will probably survive. Radiation and weak parts shorten its life.",
       "cubesat-1u": "A 10 cm cube, about 1 kg. The smallest standard satellite: room for one tiny instrument. Great for learning, very cheap.",
       "cubesat-2u": "Two 1U cubes stacked: 20 cm long. A little more room for batteries or a slightly bigger instrument.",
       "cubesat-3u": "Three cubes, the size of a loaf of bread. The most popular CubeSat: enough room for two small instruments.",
@@ -500,21 +500,21 @@
       "obc-radtol": "A computer designed to tolerate radiation: fewer glitches during solar storms and in higher orbits.",
       "obc-radhard": "A radiation-hardened computer like the RAD750 used on Mars rovers. Very reliable, slow and expensive.",
       "obc-edge": "A powerful computer that processes images on board and sends only the useful parts. New technology, less tested.",
-      "adcs-mag": "Coils that push against Earth’s magnetic field to turn the spacecraft. Light and cheap, but pointing is rough.",
+      "adcs-mag": "Coils that push against Earth’s magnetic field to turn the spacecraft. Light and cheap, but not very precise.",
       "adcs-cubesat": "Tiny spinning wheels plus a star camera: points a CubeSat accurately enough for imaging.",
       "adcs-smallsat": "Reaction wheels and star trackers: precise pointing for SmallSat cameras and antennas.",
       "adcs-cmg": "Control moment gyroscopes: big spinning wheels that can turn large spacecraft quickly, like the ISS uses.",
-      "adcs-fine": "An extra-precise guidance system that keeps a telescope locked on a star, like Hubble or JWST.",
+      "adcs-fine": "An extra-precise pointing system that keeps a telescope locked on a star, like Hubble or JWST.",
       "prop-none": "No engine at all. Lighter and cheaper, but the spacecraft cannot change orbit or dodge debris.",
       "prop-coldgas": "Small puffs of compressed gas. Gentle and safe, enough for small corrections on a CubeSat.",
-      "prop-mono": "Hydrazine thrusters, used on most satellites to stay in orbit and avoid debris for years.",
+      "prop-mono": "Hydrazine thrusters, used on most satellites to stay in orbit and dodge junk for years.",
       "prop-biprop": "A main engine burning two propellants: powerful enough to reach the Moon or Mars orbit. Very heavy.",
       "prop-hall": "An electric thruster that pushes charged gas with magnets. Tiny push but very efficient; needs lots of power.",
       "thm-passive": "Special paint and gold blankets (MLI) that keep the spacecraft at a safe temperature with no power.",
       "thm-heaters": "Insulating blankets plus small electric heaters that turn on when parts get too cold.",
       "thm-radiators": "Pumps move heat to radiator panels that shed it to space. Needed for powerful, hot instruments.",
       "thm-cryo": "A sunshield and cryocooler that keep a telescope extremely cold, like JWST, so it can see infrared light.",
-      "com-uhf": "A simple radio that amateur stations can hear. Very slow: a few kilobits per second.",
+      "com-uhf": "A simple radio that amateur stations can hear. Very slow: a few kilobits per second (kbps).",
       "com-sband": "A common satellite radio with a flat antenna. About 100 times faster than UHF.",
       "com-xband": "A fast radio used by Earth-observation satellites to send down huge images during short passes.",
       "com-hga": "A big dish antenna that can talk across millions of kilometres to NASA’s Deep Space Network.",
@@ -553,17 +553,17 @@
   },
   "difficultyPicker": {
     "heading": "Choose a difficulty",
-    "intro": "Harder levels unlock advanced parts but bring more emergencies and tighter margins.",
+    "intro": "Harder levels unlock advanced parts, but bring more emergencies and less room to spare.",
     "recommended": "Recommended for this mission",
     "who": {
       "cadet": "First mission? Start here.",
       "engineer": "You know the trade-offs.",
-      "flightDirector": "Tight margins, frequent trouble."
+      "flightDirector": "Little room to spare, lots of trouble."
     },
     "partsSimple": "Simple, proven parts only",
     "partsAll": "All parts, including advanced",
     "events": "Emergencies in flight: ×{{value}}",
-    "massMargin": "Keep {{value}}% mass margin",
+    "massMargin": "Keep {{value}}% weight to spare",
     "riskNo": "Every red must be fixed before launch",
     "riskYes": "Can launch by accepting the risk",
     "hintsOn": "Hints on",
@@ -571,7 +571,7 @@
   },
   "altitude": {
     "heading": "Fine-tune the altitude",
-    "intro": "Lower means sharper images, but the thin air there drags the spacecraft down sooner. Higher lasts longer but sees less detail.",
+    "intro": "Lower gives sharper images, but thin air drags the spacecraft down sooner. Higher lasts longer but sees less detail.",
     "label": "Altitude",
     "value": "{{value}} km",
     "reset": "Back to {{value}} km",
@@ -582,9 +582,9 @@
     "decay": "Falls back to Earth (no thrusters)",
     "lifetime": "Mission lifetime estimate",
     "limitedBy": {
-      "reliability": "limited by part wear",
-      "propellant": "limited by fuel for staying up",
-      "orbitDecay": "limited by orbit decay"
+      "reliability": "ends when parts wear out",
+      "propellant": "ends when fuel for staying up runs out",
+      "orbitDecay": "ends when the orbit sinks too low"
     },
     "sharper": "▲ sharper than at {{value}} km",
     "blurrier": "▼ less detail than at {{value}} km",
@@ -606,8 +606,8 @@
     "flyAgain": "Fly again",
     "flyAgainNew": "Fly again with new events",
     "flyAgainHelp": "Your design is kept. Change one thing, fly again and compare.",
-    "sameEvents": "Same launch roll and events as last time, so only your changes make a difference.",
-    "newEvents": "Same design, but the launch roll and events are drawn again.",
+    "sameEvents": "Same launch roll and emergencies as last time, so only your changes matter.",
+    "newEvents": "Same design, but the launch roll and emergencies are drawn again.",
     "sinceHeading": "Since your last flight",
     "noChanges": "Nothing changed yet. Change one thing and fly again to see its effect.",
     "changeCount_one": "{{count}} change:",
@@ -633,7 +633,7 @@
   "sources": {
     "button": "NASA Sources",
     "heading": "NASA Sources",
-    "intro": "This game is built on the {{count}} resources of the NASA Space Apps challenge. Each one has a job in the game; here is what it does and where you see it.",
+    "intro": "This game uses the {{count}} resources of the NASA Space Apps challenge. Each one has a job in the game. Here is what it does and where you see it.",
     "use": "In the game",
     "where": "Where you see it",
     "open": "Open the original",
@@ -643,22 +643,22 @@
     "items": {
       "scienceMissions": {
         "name": "Design and Develop Science Missions",
-        "use": "The four mission segments (launch, space, ground and user) organise the design tabs and the report. The user segment shows who uses your data, like fire agencies for the wildfire mission.",
+        "use": "The four mission parts (launch, space, ground and user) organise the design tabs and the report. The user part shows who uses your data, like fire agencies in the wildfire mission.",
         "where": "Segment tabs, mission report, debrief"
       },
       "gmat": {
         "name": "GMAT (General Mission Analysis Tool)",
-        "use": "Our orbits are computed with NASA GMAT scripts: period, time in Earth's shadow and minutes of ground contact per day. The power and comms budgets use those numbers.",
+        "use": "We computed our orbits with NASA GMAT scripts: orbit time, time in Earth’s shadow and minutes of ground contact per day. The power and radio budgets use those numbers.",
         "where": "Orbit cards (\"computed with NASA GMAT\"), power and comms budgets"
       },
       "cml": {
         "name": "Concept Maturity Levels (JPL)",
-        "use": "The design phases follow JPL's maturity levels, CML 1 to 4. The maturity meter rises as your concept grows, and the debrief tells you the level you reached.",
+        "use": "The design phases follow JPL’s maturity levels, CML 1 to 4. The progress meter rises as your concept grows, and the debrief shows the level you reached.",
         "where": "Phase titles, maturity meter, debrief"
       },
       "mdl": {
         "name": "Mission Design Lab (NASA Goddard)",
-        "use": "The design review works like a Mission Design Lab study: one finding per discipline plus an equipment list and cost. Those disciplines are also the rooms of your ship.",
+        "use": "The design review works like a Mission Design Lab study: one finding per subject, plus an equipment list and cost. Those subjects are also the rooms of your ship.",
         "where": "Design review, ship rooms, mission report"
       },
       "missionViz": {
@@ -668,7 +668,7 @@
       },
       "telescopeGame": {
         "name": "A Learning Game About Telescopes",
-        "use": "Your objective decides the wavelength, and the wavelength decides which instruments fit. Parts that don't fit are disabled with the reason.",
+        "use": "Your goal decides which kind of light you observe, and that decides which instruments fit. Parts that don’t fit are greyed out, with the reason.",
         "where": "Payload screen, Space Telescope mission, debrief"
       },
       "cubesat101": {
@@ -683,14 +683,14 @@
       },
       "csaGames": {
         "name": "Digital games and activities (Canadian Space Agency)",
-        "use": "Our model for kid-friendly explanations. Canada's RADARSAT radar satellites inspire the radar instrument.",
+        "use": "Our model for simple, friendly explanations. Canada’s RADARSAT radar satellites inspire the radar instrument.",
         "where": "Tooltips, radar instrument card"
       }
     }
   },
   "review": {
     "heading": "Design review",
-    "intro": "Like a study at NASA's Mission Design Lab, every discipline checks your design before launch. Fix the red items, or accept the risk if your difficulty allows it.",
+    "intro": "Like a study at NASA’s Mission Design Lab, each subject checks your design before launch. Fix the red items, or accept the risk if your difficulty allows it.",
     "verdict": {
       "go": "GO",
       "concern": "CONCERN",
@@ -702,7 +702,7 @@
       "noGo": "Something must be fixed before launch."
     },
     "resourcesHeading": "Resources",
-    "margin": "Margin {{value}}%",
+    "margin": "Room to spare: {{value}}%",
     "disciplinesHeading": "Findings by discipline",
     "discipline": {
       "power": "Power",
@@ -711,7 +711,7 @@
       "structures": "Structures",
       "avionics": "Avionics",
       "comms": "Comms",
-      "attitude": "Attitude control",
+      "attitude": "Pointing",
       "cost": "Cost",
       "risk": "Risk"
     },
@@ -719,13 +719,13 @@
     "equipmentHeading": "Equipment list ({{count}} items)",
     "col": {
       "item": "Item",
-      "mass": "Mass (kg)",
+      "mass": "Weight (kg)",
       "power": "Power (W)",
       "cost": "Cost ($M)"
     },
     "redundant": "(with backup)",
     "total": "Total",
-    "acceptRisk": "I accept the risk: launch even though some items are red. The mission is more likely to fail.",
+    "acceptRisk": "I accept the risk: launch even with red items. The mission is more likely to fail.",
     "decision": {
       "clear": "Design review passed. Ready to launch.",
       "riskAccepted": "Risk accepted. You can launch.",
@@ -770,11 +770,11 @@
     "waiting": "Up to 4 players can join.",
     "leave": "Leave room",
     "status": {
-      "connecting": "Connecting to the multiplayer server…",
+      "connecting": "Connecting to the team server…",
       "full": "This room is full (4 of 4 players). Ask your host to start another room.",
       "notFound": "No room with this code. Check the letters and try again.",
-      "error": "Couldn't reach the multiplayer server. Try again in a moment.",
-      "offline": "The multiplayer server isn't available. Play Solo still works."
+      "error": "Couldn’t reach the team server. Try again in a moment.",
+      "offline": "The team server isn’t available. Play Solo still works."
     },
     "rolesHeading": "Roles",
     "merged": "With {{n}} players some roles are merged, so every role still has an owner.",
@@ -785,7 +785,7 @@
       },
       "engineer": {
         "name": "Spacecraft Engineer",
-        "owns": "The bus: structure, power, attitude control, propulsion and thermal."
+        "owns": "The bus: frame, power, pointing, thrusters and heat control."
       },
       "scientist": {
         "name": "Payload Scientist",
@@ -838,7 +838,7 @@
   },
   "hud": {
     "heading": "Flight HUD",
-    "waiting": "Waiting for the first telemetry…",
+    "waiting": "Waiting for the first live data…",
     "day": "Day {{day}} of {{total}}",
     "missionProgress": "Mission progress",
     "label": {
@@ -877,7 +877,7 @@
     "segment": {
       "countdown": "Liftoff!",
       "liftoff": "Liftoff!",
-      "maxQ": "Max Q: the hardest push of the air",
+      "maxQ": "Max Q: the moment the air pushes back hardest",
       "stageSeparation": "Stage separation",
       "fairingSeparation": "Fairing separation",
       "upperStage": "Upper stage burn",

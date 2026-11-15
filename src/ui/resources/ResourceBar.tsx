@@ -58,7 +58,7 @@ function ResourceCellView({ cell }: { cell: ResourceCell }) {
           <InfoTip id={cell.key} />
         </span>
         {/* FR-6.2 — state as icon + text, colour only reinforces it */}
-        <span className={`shrink-0 border px-2 py-1 text-[8px] uppercase ${look.badge}`}>{state}</span>
+        <span className={`shrink-0 border px-2 py-1 text-[10px] uppercase ${look.badge}`}>{state}</span>
       </span>
       <span className="break-words">
         {used}

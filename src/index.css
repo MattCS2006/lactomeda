@@ -7,6 +7,14 @@ body,
   background: #1a1c2c; /* palette outline */
 }
 
+/* Readable by default (body text, numbers, tables, tooltips, pop-ups). The pixel font is kept only for
+   titles, headings and main buttons: see --font-pixel below. */
+html,
+body {
+  font-family: var(--font-readable);
+  font-variant-numeric: tabular-nums;
+}
+
 canvas {
   image-rendering: pixelated;
 }
@@ -31,6 +39,18 @@ canvas {
   --color-purple: #5d275d;
 
   --font-pixel: 'Press Start 2P', monospace;
+  --font-readable: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-sans: var(--font-readable);
+}
+
+/* Pixel font: titles and headings only (body text inherits the readable font from <body>) */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-pixel);
 }
 
 /* Panel: dark metal, 2px light border, 2px dark outline outside (same look as the in-game panels) */
@@ -41,7 +61,8 @@ canvas {
   color: var(--color-white);
 }
 
-/* Button: a pixel-panel you can press */
+/* Button: a pixel-panel you can press. The label is pixel; descriptions nested inside card-like buttons
+   are readable (add .font-pixel to a nested label to keep it pixel). */
 .pixel-button {
   background: var(--color-metal-dark);
   border: 2px solid var(--color-metal-light);
@@ -49,6 +70,14 @@ canvas {
   color: var(--color-white);
   font-family: var(--font-pixel);
   cursor: pointer;
+}
+
+.pixel-button :is(span, p, dl, dt, dd, ul, li) {
+  font-family: var(--font-readable);
+}
+
+.pixel-button .font-pixel {
+  font-family: var(--font-pixel);
 }
 
 .pixel-button:hover:not(:disabled) {
