@@ -564,5 +564,31 @@
     "riskYes": "Can launch by accepting the risk",
     "hintsOn": "Hints on",
     "hintsOff": "No hints"
+  },
+  "altitude": {
+    "heading": "Fine-tune the altitude",
+    "intro": "Lower means sharper images, but the thin air there drags the spacecraft down sooner. Higher lasts longer but sees less detail.",
+    "label": "Altitude",
+    "value": "{{value}} km",
+    "reset": "Back to {{value}} km",
+    "period": "One orbit",
+    "resolution": "Image detail",
+    "resolutionValue": "{{name}}: {{value}} m per pixel",
+    "noImager": "Add a camera or imager on the Payload screen to see its image detail here.",
+    "decay": "Falls back to Earth (no thrusters)",
+    "lifetime": "Mission lifetime estimate",
+    "limitedBy": {
+      "reliability": "limited by part wear",
+      "propellant": "limited by fuel for staying up",
+      "orbitDecay": "limited by orbit decay"
+    },
+    "sharper": "▲ sharper than at {{value}} km",
+    "blurrier": "▼ less detail than at {{value}} km",
+    "sooner": "▼ sooner than at {{value}} km",
+    "later": "▲ later than at {{value}} km",
+    "days": "{{value}} days",
+    "months": "{{value}} months",
+    "years": "{{value}} years",
+    "forever": "Never (no air drag)"
   }
 }

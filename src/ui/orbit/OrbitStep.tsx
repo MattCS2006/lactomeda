@@ -5,6 +5,7 @@ import type { GameData } from '../../engine/types'
 import { translateLabel, type Label } from '../scenarios/scenarioView'
 import { useMissionStore } from '../store/missionStore'
 import { SegmentReport } from '../segments/SegmentReport'
+import { AltitudeSlider } from './AltitudeSlider'
 import { GroundSection } from './GroundSection'
 import { LauncherSection } from './LauncherSection'
 import { instrumentsLostAt, toOrbitCard, type OrbitCard } from './orbitView'
@@ -46,6 +47,9 @@ export function OrbitStep({ data }: Props) {
           />
         ))}
       </div>
+
+      {/* FR-5.3 — altitude for LEO/SSO */}
+      <AltitudeSlider data={data} />
 
       <LauncherSection data={data} />
 
