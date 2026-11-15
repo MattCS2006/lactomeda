@@ -768,7 +768,7 @@
     "players": "Players {{n}} of {{max}}",
     "host": "Host",
     "you": "You",
-    "waiting": "Up to 4 players can join. Roles and the team mission come next.",
+    "waiting": "Up to 4 players can join.",
     "leave": "Leave room",
     "status": {
       "connecting": "Connecting to the multiplayer server…",
@@ -776,6 +776,36 @@
       "notFound": "No room with this code. Check the letters and try again.",
       "error": "Couldn't reach the multiplayer server. Try again in a moment.",
       "offline": "The multiplayer server isn't available. Play Solo still works."
-    }
+    },
+    "rolesHeading": "Roles",
+    "merged": "With {{n}} players some roles are merged, so every role still has an owner.",
+    "role": {
+      "director": {
+        "name": "Mission Director",
+        "owns": "Objective, requirements, budget and the final launch vote."
+      },
+      "engineer": {
+        "name": "Spacecraft Engineer",
+        "owns": "The bus: structure, power, attitude control, propulsion and thermal."
+      },
+      "scientist": {
+        "name": "Payload Scientist",
+        "owns": "The instruments and the data they produce."
+      },
+      "flightOps": {
+        "name": "Flight Ops & Comms",
+        "owns": "Orbit, launcher, ground stations and the radio link."
+      }
+    },
+    "pick": "Take this role",
+    "pickHint": "Everyone gets a role automatically. Take a free one to swap; if two players ask at once, the one who joined first keeps it.",
+    "notReady": "Waiting for players: every role needs an owner.",
+    "readyHost": "Every role has an owner. Start when your team is ready.",
+    "waitHost": "Every role has an owner. Waiting for the host to start.",
+    "start": "Start design",
+    "teamHeading": "Team room",
+    "teamCount_one": "{{count}} player",
+    "teamCount_other": "{{count}} players",
+    "yourRoles": "Your role:"
   }
 }

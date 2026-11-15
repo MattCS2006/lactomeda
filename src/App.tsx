@@ -21,6 +21,7 @@ import { stopMission } from './game/missionController'
 import { NasaSources } from './ui/sources/NasaSources'
 import { FlightView } from './ui/launch/FlightView'
 import { LaunchStep } from './ui/launch/LaunchStep'
+import { TeamBanner } from './ui/rooms/TeamBanner'
 
 export default function App() {
   const { t } = useTranslation()
@@ -73,6 +74,8 @@ export default function App() {
         <p className="mt-2 text-[10px] text-metal-light">{t('app.tagline')}</p>
       </header>
 
+      {/* FR-8.2 — team room and this player's roles */}
+      <TeamBanner />
       {/* Design screens only: the flight has its own controls */}
       {!flying && (
         <>

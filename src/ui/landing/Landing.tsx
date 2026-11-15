@@ -91,7 +91,18 @@ export function Landing({ data }: Props) {
 
       {howTo && <HowToPlay onClose={() => setHowTo(false)} />}
       {sources && <NasaSources onClose={() => setSources(false)} />}
-      {room && <RoomLobby mode={room} onClose={() => setRoom(null)} />}
+      {room && (
+        <RoomLobby
+          mode={room}
+          onClose={() => setRoom(null)}
+          onStarted={() => {
+            // FR-8.2: every role is assigned; the team goes to the design together
+            setRoom(null)
+            goTo('brief')
+            openDesign()
+          }}
+        />
+      )}
     </div>
   )
 }
