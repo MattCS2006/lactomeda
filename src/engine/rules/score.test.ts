@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { gameData } from '../../data'
+import { fullGameData as gameData } from '../../data'
 import { REFERENCE_DESIGNS } from '../../data/referenceDesigns'
 import { SCORE_MAX } from '../constants'
 import { initSim, resolveEvent, runMission, simulateTick } from '../sim'

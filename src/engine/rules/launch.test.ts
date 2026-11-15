@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { gameData } from '../../data'
+import { fullGameData as gameData } from '../../data'
 import type { MissionDesign } from '../types'
 import { busClassUsage } from './busClass'
 import { checkLauncher, launcherCompatibility, validateLaunch, wetMassKg } from './launch'

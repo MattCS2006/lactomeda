@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { gameData } from '../../data'
+import { fullGameData as gameData } from '../../data'
 import { REF_DISTANCE_DEEP_SPACE_KM, REF_DISTANCE_KM } from '../constants'
 import type { MissionDesign } from '../types'
 import { linkBudget, validateLink } from './link'

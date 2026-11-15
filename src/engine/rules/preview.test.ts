@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { gameData } from '../../data'
+import { fullGameData as gameData } from '../../data'
 import { applyChange, previewChange, previewOptions } from './preview'
 import { RESOURCE_KEYS } from './resources'
 import { componentOptions } from './components'

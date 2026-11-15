@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { gameData } from '../../data'
+import { fullGameData as gameData } from '../../data'
 import { REFERENCE_DESIGNS } from '../../data/referenceDesigns'
 import { DEV_BASE_DAYS, LATE_COST_FRACTION_PER_MONTH, LATE_SCORE_PENALTY_PER_MONTH } from '../constants'
 import { initSim } from '../sim'
