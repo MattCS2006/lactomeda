@@ -1,9 +1,10 @@
-// Phase 5 — Orbit & Launch (CML 3). First section: the orbit catalog (FR-5.1).
-// Launcher (FR-5.4) and ground stations (FR-5.6) are added to this screen next.
+// Phase 5 — Orbit & Launch (CML 3): orbit catalog (FR-5.1) and launcher catalog (FR-5.4).
+// Ground stations (FR-5.6) are added to this screen next.
 import { useTranslation } from 'react-i18next'
 import type { GameData } from '../../engine/types'
 import type { Label } from '../scenarios/scenarioView'
 import { useMissionStore } from '../store/missionStore'
+import { LauncherSection } from './LauncherSection'
 import { instrumentsLostAt, toOrbitCard, type OrbitCard } from './orbitView'
 
 interface Props {
@@ -45,6 +46,8 @@ export function OrbitStep({ data }: Props) {
         ))}
       </div>
 
+      <LauncherSection data={data} />
+
       <div className="mt-6 flex justify-between gap-3">
         <button
           type="button"
@@ -55,7 +58,7 @@ export function OrbitStep({ data }: Props) {
         </button>
         <button
           type="button"
-          disabled={!design.orbitId}
+          disabled={!design.orbitId || !design.launcherId}
           onClick={() => goTo('design')}
           className="border-2 border-[#1a1c2c] bg-[#38b764] px-5 py-3 text-xs text-[#1a1c2c] shadow-[inset_-3px_-3px_0_#257179] hover:bg-[#a7f070] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#73eff7] disabled:cursor-not-allowed disabled:bg-[#566c86] disabled:text-[#333c57] disabled:shadow-none"
         >

@@ -2,6 +2,7 @@
 // every screen edits it through this store (ERS §3 architecture).
 import { create } from 'zustand'
 import { canAddInstrument } from '../../engine/rules/busClass'
+import { launcherReasons, launchersFor } from '../orbit/launcherView'
 import { isCompatible } from '../payload/compatibility'
 import type { Difficulty, GameData, MissionDesign, RequirementLevel } from '../../engine/types'
 
@@ -53,8 +54,10 @@ interface MissionStore {
   addInstrument: (instrumentId: string, data: GameData) => void
   /** Remove one copy (the last one added). Removing always works. */
   removeInstrument: (instrumentId: string) => void
-  /** FR-5.1 — choose an orbit the scenario allows. Clears any altitude override (FR-5.3). */
+  /** FR-5.1 — choose an orbit the scenario allows. Clears any altitude override (FR-5.3) and a launcher that can't reach it. */
   selectOrbit: (orbitId: string, data: GameData) => void
+  /** FR-5.4 — choose a launcher offered in this scenario that reaches the chosen orbit. */
+  selectLauncher: (launcherId: string, data: GameData) => void
   /** Move to a step. Every step after 'brief' needs a chosen scenario. */
   goTo: (step: DesignStep) => void
 }
@@ -108,7 +111,16 @@ export const useMissionStore = create<MissionStore>((set, get) => ({
     const scenario = data.scenarios.find((s) => s.id === design.scenarioId)
     if (!scenario?.allowedOrbitIds.includes(orbitId) || !data.orbits.some((o) => o.id === orbitId)) return
     if (design.orbitId === orbitId) return
-    set({ design: { ...design, orbitId, altitudeKm: undefined } })
+    const launcher = data.launchers.find((l) => l.id === design.launcherId)
+    const keepLauncher = launcher && launcherReasons(launcher, { orbitId }, data).length === 0
+    set({ design: { ...design, orbitId, altitudeKm: undefined, launcherId: keepLauncher ? design.launcherId : null } })
+  },
+  selectLauncher: (launcherId, data) => {
+    const design = get().design
+    if (!design) return
+    const launcher = launchersFor(design.scenarioId, data).find((l) => l.id === launcherId)
+    if (!launcher || launcherReasons(launcher, design, data).length > 0) return
+    set({ design: { ...design, launcherId } })
   },
   goTo: (step) => {
     if (step !== 'brief' && !get().design) return
