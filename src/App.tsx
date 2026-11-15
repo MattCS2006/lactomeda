@@ -22,6 +22,7 @@ import { NasaSources } from './ui/sources/NasaSources'
 import { FlightView } from './ui/launch/FlightView'
 import { LaunchStep } from './ui/launch/LaunchStep'
 import { TeamBanner } from './ui/rooms/TeamBanner'
+import { LaunchOverlay } from './ui/launch/LaunchOverlay'
 
 export default function App() {
   const { t } = useTranslation()
@@ -109,6 +110,8 @@ export default function App() {
         <LaunchStep data={gameData} />
       )}
       {sources && <NasaSources onClose={() => setSources(false)} />}
+      {/* FR-9.3 — launch animation, above everything (it also covers a failed launch's debrief until it ends) */}
+      <LaunchOverlay data={gameData} />
     </main>
   )
 }

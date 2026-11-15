@@ -1,4 +1,4 @@
-// What the player sees while the mission controller runs (phases 'launch' and 'flight'): a liftoff panel, then the
+// What the player sees while the mission controller runs (phase 'flight'; the launch animation covers 'launch'): the
 // ship interior (Dev 3) with the flight controls: mission day, speed (pause / 1× / 2× / 10×, FR-7.2) and abort.
 // Alarms are answered at their station (FR-13.5): walk there and press E to open the decision pop-up.
 import { useEffect, useState } from 'react'
@@ -63,17 +63,8 @@ export function FlightView({ data }: { data: GameData }) {
   const popupAlarm =
     atStation && state ? (alarmsAtStation(state.activeEvents, atStation, shipStations)[0] ?? null) : null
 
-  if (phase === 'launch') {
-    const launcher = data.launchers.find((l) => l.id === flown?.launcherId)
-    return (
-      <section aria-live="polite" className="pixel-panel mx-auto max-w-xl p-6 text-center">
-        <p className="text-sm text-shine">{t('flightView.liftoff')}</p>
-        <p className="mt-3 text-[10px] text-metal-light">
-          {t('flightView.liftoffHint', { launcher: launcher?.name ?? '' })}
-        </p>
-      </section>
-    )
-  }
+  // The launch animation (LaunchOverlay, FR-9.3) covers the 'launch' phase
+  if (phase === 'launch') return null
 
   return (
     <section aria-label={t('flightView.heading')} className="mx-auto max-w-6xl">
