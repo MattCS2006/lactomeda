@@ -2,7 +2,8 @@
 // A future `computeBudgets` can wrap this. Unknown or missing ids contribute 0 and never throw.
 import { makeBudget } from '../budgets'
 import { PERFECT_RELIABILITY_LIFE_FACTOR, RADIATION_FACTOR } from '../constants'
-import type { Budgets, Component, GameData, Instrument, MissionDesign, ResourceKey, Subsystem } from '../types'
+import type { Budgets, Component, GameData, MissionDesign, ResourceKey, Subsystem } from '../types'
+import { costBreakdown } from './cost'
 import { linkBudget } from './link'
 import { wetMassKg } from './mass'
 import { powerBreakdown } from './power'
@@ -28,22 +29,11 @@ function installedParts(design: MissionDesign, data: GameData): InstalledPart[] 
   return parts
 }
 
-function chosenInstruments(design: MissionDesign, data: GameData): { instrument: Instrument; duty: number }[] {
-  const list: { instrument: Instrument; duty: number }[] = []
-  for (const id of design.instrumentIds) {
-    const instrument = data.instruments.find((i) => i.id === id)
-    if (instrument) list.push({ instrument, duty: design.dutyCycle[id] ?? 1 })
-  }
-  return list
-}
-
 export function estimateBudgets(design: MissionDesign, data: GameData): Budgets {
   const parts = installedParts(design, data)
-  const instruments = chosenInstruments(design, data)
   const bus = data.busClasses.find((b) => b.id === design.busClassId)
   const orbit = data.orbits.find((o) => o.id === design.orbitId) ?? null
   const launcher = data.launchers.find((l) => l.id === design.launcherId)
-  const network = data.groundNetworks.find((g) => g.id === design.groundNetworkId)
   const scenario = data.scenarios.find((s) => s.id === design.scenarioId)
   const durationDays = scenario?.durationDays ?? 0
 
@@ -57,13 +47,8 @@ export function estimateBudgets(design: MissionDesign, data: GameData): Budgets 
   const powerUsed = power.loadW
   const powerAvailable = power.orbitAverageGenerationW
 
-  // budget (M USD)
-  const budgetUsed =
-    (bus?.baseCostM ?? 0) +
-    parts.reduce((a, p) => a + p.component.costM * p.units, 0) +
-    instruments.reduce((a, i) => a + i.instrument.costM, 0) +
-    (launcher?.costM ?? 0) +
-    (network ? network.costM * (durationDays / 365) : 0)
+  // budget (M USD): single source of truth is costBreakdown (FR-6.5)
+  const cost = costBreakdown(design, data)
 
   // data (Mb/day) and comms (min/day): single source of truth is linkBudget (FR-5.7)
   const link = linkBudget(design, data)
@@ -93,7 +78,7 @@ export function estimateBudgets(design: MissionDesign, data: GameData): Budgets 
   return {
     mass: makeBudget(massUsed, massAvailable),
     power: makeBudget(powerUsed, powerAvailable),
-    budget: makeBudget(budgetUsed, scenario?.budgetM ?? 0),
+    budget: makeBudget(cost.totalM, cost.budgetM),
     data: makeBudget(dataUsed, dataAvailable),
     comms: makeBudget(commsUsed, contactMin),
     time: makeBudget(durationDays, medianLifeDays),
