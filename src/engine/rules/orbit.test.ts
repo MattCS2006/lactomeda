@@ -11,6 +11,7 @@ import {
   requiredBatteryWh,
   validateOrbit,
 } from './orbit'
+import { validatePower } from './power'
 import { estimateBudgets } from './resources'
 import { cubesatDesign } from './testDesign'
 
@@ -144,9 +145,10 @@ describe('insertion delta-v', () => {
 })
 
 describe('validateOrbit', () => {
-  it('BATTERY_TOO_SMALL for a big load with bat-40', () => {
+  it('BATTERY_TOO_SMALL for a big load with bat-40 (reported by validatePower, not duplicated here)', () => {
     const design = cubesatDesign({ instrumentIds: ['inst-sar'] })
-    const issue = validateOrbit(design, gameData).find((i) => i.code === 'BATTERY_TOO_SMALL')!
+    expect(codes(design, gameData)).not.toContain('BATTERY_TOO_SMALL')
+    const issue = validatePower(design, gameData).find((i) => i.code === 'BATTERY_TOO_SMALL')!
     expect(issue.severity).toBe('error')
     expect(issue.resource).toBe('power')
     expect(issue.subsystem).toBe('battery')
@@ -157,7 +159,7 @@ describe('validateOrbit', () => {
   it('a bigger battery clears it and redundancy doubles the capacity', () => {
     const base = cubesatDesign({ instrumentIds: ['inst-visible-cam'] })
     const big = { ...base, componentIds: { ...base.componentIds, battery: 'bat-10k' } }
-    expect(codes(big, gameData)).not.toContain('BATTERY_TOO_SMALL')
+    expect(validatePower(big, gameData).map((i) => i.code)).not.toContain('BATTERY_TOO_SMALL')
     expect(batteryCapacityWh({ ...base, redundant: ['battery'] }, gameData)).toBe(80)
   })
 

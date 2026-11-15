@@ -38,8 +38,9 @@ describe('estimateBudgets', () => {
         cubesatDesign({ orbitId, componentIds: { ...cubesatDesign().componentIds, power: 'pwr-rtg' } }),
         gameData,
       ).power.available
-    expect(rtg('mars')).toBe(110)
-    expect(rtg('leo')).toBe(110)
+    // 110 W at beginning of life, minus 4%/year over the 365-day scenario (FR-6.4)
+    expect(rtg('mars')).toBeCloseTo(110 * 0.96, 9)
+    expect(rtg('leo')).toBeCloseTo(110 * 0.96, 9)
   })
 
   it('gives a deepSpace antenna more downlink than a plain one with the same rate', () => {
