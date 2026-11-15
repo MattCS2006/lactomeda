@@ -7,6 +7,7 @@ import { ShipPreview } from '../../game/ShipPreview'
 import { translateLabel, type Label } from '../scenarios/scenarioView'
 import { useMissionStore } from '../store/missionStore'
 import { SUBSYSTEMS, busComplete, busIssues, partOptions, toBusCard, type BusCard, type PartCard } from './busView'
+import { InfoTip } from '../tooltip/InfoTip'
 
 interface Props {
   data: GameData
@@ -179,7 +180,10 @@ function BusCardView({
       className={`${CARD} ${cardState(selected)}`}
     >
       <span className="flex items-start justify-between gap-2">
-        <span className="text-[10px] leading-relaxed">{card.name}</span>
+        <span className="text-[10px] leading-relaxed">
+          {card.name}
+          <InfoTip id={card.id} />
+        </span>
         <Badge selected={selected} />
       </span>
       {/* One row per stat: narrow cards can't fit two long labels side by side */}
@@ -231,6 +235,7 @@ function SubsystemRow({
               <span className="flex items-start justify-between gap-2">
                 <span className="text-[10px] leading-relaxed">
                   {part.name}
+                  <InfoTip id={part.id} />
                   {part.advanced && <span className="ml-2 text-shine">★ {t('bus.advanced')}</span>}
                 </span>
                 <Badge selected={selected} />

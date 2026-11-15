@@ -8,6 +8,7 @@ import { useMissionStore } from '../store/missionStore'
 import { translateLabel } from '../scenarios/scenarioView'
 import { resourceCells, type ResourceCell } from './resourceBarView'
 import { lookFor } from './statusView'
+import { InfoTip } from '../tooltip/InfoTip'
 
 interface Props {
   data: GameData
@@ -52,7 +53,10 @@ function ResourceCellView({ cell }: { cell: ResourceCell }) {
       }
     >
       <span className="flex items-center justify-between gap-1">
-        <span className="uppercase text-metal-light">{name}</span>
+        <span className="uppercase text-metal-light">
+          {name}
+          <InfoTip id={cell.key} />
+        </span>
         {/* FR-6.2 — state as icon + text, colour only reinforces it */}
         <span className={`shrink-0 border px-2 py-1 text-[8px] uppercase ${look.badge}`}>{state}</span>
       </span>
