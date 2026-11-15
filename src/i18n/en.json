@@ -737,8 +737,6 @@
   },
   "flightView": {
     "heading": "Mission in flight",
-    "liftoff": "Liftoff!",
-    "liftoffHint": "Your spacecraft is riding a {{launcher}} to orbit.",
     "speed": "Time speed",
     "pause": "Pause",
     "times": "{{n}}×",
@@ -869,6 +867,23 @@
       "mb": "{{value}} Mb",
       "gb": "{{value}} Gb",
       "tb": "{{value}} Tb"
+    }
+  },
+  "launchAnim": {
+    "heading": "Launch · {{launcher}}",
+    "skip": "Skip",
+    "countdown": "T−{{n}}",
+    "lesson": "Lesson: {{lesson}}",
+    "segment": {
+      "countdown": "Liftoff!",
+      "liftoff": "Liftoff!",
+      "maxQ": "Max Q: the hardest push of the air",
+      "stageSeparation": "Stage separation",
+      "fairingSeparation": "Fairing separation",
+      "upperStage": "Upper stage burn",
+      "payloadSeparation": "Spacecraft separation",
+      "orbitInsertion": "Orbit insertion: you made it to space!",
+      "anomaly": "Launch anomaly"
     }
   }
 }
