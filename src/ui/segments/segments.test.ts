@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { gameData } from '../../data'
 import type { MissionDesign } from '../../engine/types'
 import en from '../../i18n/en.json'
+import { componentOptions, SUBSYSTEMS } from '../../engine/rules/components'
 import { createDesign } from '../store/missionStore'
 import { SEGMENTS, SEGMENT_TARGET, segmentDone, segmentOfStep, segmentReport } from './segments'
 
@@ -14,6 +15,7 @@ const fresh = (): MissionDesign => createDesign('wildfire-eo', gameData, 'cadet'
 const full = (): MissionDesign => ({
   ...fresh(),
   busClassId: 'smallsat',
+  componentIds: Object.fromEntries(SUBSYSTEMS.map((s) => [s, componentOptions(s, gameData)[0].id])),
   instrumentIds: ['inst-multispectral', 'inst-multispectral', 'inst-thermal-ir'],
   orbitId: 'sso',
   launcherId: 'lv-medium',
@@ -43,6 +45,7 @@ describe('mission segments (FR-14.5)', () => {
     expect(segmentOfStep('brief')).toBeNull()
     expect(segmentOfStep('requirements')).toBe('user')
     expect(segmentOfStep('payload')).toBe('space')
+    expect(segmentOfStep('bus')).toBe('space')
   })
 
   it('marks segments done as the design fills in', () => {

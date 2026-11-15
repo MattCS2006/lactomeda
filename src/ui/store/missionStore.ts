@@ -4,14 +4,15 @@ import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
 import { gameData } from '../../data'
 import { canAddInstrument } from '../../engine/rules/busClass'
+import { selectComponent as withComponent } from '../../engine/rules/components'
 import { groundReasons } from '../orbit/groundView'
 import { launcherReasons, launchersFor } from '../orbit/launcherView'
 import { isCompatible } from '../payload/compatibility'
 import { SAVE_KEY, SAVE_VERSION, safeStorage, sanitizeDesign } from './persistence'
-import type { Difficulty, GameData, MissionDesign, RequirementLevel } from '../../engine/types'
+import type { Difficulty, GameData, MissionDesign, RequirementLevel, Subsystem } from '../../engine/types'
 
 /** Design phases in order (ERS §2). More steps are added as their screens land. */
-export const DESIGN_STEPS = ['brief', 'requirements', 'payload', 'orbit', 'design'] as const
+export const DESIGN_STEPS = ['brief', 'requirements', 'bus', 'payload', 'orbit', 'design'] as const
 export type DesignStep = (typeof DESIGN_STEPS)[number]
 
 export function newSeed(): string {
@@ -54,6 +55,10 @@ interface MissionStore {
   selectScenario: (scenarioId: string, data: Pick<GameData, 'scenarios'>, difficulty?: Difficulty) => void
   /** FR-2.3 — set the target level of one objective. */
   setRequirementLevel: (objectiveId: string, level: RequirementLevel) => void
+  /** FR-3.1 — choose the bus size class. */
+  selectBus: (busClassId: string, data: GameData) => void
+  /** FR-3.2 — choose the part for one subsystem (engine selectComponent checks it). */
+  selectPart: (subsystem: Subsystem, componentId: string, data: GameData) => void
   /** FR-4.1/4.2 — add an instrument, or remove all its copies if it is already on board. */
   toggleInstrument: (instrumentId: string, data: GameData) => void
   /** FR-4.3 — add one more copy. Needs a compatible instrument and, once a bus is chosen, a free slot (each copy uses one). */
@@ -87,6 +92,20 @@ export const useMissionStore = create<MissionStore>()(
         const design = get().design
         if (!design || !(objectiveId in design.requirementLevels)) return
         set({ design: { ...design, requirementLevels: { ...design.requirementLevels, [objectiveId]: level } } })
+      },
+      selectBus: (busClassId, data) => {
+        const design = get().design
+        if (!design || !data.busClasses.some((b) => b.id === busClassId)) return
+        set({ design: { ...design, busClassId } })
+      },
+      selectPart: (subsystem, componentId, data) => {
+        const design = get().design
+        if (!design) return
+        try {
+          set({ design: withComponent(design, subsystem, componentId, data) })
+        } catch {
+          // unknown id or a part from another subsystem: ignore
+        }
       },
       toggleInstrument: (instrumentId, data) => {
         const design = get().design

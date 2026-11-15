@@ -2,10 +2,16 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import { gameData } from '../../data'
 import type { MissionDesign } from '../../engine/types'
 import en from '../../i18n/en.json'
+import { componentOptions, SUBSYSTEMS } from '../../engine/rules/components'
 import { createDesign, useMissionStore } from '../store/missionStore'
 import { CML_ITEMS, CML_LEVELS, STEP_CML, debriefCmlLabel, maturity } from './maturity'
 
 const fresh = (): MissionDesign => createDesign('wildfire-eo', gameData, 'cadet', 's')
+/** A complete bus: smallsat + the lightest part for each subsystem. */
+const bus = {
+  busClassId: 'smallsat',
+  componentIds: Object.fromEntries(SUBSYSTEMS.map((s) => [s, componentOptions(s, gameData)[0].id])),
+}
 const withPayloadOrbit = (): MissionDesign => ({
   ...fresh(),
   instrumentIds: ['inst-multispectral'],
@@ -20,7 +26,7 @@ const text = (key: string) =>
 
 describe('JPL Concept Maturity Levels (FR-14.3)', () => {
   it('labels phases: Brief = CML 1, Requirements = CML 2, Payload/Orbit = CML 3', () => {
-    expect(STEP_CML).toMatchObject({ brief: 1, requirements: 2, payload: 3, orbit: 3 })
+    expect(STEP_CML).toMatchObject({ brief: 1, requirements: 2, bus: 3, payload: 3, orbit: 3 })
     expect(en.phase.brief).toContain('CML 1')
     expect(en.phase.requirements).toContain('CML 2')
     expect(en.phase.payload).toContain('CML 3')
@@ -48,15 +54,15 @@ describe('JPL Concept Maturity Levels (FR-14.3)', () => {
       { item: 'payload', done: true },
       { item: 'orbitLaunch', done: true },
     ])
-    // with a bus → CML 3
-    expect(
-      maturity({ ...withPayloadOrbit(), busClassId: 'smallsat' }, 'orbit', gameData).reached,
-    ).toBeGreaterThanOrEqual(3)
+    // a bus size alone is not enough: every subsystem needs a part
+    expect(maturity({ ...withPayloadOrbit(), busClassId: 'smallsat' }, 'orbit', gameData).reached).toBe(2)
+    // bus + all subsystems → CML 3
+    expect(maturity({ ...withPayloadOrbit(), ...bus }, 'orbit', gameData).reached).toBeGreaterThanOrEqual(3)
   })
 
   it('a level only counts when every level below is done', () => {
     // CML 3 items done but requirements never confirmed → still CML 1
-    expect(maturity({ ...withPayloadOrbit(), busClassId: 'smallsat' }, 'brief', gameData).reached).toBe(1)
+    expect(maturity({ ...withPayloadOrbit(), ...bus }, 'brief', gameData).reached).toBe(1)
   })
 
   it('CML 4 needs the engine design review to allow launch', () => {

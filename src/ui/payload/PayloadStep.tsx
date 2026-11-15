@@ -103,7 +103,7 @@ export function PayloadStep({ data }: Props) {
       </ul>
 
       <div className="mt-6 flex justify-between gap-3">
-        <button type="button" onClick={() => goTo('requirements')} className="pixel-button px-4 py-3 text-[10px]">
+        <button type="button" onClick={() => goTo('bus')} className="pixel-button px-4 py-3 text-[10px]">
           ◀ {t('common.back')}
         </button>
         <button

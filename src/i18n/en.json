@@ -7,7 +7,8 @@
     "brief": "Phase 1 · Mission Brief · CML 1",
     "requirements": "Phase 2 · Requirements · CML 2",
     "payload": "Phase 4 · Payload · CML 3",
-    "orbit": "Phase 5 · Orbit & Launch · CML 3"
+    "orbit": "Phase 5 · Orbit & Launch · CML 3",
+    "bus": "Phase 3 · Spacecraft Bus · CML 3"
   },
   "scenario": {
     "heading": "Choose your mission",
@@ -49,7 +50,14 @@
     "minPerDay": "{{value}} min/day",
     "km": "{{value}} km",
     "kmMillion": "{{value}} million km",
-    "kmBillion": "{{value}} billion km"
+    "kmBillion": "{{value}} billion km",
+    "litres": "{{value}} L",
+    "kbps": "{{value}} kbps",
+    "mbps": "{{value}} Mbps",
+    "gbps": "{{value}} Gbps",
+    "mb": "{{value}} MB",
+    "gb": "{{value}} GB",
+    "tb": "{{value}} TB"
   },
   "placeholder": {
     "hint": "Walk with WASD, press E at a station.",
@@ -287,7 +295,7 @@
     "item": {
       "scenario": "Mission chosen",
       "requirements": "Requirements set",
-      "bus": "Bus",
+      "bus": "Bus and subsystems",
       "payload": "Payload",
       "orbitLaunch": "Orbit, launcher and ground stations",
       "review": "Design review passed"
@@ -333,5 +341,87 @@
       "wildfire-eo": "Firefighters and emergency agencies, who use fresh fire maps to decide where to send crews.",
       "space-telescope": "Astronomers around the world, who request observing time and download the data from public archives."
     }
+  },
+  "bus": {
+    "heading": "Build your spacecraft",
+    "intro": "The bus is the spacecraft around your instruments: its frame, power, computer and radio. Bigger buses carry more, but cost more and need bigger rockets.",
+    "sizeHeading": "1. Choose the bus size",
+    "partsHeading": "2. Pick one part for each subsystem",
+    "stat": {
+      "maxMass": "Max mass",
+      "volume": "Volume",
+      "cost": "Cost",
+      "instrumentSlots": "Instruments",
+      "componentSlots": "Parts",
+      "mass": "Mass",
+      "power": "Power",
+      "reliability": "Reliability",
+      "trl": "TRL"
+    },
+    "power": {
+      "generates": "Makes {{value}} W",
+      "uses": "Uses {{value}} W",
+      "none": "No power"
+    },
+    "special": {
+      "battery": "Stores {{value}} Wh",
+      "radio": "Sends {{value}}",
+      "deltaV": "Δv {{value}} m/s",
+      "storage": "Holds {{value}}"
+    },
+    "advanced": "Advanced",
+    "trlHelp": "Technology Readiness Level: 9 = flown many times, lower = newer and riskier.",
+    "reliabilityValue": "{{value}}%",
+    "progress": "{{done}} of {{total}} subsystems chosen",
+    "preview": "Your spacecraft",
+    "issuesHeading": "Engineering checks",
+    "noIssues": "No problems found so far.",
+    "confirm": "Confirm spacecraft",
+    "confirmNeeds": "Choose a bus size and a part for every subsystem to continue."
+  },
+  "subsystem": {
+    "structure": {
+      "name": "Structure",
+      "what": "The frame that holds everything together."
+    },
+    "power": {
+      "name": "Power",
+      "what": "Makes electricity: solar panels, or an RTG far from the Sun."
+    },
+    "battery": {
+      "name": "Battery",
+      "what": "Keeps everything running while the spacecraft is in shadow."
+    },
+    "computer": {
+      "name": "Computer",
+      "what": "Runs the spacecraft and stores data until it can be sent home."
+    },
+    "attitude": {
+      "name": "Attitude control",
+      "what": "Points the spacecraft: cameras at the target, antennas at Earth."
+    },
+    "propulsion": {
+      "name": "Propulsion",
+      "what": "Thrusters to change orbit, dodge debris and stay up longer."
+    },
+    "thermal": {
+      "name": "Thermal",
+      "what": "Keeps parts not too hot and not too cold."
+    },
+    "comms": {
+      "name": "Comms",
+      "what": "The radio that sends your data to the ground stations."
+    }
+  },
+  "issues": {
+    "MISSING_SUBSYSTEM": "Choose a part for {{subsystem}}.",
+    "UNKNOWN_COMPONENT": "A part for {{subsystem}} no longer exists: pick another one.",
+    "WRONG_SUBSYSTEM": "That part does not belong to {{subsystem}}: pick another one.",
+    "LOW_SOLAR_POWER": "Far from the Sun, solar panels make much less power. Consider an RTG.",
+    "TOO_MANY_INSTRUMENTS": "Too many instruments for this bus: remove one or pick a bigger bus.",
+    "TOO_MANY_COMPONENTS": "Too many parts for this bus (backups count twice): pick a bigger bus.",
+    "OVER_BUS_MASS": "Too heavy for this bus: pick a bigger bus or lighter parts.",
+    "UNKNOWN_BUS_CLASS": "This bus size no longer exists: pick another one.",
+    "MISSING_BUS_CLASS": "Choose a bus size."
   }
 }

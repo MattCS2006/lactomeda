@@ -6,6 +6,7 @@ import { PhaserGame } from './game/PhaserGame'
 import { bridge } from './game/bridge'
 import './i18n'
 import { OrbitStep } from './ui/orbit/OrbitStep'
+import { BusStep } from './ui/bus/BusStep'
 import { MaturityMeter } from './ui/maturity/MaturityMeter'
 import { SegmentTabs } from './ui/segments/SegmentTabs'
 import { PayloadStep } from './ui/payload/PayloadStep'
@@ -39,6 +40,8 @@ export default function App() {
         <ScenarioPicker data={gameData} />
       ) : step === 'requirements' ? (
         <RequirementsStep data={gameData} />
+      ) : step === 'bus' ? (
+        <BusStep data={gameData} />
       ) : step === 'payload' ? (
         <PayloadStep data={gameData} />
       ) : step === 'orbit' ? (

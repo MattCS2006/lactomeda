@@ -6,6 +6,7 @@ import type { GameData, MissionDesign } from '../../engine/types'
 import { contactMinutes } from '../orbit/groundView'
 import { costLabel } from '../orbit/launcherView'
 import { formatNumber } from '../payload/payloadView'
+import { busComplete } from '../bus/busView'
 import type { Label } from '../scenarios/scenarioView'
 import { DESIGN_STEPS, type DesignStep } from '../store/missionStore'
 
@@ -15,7 +16,7 @@ export const SEGMENTS: Segment[] = ['launch', 'space', 'ground', 'user']
 /** Where each tab takes the player: a design step, and optionally a section on that screen. */
 export const SEGMENT_TARGET: Record<Segment, { step: DesignStep; anchor?: string }> = {
   user: { step: 'requirements' },
-  space: { step: 'payload' },
+  space: { step: 'bus' },
   launch: { step: 'orbit', anchor: 'launcher-heading' },
   ground: { step: 'orbit', anchor: 'ground-heading' },
 }
@@ -23,7 +24,7 @@ export const SEGMENT_TARGET: Record<Segment, { step: DesignStep; anchor?: string
 /** The segment a screen belongs to (Phase 5 has three; its orbit part is the space segment). */
 export function segmentOfStep(step: DesignStep): Segment | null {
   if (step === 'requirements') return 'user'
-  if (step === 'payload' || step === 'orbit' || step === 'design') return 'space'
+  if (step === 'bus' || step === 'payload' || step === 'orbit' || step === 'design') return 'space'
   return null
 }
 
@@ -33,7 +34,7 @@ export function segmentDone(segment: Segment, design: MissionDesign, furthest: D
     case 'launch':
       return design.launcherId !== null
     case 'space':
-      return design.busClassId !== null && design.instrumentIds.length > 0 && design.orbitId !== null
+      return busComplete(design) && design.instrumentIds.length > 0 && design.orbitId !== null
     case 'ground':
       return design.groundNetworkId !== null
     case 'user':
