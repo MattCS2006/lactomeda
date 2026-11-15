@@ -117,6 +117,39 @@ export const G0 = 9.80665
 /** Game balance: atmospheric scale height (km). Each DRAG_SCALE_HEIGHT_KM lower than the nominal altitude multiplies drag (station-keeping, decay rate) by e. */
 export const DRAG_SCALE_HEIGHT_KM = 70
 
+// ─── FR-6.7 schedule budget ─────────────────────────────────────────────
+
+export const DAYS_PER_MONTH = 30
+
+/** Game balance: development days by bus class, before any delay. An unknown or missing bus uses the smallsat value. */
+export const DEV_BASE_DAYS: Readonly<Record<string, number>> = {
+  'cubesat-1u': 240,
+  'cubesat-2u': 270,
+  'cubesat-3u': 300,
+  'cubesat-6u': 330,
+  'cubesat-12u': 365,
+  smallsat: 540,
+  medium: 900,
+  large: 1460,
+}
+
+/** Game balance: months a part adds to the schedule by TRL (TRL 9 adds none). The slowest part sets the pace. */
+export const TRL_DELAY_MONTHS: Readonly<Record<number, number>> = { 9: 0, 8: 1, 7: 3, 6: 6, 5: 9 }
+export const TRL_DELAY_MONTHS_LOW = 12 // TRL 4 or below
+
+/** Game balance: integration days for every immature (TRL < 9) part other than the slowest one. */
+export const INTEGRATION_DAYS_PER_IMMATURE_PART = 20
+
+/** Game balance: complexity days per instrument and per redundant subsystem. */
+export const DAYS_PER_INSTRUMENT = 30
+export const DAYS_PER_REDUNDANT_SUBSYSTEM = 15
+
+/** Game balance: a late design pays this fraction of its development cost per late month ("standing army" cost). */
+export const LATE_COST_FRACTION_PER_MONTH = 0.02
+
+/** Game balance: efficiency score points lost per late month. */
+export const LATE_SCORE_PENALTY_PER_MONTH = 10
+
 // ─── FR-10.1 score ──────────────────────────────────────────────────────
 
 /** FR-10.1: maximum points per component; they add up to 1000. */
