@@ -6,7 +6,9 @@ import { useTranslation } from 'react-i18next'
 import type { GameData } from '../../engine/types'
 import { useMissionStore } from '../store/missionStore'
 import { NasaSources } from '../sources/NasaSources'
-import { HOW_TO_PLAY_STEPS, MENU_ENTRIES, isAvailable, type MenuEntry } from './landingView'
+import { roomsAvailable } from '../../net/roomClient'
+import { RoomLobby, type RoomMode } from '../rooms/RoomLobby'
+import { HOW_TO_PLAY_STEPS, MENU_ENTRIES, unavailableReason, type MenuEntry } from './landingView'
 
 interface Props {
   data: Pick<GameData, 'scenarios'>
@@ -20,6 +22,7 @@ export function Landing({ data }: Props) {
   const goTo = useMissionStore((s) => s.goTo)
   const [howTo, setHowTo] = useState(false)
   const [sources, setSources] = useState(false)
+  const [room, setRoom] = useState<RoomMode | null>(null)
   const saved = design ? data.scenarios.find((s) => s.id === design.scenarioId) : undefined
 
   const choose = (entry: MenuEntry) => {
@@ -28,6 +31,9 @@ export function Landing({ data }: Props) {
       openDesign()
     } else if (entry === 'howToPlay') {
       setHowTo(true)
+    } else if (entry === 'createRoom' || entry === 'joinRoom') {
+      // FR-8.1 — team rooms
+      setRoom(entry === 'createRoom' ? 'create' : 'join')
     }
   }
 
@@ -85,20 +91,22 @@ export function Landing({ data }: Props) {
 
       {howTo && <HowToPlay onClose={() => setHowTo(false)} />}
       {sources && <NasaSources onClose={() => setSources(false)} />}
+      {room && <RoomLobby mode={room} onClose={() => setRoom(null)} />}
     </div>
   )
 }
 
 function MenuButton({ entry, primary, onChoose }: { entry: MenuEntry; primary: boolean; onChoose: () => void }) {
   const { t } = useTranslation()
-  const available = isAvailable(entry)
+  const reason = unavailableReason(entry, roomsAvailable)
+  const available = reason === null
   const hintId = `landing-${entry}-hint`
   return (
     <button
       type="button"
       aria-disabled={!available}
       aria-describedby={hintId}
-      title={available ? undefined : t('landing.soonReason')}
+      title={reason ? t(reason) : undefined}
       onClick={available ? onChoose : undefined}
       className={`pixel-button flex w-full items-center justify-between gap-3 px-4 py-3 text-left ${
         primary ? 'border-shine! bg-screen!' : ''
@@ -110,12 +118,12 @@ function MenuButton({ entry, primary, onChoose }: { entry: MenuEntry; primary: b
           {t(`landing.entry.${entry}`)}
         </span>
         <span id={hintId} className="text-[10px] text-metal-light">
-          {available ? t(`landing.hint.${entry}`) : `${t(`landing.hint.${entry}`)} ${t('landing.soonReason')}`}
+          {reason ? `${t(`landing.hint.${entry}`)} ${t(reason)}` : t(`landing.hint.${entry}`)}
         </span>
       </span>
-      {!available && (
+      {reason && (
         <span className="shrink-0 border px-2 py-1 text-[8px] uppercase border-warning text-warning">
-          {t('landing.soon')}
+          {reason === 'landing.offlineReason' ? t('landing.offline') : t('landing.soon')}
         </span>
       )}
     </button>
