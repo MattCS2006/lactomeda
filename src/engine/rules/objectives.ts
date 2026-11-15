@@ -13,6 +13,7 @@ import {
   URAD_PER_ARCSEC,
 } from '../constants'
 import type { GameData, Instrument, MissionDesign, Objective, Orbit, RequirementLevel } from '../types'
+import { linkBudget } from './link'
 import { estimateBudgets } from './resources'
 import { payloadScience } from './science'
 
@@ -106,9 +107,9 @@ export function objectiveValue(objective: Objective, design: MissionDesign, data
     case 'coverage':
       return best(serving.map((i) => coverageFractionPerDay(i, design, orbit)), 'higher')
     case 'dataPerDay': {
-      const { data: budget } = estimateBudgets(design, data)
+      const link = linkBudget(design, data)
       const generated = serving.reduce((sum, i) => sum + i.dataMbPerDay, 0)
-      const delivered = budget.used > 0 ? Math.min(1, budget.available / budget.used) : 1
+      const delivered = link.generatedMbPerDay > 0 ? Math.min(1, link.downlinkMbPerDay / link.generatedMbPerDay) : 1
       return generated * delivered
     }
     default:

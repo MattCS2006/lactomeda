@@ -1,15 +1,10 @@
 // Simple first-pass estimate of the 6 resource budgets (FR-6.1). Pure and deterministic.
 // A future `computeBudgets` can wrap this. Unknown or missing ids contribute 0 and never throw.
 import { makeBudget } from '../budgets'
-import {
-  MINUTES_PER_DAY,
-  PERFECT_RELIABILITY_LIFE_FACTOR,
-  RADIATION_FACTOR,
-  REF_DISTANCE_DEEP_SPACE_KM,
-  REF_DISTANCE_KM,
-} from '../constants'
+import { PERFECT_RELIABILITY_LIFE_FACTOR, RADIATION_FACTOR } from '../constants'
 import type { Budgets, Component, GameData, Instrument, MissionDesign, ResourceKey, Subsystem } from '../types'
 import { effectivePowerW, isSolar } from './components'
+import { linkBudget } from './link'
 import { wetMassKg } from './mass'
 
 export const RESOURCE_KEYS: readonly ResourceKey[] = ['mass', 'power', 'budget', 'data', 'comms', 'time']
@@ -76,21 +71,12 @@ export function estimateBudgets(design: MissionDesign, data: GameData): Budgets 
     (launcher?.costM ?? 0) +
     (network ? network.costM * (durationDays / 365) : 0)
 
-  // data (Mb/day) and comms (min/day)
-  const dataUsed = instruments.reduce((a, i) => a + i.instrument.dataMbPerDay * i.duty, 0)
-  const comms = design.componentIds.comms
-    ? data.components.find((c) => c.id === design.componentIds.comms)
-    : undefined
-  let contactMin = 0
-  let linkMbPerMin = 0
-  if (comms && orbit && network) {
-    contactMin = Math.min(MINUTES_PER_DAY, orbit.contactMinPerDay * network.contactMultiplier)
-    const d0 = (comms.tags ?? []).includes('deepSpace') ? REF_DISTANCE_DEEP_SPACE_KM : REF_DISTANCE_KM
-    const distanceFactor = orbit.distanceKm > 0 ? Math.min(1, (d0 / orbit.distanceKm) ** 2) : 1
-    linkMbPerMin = ((comms.dataRateKbps ?? 0) / 1000) * 60 * distanceFactor
-  }
-  const dataAvailable = linkMbPerMin * contactMin
-  const commsUsed = dataUsed <= 0 ? 0 : linkMbPerMin > 0 ? dataUsed / linkMbPerMin : contactMin + 1
+  // data (Mb/day) and comms (min/day): single source of truth is linkBudget (FR-5.7)
+  const link = linkBudget(design, data)
+  const dataUsed = link.generatedMbPerDay
+  const dataAvailable = link.downlinkMbPerDay
+  const contactMin = link.contactMinPerDay
+  const commsUsed = Number.isFinite(link.contactMinNeeded) ? link.contactMinNeeded : contactMin + 1
 
   // time (days): median life of a constant-failure-rate system vs the required lifetime
   // radiation (FR-5.2) scales each failure rate: r_eff = r ^ factor, except for radHard parts
