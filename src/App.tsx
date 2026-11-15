@@ -47,8 +47,13 @@ export default function App() {
   }
 
   return (
-    <main className="min-h-screen bg-outline p-6 text-xs leading-relaxed text-white">
-      <header className="relative mb-6 text-center">
+    // The flight fits the viewport (no page scroll); the design and debrief screens scroll normally
+    <main
+      className={`bg-outline text-xs leading-relaxed text-white ${
+        flying ? 'flex h-dvh flex-col overflow-hidden p-3' : 'min-h-screen p-6'
+      }`}
+    >
+      <header className={`relative text-center ${flying ? 'mb-2 shrink-0' : 'mb-6'}`}>
         <button
           type="button"
           onClick={() => {
@@ -71,8 +76,8 @@ export default function App() {
         >
           {t('sources.button')}
         </button>
-        <h1 className="text-lg sm:text-xl">{t('app.title')}</h1>
-        <p className="mt-2 text-[10px] text-metal-light">{t('app.tagline')}</p>
+        <h1 className={flying ? 'text-sm' : 'text-lg sm:text-xl'}>{t('app.title')}</h1>
+        {!flying && <p className="mt-2 text-[10px] text-metal-light">{t('app.tagline')}</p>}
       </header>
 
       {/* FR-8.2 — team room and this player's roles */}

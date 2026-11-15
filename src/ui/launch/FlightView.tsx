@@ -67,9 +67,9 @@ export function FlightView({ data }: { data: GameData }) {
   if (phase === 'launch') return null
 
   return (
-    <section aria-label={t('flightView.heading')} className="mx-auto max-w-6xl">
+    <section aria-label={t('flightView.heading')} className="mx-auto flex min-h-0 w-full max-w-[1600px] flex-1 flex-col">
       {/* FR-13.11 — flight HUD: mission day, time speed and the live mission state, always visible */}
-      <section aria-label={t('hud.heading')} className="pixel-panel mb-4 p-3 text-[10px]">
+      <section aria-label={t('hud.heading')} className="pixel-panel mb-2 shrink-0 p-2 text-[10px]">
         {state && flown ? (
           <FlightHud state={state} design={flown} data={data}>
             <div className="flex flex-wrap items-center gap-2">
@@ -106,7 +106,7 @@ export function FlightView({ data }: { data: GameData }) {
 
       {/* Where each alarm is answered; the options open at that station (FR-13.5) */}
       {state && state.activeEvents.length > 0 && (
-        <ul aria-live="assertive" className="mb-4 space-y-2">
+        <ul aria-live="assertive" className="mb-2 max-h-24 shrink-0 space-y-1 overflow-y-auto">
           {state.activeEvents.map((alarm) => (
             <li
               key={alarm.event.id}
@@ -129,7 +129,9 @@ export function FlightView({ data }: { data: GameData }) {
         <DecisionPopup alarm={popupAlarm} state={state} design={flown} data={data} onClose={() => setAtStation(null)} />
       )}
 
-      <PhaserGame />
+      <div className="min-h-0 flex-1">
+        <PhaserGame />
+      </div>
     </section>
   )
 }
